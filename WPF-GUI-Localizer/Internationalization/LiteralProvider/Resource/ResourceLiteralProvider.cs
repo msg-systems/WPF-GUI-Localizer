@@ -158,10 +158,14 @@ namespace Internationalization.LiteralProvider.Resource
         {
             if (_dictOfDicts.Keys.Contains(Thread.CurrentThread.CurrentUICulture))
             {
-                return GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
+                string translation = GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
+                if (!string.IsNullOrEmpty(translation))
+                {
+                    return translation;
+                }
             }
 
-            return string.Empty;
+            return "<<empty>>";
         }
 
         /// <summary>
@@ -171,10 +175,14 @@ namespace Internationalization.LiteralProvider.Resource
         {
             if (_dictOfDicts.Keys.Contains(Thread.CurrentThread.CurrentUICulture))
             {
-                return GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
+                string translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
+                if (!string.IsNullOrEmpty(translation))
+                {
+                    return translation;
+                }
             }
 
-            return string.Empty;
+            return "<<empty>>";
         }
 
         protected override void CancelInitialization()
