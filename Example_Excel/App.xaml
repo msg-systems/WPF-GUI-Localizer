@@ -1,0 +1,9 @@
+﻿<Application x:Class="Example_Excel.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Example_Excel.ViewModel"
+             StartupUri="View/MainWindow.xaml">
+    <Application.Resources>
+        <vm:ViewModelLocator x:Key="Locator" />
+    </Application.Resources>
+</Application>

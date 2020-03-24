@@ -1,0 +1,53 @@
+﻿<Window x:Class="Internationalization.View.LocalizationInputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converter="clr-namespace:Internationalization.Converter"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight"
+        KeyUp="LocalizationInputDialog_OnKeyUp"
+        Title="Localization Helper" Width="320" ResizeMode="NoResize">
+    <Window.Resources>
+        <converter:CultureInfoStringConverter x:Key="CultureInfoStringConverter" />
+    </Window.Resources>
+    <StackPanel Grid.IsSharedSizeScope="True">
+        <TextBlock Text="Please localize the following texts:" FontWeight="Bold" />
+        <!-- InputLanguage -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition SharedSizeGroup="Language"/>
+                <ColumnDefinition SharedSizeGroup="Localization"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="SourceLanguageLabel" Grid.Column="0" Margin="10" FontWeight="Bold" VerticalAlignment="Center"
+                       Text="{Binding InputLocalization.Language, Converter={StaticResource CultureInfoStringConverter}}"/>
+            <TextBox Name="SourceLanguageInput" Grid.Column="1" Height ="24" Width="200" Text="{Binding InputLocalization.Text}" HorizontalAlignment="Center" Margin="10"/>
+        </Grid>
+        <!-- Localizable languages -->
+        <ItemsControl
+            Name="TranslationItems"
+            ItemsSource="{Binding LocalizedTexts}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition SharedSizeGroup="Language"/>
+                            <ColumnDefinition SharedSizeGroup="Localization"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Language, Converter={StaticResource CultureInfoStringConverter}}" Margin="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" Text="{Binding Text}" Height ="24" Width="200" HorizontalAlignment="Center" IsEditable="True" IsTextSearchEnabled="False" Margin="10"/>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <!-- Legend explaining wierd coloring of dropdown menu -->
+        <TextBlock Margin="5,25,5,5">Legend:</TextBlock>
+        <StackPanel Orientation="Horizontal" Margin="5">
+            <Rectangle Height="20" Width="30" Fill="DeepSkyBlue" Margin="0,0,10,0"/>
+            <TextBlock VerticalAlignment="Center">Suggested translation</TextBlock>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" Click="CancelButton_Click" Width="50" Margin="0,0,10,10" />
+            <Button Content="OK" Click="OKButton_Click" Width="50" Margin="0,0,10,10" />
+        </StackPanel>
+    </StackPanel>
+</Window>

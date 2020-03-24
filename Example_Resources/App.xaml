@@ -1,0 +1,11 @@
+﻿<Application x:Class="Example_Resources.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Example_Resources.ViewModel"
+             xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internationalization"
+             StartupUri="View/MainWindow.xaml">
+    <Application.Resources>
+        <vm:ViewModelLocator x:Key="Locator" />
+        <converter:ResourcesTextConverter x:Key="ResourcesTextConverter" />
+    </Application.Resources>
+</Application>
