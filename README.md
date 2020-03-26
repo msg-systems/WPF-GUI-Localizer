@@ -43,13 +43,13 @@ Many applications have this problem: translations are done by external service c
 ### Idea
 The idea behind this library is to translate applications within its live context, inside the application itself. In order to do so, a click event is added to the given application that opens a dialog whenever a translatable object (e.g. Label) is clicked.
 
-![Dialog Popup Window](dialog.PNG)
+![Dialog Popup Window](Doc/dialog.PNG)
 
 In the given dialog, the translations for all desired languages can be edited and saved, in order to load them into the live application when the work has been finished.
 
 Since this dialog has the full knowledge of the existing translations, it can offer the user translations based on previously translated texts. With this feature, the process of translation can be sped up the more texts have been translated. Repeating words can be translated coherently.
 
-![Dialog Translation Recommendations](recommendations.PNG)
+![Dialog Translation Recommendations](Doc/recommendations.PNG)
 
 Currently supported ways of localization:
 
