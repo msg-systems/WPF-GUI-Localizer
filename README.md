@@ -59,7 +59,10 @@ Currently supported ways of localization:
 
 <a id="idea"></a>
 ### Components
-Here are the key classes of this library and their roles:
+
+This is a simplified class diagram of all key classes
+
+![Architecture Class Diagram](Doc/architecture.png)
 
 1. FileProvider - is used in order to read the existing translation dictionary of the target application from a given file, depending on the technology used to implement the application. It is further used to write any changes of the translation dictionary of the target application into another given file. The input and output files might differ, again, depending on the technology used (see further below).
 1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are so two implementations for the LiteralProvider:
