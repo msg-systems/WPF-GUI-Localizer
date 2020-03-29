@@ -4,20 +4,25 @@
   * [Problem](#problem)
   * [Idea](#idea)
   * [Components](#components)
-  * [Prerequisites](#prerequisites)
   * [Rough Architecture](#architecture)
   * [Use Cases](#usecases)
-* [Setup](#setup)
+* [Getting Started](#setup)
+  * [Prerequisites](#prerequisites)
+	 * Preparing the Views / Windows
+	 * Initializing the Components
+	 * Translating the views (GuiTranslator)
+	 * Saving the translations
+	 * Switching between Languages *(optional)*
   * [Translation](#translate)
   * [Localization Dialog](#dialog)
-* [Usage](#usage)
+* [Further Notes](#usage)
   * [Initializing](#init)
     * [FileLiteralProvider](#initflp)
     * [ResourceLiteralProvider](#initrlp)
     * [ExcelFileProvider](#initefp)
     * [JsonFileProvider](#initjfp)
   * [Exiting](#exit)
-  * [Saving Translations](#saving)
+  * [Reading / Writhing Files](#saving)
     * [ExcelFileProvider](#excelfp)
     * [JsonFileProvider](#jsonfp)
   * [Changing the language](#language)
@@ -73,12 +78,6 @@ This is a simplified class diagram of all key classes
 1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library. If the application is using the file-based approach as translation technology (see FileLiteralProvider), the GuiTranslator is used in order to update the views using the translations from the translation dictionary file.
 1. ```LocalizationUtils``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the translation feature for the GUI. If the translation feature is activated, it loads the translation dialogue when clicking on any of the specified GUI-Elements. If changes are made, it sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
 
-<a id="prerequisites"></a>
-### Prerequisites
-The .NET Framework version 4.7.2 aswell as Excel have to be installed.
-
-Then WPF-App-Internationalization-Library and Json.NET NuGet packages can be added to your project.
-
 <a id="architecture"></a>
 ### Rough Architecture
 
@@ -129,29 +128,58 @@ the Resource Use Case shall be defined as using the ```ResourceLiteralProvider``
 the Excel Use Case shall be defined as using the ```FileLiteralProvider``` with an ```ExcelFileProvider```.
 
 <a id="setup"></a>
-## Setup
-For both the automatic View / Window translaton and the Localization pop-up option to work, ```AbstractLiteralProvider.Instance``` is needed. First please initialize a LiteralProvider by calling ```Initialize``` for example like this:
-```c#
-IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File.xlsx")
-FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
+## Getting Started
+
+<a id="prerequisites"></a>
+### Prerequisites
+
+#### Installations
+
+The .NET Framework version 4.7.2 aswell as Excel have to be installed.
+
+Then WPF-App-Internationalization-Library and Json.NET NuGet packages can be added to your project.
+
+#### Files needed
+
+##### Files needed for Excel use case
+
+In case of the Excel use case, an Excel File will need to be used / created.
+The first worksheet of this file will need to have a first row similar to this example:
+
+| Dialog | Type | Name | English (United Kingdom) (en-UK) | (sv) Swedish | Deutsch (de) | (fr) |
+| --- | --- | --- | --- | --- | --- | --- |
+|     |     |     |     |     |     |     |
+
+This list of languages has to include the original language of the application.
+
+##### Files needed for Resources use case
+
+In case of the Resources use case, Resources (.resx) files will need to be used / created. These files need to be inside the Properties folder of the application and the Resources file for the original language of the application needs to be filled with the current texts used in the applicaion. More information on the Resources files will be presented in the next section about Preparing the Views / Windows.
+
+All existing Resources files can stay unmodified.
+
+### Preparing the Views / Windows
+
+#### Localization-Component
+
+In order to attach the click-event for the core translation feature to a View / Window, the ```isActive``` attached property of ```LocalizationProperties``` has to be set to true for the corresponding View. This value may also be toggled during runtime in order to turn Translation mode on or off.
+
+These two lines need to be added to the Views / Windows root element in the XAML file for the translation feature to work:
+```xaml
+xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
+internat:LocalizationProperties.IsActive="True"
 ```
-or this in case of the Resources approach:
-```c#
-IFileProvider jfp = new JsonFileProvider(@"Resource/Resource_Corrections.json")
-ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));
-```
-more information about initializing a LiteralProvider can be found in [Initializing](#init).
 
-<a id="translate"></a>
-### Translation
+When done translating the application, these entries can be removed - or "IsActive" can be bound to a modifyable property in the Settings-file in order to toggle the translation feature on and off.
+The translation feature should not be running for the end user in order to not impair user experience.
 
-#### FileLiteralProvider
-If the ```FileLiteralProvider``` is used, all GUI-elements intended for translation need to have a "Name"-Property which is a unique key inside their View or Window.
+#### Translation-Component
 
-Then you may use either ```GuiTranslator.TranslateDialog(userControl)``` or ```GuiTranslator.TranslateWindow(window)``` to translate your View / Window. For more information including supported elements read [Translating Views and Windows](#translating).
+##### XAML modifications needed for Excel use case
+All GUI-elements intended for translation need to have a "Name"-Property which is a unique key inside their View or Window. All Views and Windows need to have a "Name"-Property that uniquely identifies them aswell.
 
-#### ResourceLiteralProvider
-If the ```ResourceLiteralProvider``` is used, all GUI-elements intended for translation need to have a ```ResourceKey``` attached property, containing the corresponding key from the Resources file. This allows for the Resources key to be read at runtime.
+##### XAML modifications needed for Resources use case
+All GUI-elements intended for translation need to have a ```ResourceKey``` attached property, containing the corresponding key from the Resources file. This allows for the Resources key to be read at runtime.
 
 For example if your Resources.en.resx file has this entry:
 
@@ -192,25 +220,30 @@ xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internati
 xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
 ```
 
-<a id="dialog"></a>
-### Localization Dialog
-In order to attach the click-event for the core translation feature to a View / Window, the ```isActive``` attached property of ```LocalizationProperties``` has to be set to true for the corresponding View. This value may also be toggled during runtime in order to turn Translation mode on or off.
+### Initializing the Components
 
-These two lines need to be added to add the translation feature:
-```xaml
-xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
-internat:LocalizationProperties.IsActive="True"
+#### Loading the translation files
+
+##### ExcelFileProvider for Excel use case
+You can create an  instance of ```ExcelFileProvider``` using its constructor
+```c#
+ExcelFileProvider(string translationFileFileName, string oldTranslationFileFileName)
 ```
 
-When done translating the application, these entries can be removed - or "IsActive" can be bound to a modifyable property in the Settings-file in order to toggle the translation feature on and off.
-The translation feature should not be running for the end user in order to not impair user experience.
+```translationFileFileName``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case] here.
+```oldTranslationFileFileName``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
 
-<a id="usage"></a>
-## Usage
+##### JsonFileProvider for Resources use case
+You can create an instance of ```JsonFileProvider``` using
+```c#
+JsonFileProvider(string translationFileFileName)
+```
 
-<a id="init"></a>
-### Initializing
+```translationFileFileName``` is where ```JsonFileProvider``` will search for the JSON-file. This file does not need to be created prior to this step.
+
+#### Loading the translation into the application
 In order to initialize a localization feature (Excel file or Resources), the LiteralProvider's ```Initialize``` function has to be called, which creates the Instance in the AbstractLiteralProvider. The instance, and therefore also ```GuiTranslator``` and ```LocalizationUtils```, which are dependent on it, can not be used before initialization is complete.
+
 Note: If ```AbstractLiteralProvider.Instance``` is called before initialization has finished, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispacher to continuously push new frames to the UI, in order to not freeze up the UI during the initialization process.
 
 ```FileLiteralProvider``` and ```ResourceLiteralProvider``` can be initialized by calling either
@@ -223,80 +256,26 @@ ResourceLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo input
 ```
 when using Resource-based localization.
 
+```fileProvider``` should be the apropriate FileProvider from [Loading the translation files] for your use case.
+
 ```inputLanguage``` represents the language your application was originally created in.
 
 ```preferedLanguage``` is optional and determines what language to use as basis for translation dummy texts (e.g. "fr--Save" insted of "fr--Speichern" if the application was originally german and ```preferedLanguage``` is english). If no ```preferedLanguage``` is specified, english will be used.
 
 Note: Before initializing, it is recommended to set ```Thread.CurrentThread.CurrentUICulture``` to the language the application was originally created in, as otherwise the operating systems current language will be used, which may result in visual problems due to missing translations.
 
-<a id="initflp"></a>
-#### FileLiteralProvider
-```FileLiteralProvider.Initialize``` requires its ```fileProvider``` to have successfully read a file, as the information about what languages the language is meant to be localized to has to come from ```fileProvider```.
+### Translating the views
 
-<a id="initrlp"></a>
-#### ResourceLiteralProvider
-```ResourceLiteralProvider``` does not require ```fileProvider``` to have successfully read a file. It does however require the compiled Resources.resx files in order to read the information about what languages the application is meant to be localized to.
+### Saving the translations
 
-In order for this library to find the Resources files, they must be located in the Properties folder of the project, which functions as the entry assembly.
+### Switching between Languages (optional)
 
-If no Resources files exist, create one for each language you want to localize your application in.
-The Properties folder of your application could look like this for example:
-
-Properties  
-├ AssemblyInfo.cs  
-├ Resources.de.resx  
-├ Resources.en.resx  
-├ Resources.fr.resx  
-├ Resources.sv.resx  
-├ Resources.resx  
-└ Settings.settings
-
-The only Resources file that needs to be filled is the one for the original / current language of your application.
-It will need to be filled with the currently displayed texts, such that an element like this
-```xaml
-<DataGridTextColumn Header="Item Quantity" Binding="{Binding Quantity}" />
-```
-can become
-```xaml
-<DataGridTextColumn
-    internat:ResourcesProperties.ResourceKey="ItemListQuantity"
-    Header="{Binding RelativeSource={RelativeSource Self},
-        Path=(internat:ResourcesProperties.ResourceKey),
-        Converter={StaticResource ResourcesTextConverter}}"
-    Binding="{Binding Quantity}" />
-```
-like described in [Setup](#setup).
-
-The Resources.en.resx file could then look like this:
-
-| Name | Value | Comment |
-| ---- | ----- | ------- |
-| ItemListQuantity | Item Quantity | |
-| | | |
-
-<a id="initefp"></a>
-#### ExcelFileProvider
-You can create an  instance of ```ExcelFileProvider``` using its constructor
-```c#
-ExcelFileProvider(string translationFileFileName, string oldTranslationFileFileName)
-```
-
-```translationFileFileName``` is where ```ExcelLiteralProvider``` will search for the Excel file. As mentioned before, if used together with ```FileLiteralProvider```, the file at ```translationFileFileName``` has to already exist. For more information on how such a file should look like check out [Saving Translations - ExcelFileProvider](#excelfp)
-
-```oldTranslationFileFileName``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
-
-<a id="initjfp"></a>
-#### JsonFileProvider
-You can create an instance of ```JsonFileProvider``` using
-```c#
-JsonFileProvider(string translationFileFileName)
-```
-
-```translationFileFileName``` is where ```JsonFileProvider``` will search for the JSON-file. As mentioned before, if used together with ```FileLiteralProvider```, the file at ```translationFileFileName``` has to already exist. For more information on how such a file should look like check out [Saving Translations - JsonFileProvider](#jsonfp)
+<a id="usage"></a>
+## Further Notes
 
 <a id="exit"></a>
 ### Exiting
-When Exiting the application, the altered texts, which have been kept in temporary files so far, shall be written into their original translation files.
+When Exiting the application, the altered texts, which have not been permanently stored so far, shall be written into their original translation files.
 Note: It is recommended to skip the saving step, if the ability to alter the translations is turned off.
 
 #### with saving
@@ -317,7 +296,7 @@ The changes made to the translations will not be saved and initialization will b
 The changes made to the translations will not be saved and if initialization has not finished, its thread will stay active until completed. No Dispacher will be used.
 
 <a id="saving"></a>
-### Saving Translations
+### Reading / Writing Files
 
 <a id="excelfp"></a>
 #### ExcelFileProvider
