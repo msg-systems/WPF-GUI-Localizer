@@ -23,7 +23,7 @@
   * [Exiting](#exit)
     * [Exiting and saving](#exitsave)
     * [Exiting without saving](#exitnosave)
-  * [Reading / Writhing Files](#saving)
+  * [Reading / Writhing Files](#readingwriting)
     * [Saving translations to .xlsx (ExcelFileProvider)](#excelfp)
     * [Saving translations to .json (JsonFileProvider)](#jsonfp)
   * [Translating Views and Windows](#translating)
@@ -345,7 +345,7 @@ The changes made to the translations will not be saved and initialization will b
 ##### no function called
 The changes made to the translations will not be saved and if initialization has not finished, its thread will stay active until completed. No Dispacher will be used.
 
-<a id="saving"></a>
+<a id="readingwriting"></a>
 ### Reading / Writing Files
 
 <a id="excelfp"></a>
@@ -455,7 +455,7 @@ In order to translate a single element, call: ```GuiTranslator.TranslateGuiEleme
 #### ResourcesTextConverter
 The ```ResourcesTextConverter``` supports converting a string to the value of the Resources file entry with a key that matched the given string. It will use ```AbstractLiteralProvider.Instance``` to get these entries. ```ResourcesTextConverter``` **only** works if ```AbstractLiteralProvider.Instance``` is a ```ResourceLiteralProvider``` and also does not support the ```ConvertBack``` function.
 
-For information about how to add the ```ResourcesTextConverter``` to an application read [Setup - Translation](#translate).
+For information about how to add the ```ResourcesTextConverter``` to an application read [Getting Started - Translation](#translate).
 
 <a id="checklist"></a>
 ## Quickstart-Checklist and Examples
