@@ -15,41 +15,41 @@ namespace Internationalization.FileProvider.JSON
     public class JsonFileProvider : IFileProvider
     {
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfdicts;
-        private readonly string _fileName;
+        private readonly string _path;
 
         public ProviderStatus Status { get; private set; }
 
-        /// <param name="translationFileFileName">the file under which the dictionary will be saved</param>
-        public JsonFileProvider(string translationFileFileName)
+        /// <param name="translationFilepath">the file under which the dictionary will be saved</param>
+        public JsonFileProvider(string translationFilepath)
         {
             Status = ProviderStatus.InitializationInProgress;
 
-            _fileName = translationFileFileName;
+            _path = translationFilepath;
             string fileContent = string.Empty;
 
             try
             {
-                fileContent = System.IO.File.ReadAllText(_fileName);
+                fileContent = System.IO.File.ReadAllText(_path);
             }
             catch
             {
-                Console.WriteLine(@"Unable to read JSON file at '{0}'.", _fileName);
+                Console.WriteLine(@"Unable to read JSON file at '{0}'.", _path);
 
                 try
                 {
                     fileContent = JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>()); //can also be rewritten as = "{}"
                     try
                     {
-                        //throws IOException if file exists with same path as System.IO.Path.GetDirectoryName(_fileName)
-                        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_fileName));
+                        //throws IOException if file exists with same path as System.IO.Path.GetDirectoryName(_path)
+                        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_path));
                     }
                     catch (System.IO.IOException) { }
 
-                    System.IO.File.WriteAllText(_fileName, fileContent);
+                    System.IO.File.WriteAllText(_path, fileContent);
                 }
                 catch
                 {
-                    Console.WriteLine(@"Unable to write to file at '{0}'.", _fileName);
+                    Console.WriteLine(@"Unable to write to file at '{0}'.", _path);
                 }
             }
             _dictOfdicts = JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
@@ -70,11 +70,11 @@ namespace Internationalization.FileProvider.JSON
         {
             try
             {
-                System.IO.File.WriteAllText(_fileName, JsonConvert.SerializeObject(_dictOfdicts));
+                System.IO.File.WriteAllText(_path, JsonConvert.SerializeObject(_dictOfdicts));
             }
             catch
             {
-                Console.WriteLine(@"Failed to write to file at '{0}'.", _fileName);
+                Console.WriteLine(@"Failed to write to file at '{0}'.", _path);
             }
         }
 

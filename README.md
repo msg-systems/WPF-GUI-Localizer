@@ -235,19 +235,19 @@ xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=I
 ##### ExcelFileProvider for Excel use case
 You can create an  instance of ```ExcelFileProvider``` using its constructor
 ```c#
-ExcelFileProvider(string translationFileFileName, string oldTranslationFileFileName)
+ExcelFileProvider(string translationFilePath, string oldTranslationFilePath)
 ```
 
-```translationFileFileName``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case] here.
-```oldTranslationFileFileName``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
+```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case] here.
+```oldTranslationFilePath``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
 
 ##### JsonFileProvider for Resources use case
 You can create an instance of ```JsonFileProvider``` using
 ```c#
-JsonFileProvider(string translationFileFileName)
+JsonFileProvider(string translationFilePath)
 ```
 
-```translationFileFileName``` is where ```JsonFileProvider``` will search for the JSON-file. This file does not need to be created prior to this step.
+```translationFilePath``` is where ```JsonFileProvider``` will search for the JSON-file. This file does not need to be created prior to this step.
 
 <a id="initlp"></a>
 #### Loading the translation into the application
@@ -359,7 +359,7 @@ The ```ExcelFileProvider``` saves files in a human readable manner, but is also 
 | key2_part1 | key2_part2 | ... | translation2_language1 | translation2_language2 | ... |
 
 ##### Reading
-The ```ExcelFileProvider``` will always open the Excel file at the path ```translationFileFileName``` given in the constructor and search the first worksheet of that file.
+The ```ExcelFileProvider``` will always open the Excel file at the path ```translationFilePath``` given in the constructor and search the first worksheet of that file.
 The first row will be interpreted as column headers. ```ExcelFileProvider``` will search these headers for language tags e.g. en-UK, fr-FR. For a full list of all language tags supported please refer to [this page](https://docs.microsoft.com/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c).
 A header will be interpreted as header of a translations column, if it is a language tag like "en-US" or "ru" or contains a language tag in parenthesis at the end like "Dansk (da)" or "Italian (it-IT)". Both "Portuguese (Brazil) (pt-BR)" and "(de) Deutsch" are also accepted, however "(en-AU) English (Australia)" would not be interpreted correctly.
 
@@ -397,7 +397,7 @@ while using ```ResourceLiteralProvider``` comments may be included like this:
 If only 1 column is used for the key, the first translations column has to be filled, otherwise some rows will be ignored. It is therefore recommended to only add new languages at the end and not insert them right after the key columns. If the Excel sheet has been filled prior to using this library and only one key column is used, please verify that the whole second column is filled. This does not cause problems if the sheet is filled by the library, as all key and translations columns will be filled at the same time.
 
 ##### Writing
-If ```ExcelFileProvider``` was given a value for ```oldTranslationFileFileName```, it will save the initial sheet under that path and not override it, unless the file can no longer be found under ```oldTranslationFileFileName```.
+If ```ExcelFileProvider``` was given a value for ```oldTranslationFilePath```, it will save the initial sheet under that path and not override it, unless the file can no longer be found under ```oldTranslationFilePath```.
 
 If keys given to ```ExcelFileProvider``` contain ```|```s, they will be split up into individual columns. ```FileLiteralProvider``` will always give its FileProvider a key that is made up of name of View/Window + "|" + type of element + "|" + name of element.
 

@@ -34,20 +34,20 @@ namespace Internationalization.FileProvider.Excel {
         private int _numKeyParts;
 
         /// <summary>Saves file as Excel, no backup will be created</summary>
-        /// <param name="translationFileFileName">File that will be worked on being worked on</param>
-        public ExcelFileProvider(string translationFileFileName)
+        /// <param name="translationFilePath">File that will be worked on being worked on</param>
+        public ExcelFileProvider(string translationFilePath)
         {
-            TranslationFileFileName = translationFileFileName;
+            TranslationFilePath = translationFilePath;
 
             Initialize();
         }
 
         /// <summary>Saves file as Excel, a backup will be created before the file is edited</summary>
-        /// <param name="translationFileFileName">File that will be worked on being worked on</param>
-        /// <param name="oldTranslationFileFileName">A copy of the original sheet will be put here if no copy exists jet</param>
-        public ExcelFileProvider(string translationFileFileName, string oldTranslationFileFileName) {
-            TranslationFileFileName = translationFileFileName;
-            OldTranslationFileFileName = oldTranslationFileFileName;
+        /// <param name="translationFilePath">File that will be worked on being worked on</param>
+        /// <param name="oldTranslationFilePath">A copy of the original sheet will be put here if no copy exists jet</param>
+        public ExcelFileProvider(string translationFilePath, string oldTranslationFilePath) {
+            TranslationFilePath = translationFilePath;
+            OldTranslationFilePath = oldTranslationFilePath;
             
             Initialize();
         }
@@ -82,7 +82,7 @@ namespace Internationalization.FileProvider.Excel {
                 langDict.Add(key, textLocalization.Text);
             }
 
-            if (Status == ProviderStatus.InitializationInProgress && !File.Exists(Path.GetFullPath(TranslationFileFileName)))
+            if (Status == ProviderStatus.InitializationInProgress && !File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
                 ExcelCreateNew(key, texts);
 
@@ -110,11 +110,11 @@ namespace Internationalization.FileProvider.Excel {
             }
         }
 
-        private string TranslationFileFileName {
+        private string TranslationFilePath {
             get;
         }
 
-        private string OldTranslationFileFileName {
+        private string OldTranslationFilePath {
             get;
         }
 
@@ -145,12 +145,12 @@ namespace Internationalization.FileProvider.Excel {
                 //save excel without popup
                 try
                 {
-                    //throws IOException if file exists with same path as Path.GetDirectoryName(TranslationFileFileName)
-                    Directory.CreateDirectory(Path.GetDirectoryName(TranslationFileFileName));
+                    //throws IOException if file exists with same path as Path.GetDirectoryName(TranslationFilePath)
+                    Directory.CreateDirectory(Path.GetDirectoryName(TranslationFilePath));
                 }
                 catch (IOException) { }
                 excel.DisplayAlerts = false;
-                workbook.SaveAs(Path.GetFullPath(TranslationFileFileName));
+                workbook.SaveAs(Path.GetFullPath(TranslationFilePath));
 
                 Status = ProviderStatus.Initialized;
             }
@@ -171,13 +171,13 @@ namespace Internationalization.FileProvider.Excel {
             excel = new ExcelInterop.Application();
             workbooks = excel.Workbooks;
 
-            if (File.Exists(Path.GetFullPath(TranslationFileFileName)))
+            if (File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
-                workbook = workbooks.Open(Path.GetFullPath(TranslationFileFileName));
+                workbook = workbooks.Open(Path.GetFullPath(TranslationFilePath));
             }
             else
             {
-                Console.WriteLine($@"Unable to write Langage File ({Path.GetFullPath(TranslationFileFileName)}).");
+                Console.WriteLine($@"Unable to write Langage File ({Path.GetFullPath(TranslationFilePath)}).");
             }
 
             try
@@ -390,7 +390,7 @@ namespace Internationalization.FileProvider.Excel {
             var bw = sender as BackgroundWorker;
 
             ExcelInterop.Application excel = new ExcelInterop.Application();
-            ExcelInterop.Workbook workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFileFileName));
+            ExcelInterop.Workbook workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
 
             try
             {
@@ -449,8 +449,8 @@ namespace Internationalization.FileProvider.Excel {
             CopyOldExcelFile();
 
             if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0) {
-                if (!File.Exists(TranslationFileFileName)) {
-                    string message = $"Unable to open Langauge file ({Path.GetFullPath(TranslationFileFileName)}).";
+                if (!File.Exists(TranslationFilePath)) {
+                    string message = $"Unable to open Langauge file ({Path.GetFullPath(TranslationFilePath)}).";
                     /*should be logger*/Console.WriteLine(message);
                     return;
                 }
@@ -469,19 +469,19 @@ namespace Internationalization.FileProvider.Excel {
         /// </summary>
         private void CopyOldExcelFile()
         {
-            if (OldTranslationFileFileName == null) return;
+            if (OldTranslationFilePath == null) return;
 
-            string translationFileFileNameFullPath = Path.GetFullPath(TranslationFileFileName);
-            string oldTranslationFileFileNameFullPath = Path.GetFullPath(OldTranslationFileFileName);
-            if (!File.Exists(oldTranslationFileFileNameFullPath))
+            string translationFilePathFullPath = Path.GetFullPath(TranslationFilePath);
+            string oldTranslationFilePathFullPath = Path.GetFullPath(OldTranslationFilePath);
+            if (!File.Exists(oldTranslationFilePathFullPath))
             {
                 try
                 {
-                    File.Copy(translationFileFileNameFullPath, oldTranslationFileFileNameFullPath, true);
+                    File.Copy(translationFilePathFullPath, oldTranslationFilePathFullPath, true);
                 }
                 catch (IOException)
                 {
-                    Console.WriteLine($@"Unable to save Langage File as '{OldTranslationFileFileName}'.");
+                    Console.WriteLine($@"Unable to save Langage File as '{OldTranslationFilePath}'.");
                 }
             }
         }
