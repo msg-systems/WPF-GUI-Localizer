@@ -3,8 +3,6 @@
 * [Introduction](#intro)
   * [Problem](#problem)
   * [Idea](#idea)
-  * [Components](#components)
-  * [Rough Architecture](#architecture)
   * [Use Cases](#usecases)
 * [Getting Started](#setup)
   * [Prerequisites](#prerequisites)
@@ -20,6 +18,8 @@
   * [Saving the translations](#saving)
   * [Switching between Languages *(optional)*](#switchinglanguages)
 * [Further Notes](#usage)
+  * [Components](#components)
+  * [Rough Architecture](#architecture)
   * [Exiting](#exit)
     * [Exiting and saving](#exitsave)
     * [Exiting without saving](#exitnosave)
@@ -36,7 +36,7 @@
 <a id="intro"></a>
 ## Introduction
 
-This library offers the functionality to add or optimize localization WPF applications. By applying a right-click event to every localizable element (Label, Button etc.), it opens a dialog in which the translations of the texts for given element in any language can be edited/added.
+This library offers the functionality to add or optimize localization in WPF applications. By applying a right-click event to every localizable element (Label, Button etc.), it opens a dialog in which the translations of the texts for given element in any language can be edited/added.
 
 It comes along with tools to localize WPF applications using either human-readable Excel files or traditional Resources (.resx) files.
 
@@ -60,39 +60,6 @@ Currently supported ways of localization:
 
 1. Translations based on *Resources files* (.resx) - minor changes have to be made in the way texts are loaded in order to use this library. More info on it in [Use Cases - Resource](#usecaseres). *(note that this library does not support editing Resources files directly)*
 2. Translations based on *Excel files* (.xlsx) - this library is shipped with an integrated method to load translations for the user interface based on an Excel file, if desired. More info on it in [Use Cases - Excel](#usecaseexcel).
-
-
-<a id="idea"></a>
-### Components
-
-This is a simplified class diagram of all key classes
-
-![Architecture Class Diagram](Docs/architecture.png)
-
-1. FileProvider - is used in order to read the existing translation dictionary of the target application from a given file, depending on the technology used to implement the application. It is further used to write any changes of the translation dictionary into a given file.
-1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are so two implementations for the LiteralProvider:
-
-   1. ```ResourceLiteralProvider``` - is used for applications that are translated using Resources (.resx) files. It reads the existing Resources in order to provide context to the translation and writes changes into a separate file using the FileProvider, since compiled resources files cannot be altered directly.
-   1. ```FileLiteralProvider``` - is used for applications that might not already have a translation and want to transition to a File-based translation (e.g. Excel or JSON). It uses the FileProvider in order to load and store the entire translation dictionary from/into one file (e.g. a translation Excel). It works using a "translation dictionary file", which contains the entire translation dictionary of the application, similar to a Resources (.resx) file but with all translations in one sheet.
-
-1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library. If the application is using the file-based approach as translation technology (see FileLiteralProvider), the GuiTranslator is used in order to update the views using the translations from the translation dictionary file.
-1. ```LocalizationUtils``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the translation feature for the GUI. If the translation feature is activated, it loads the translation dialogue when clicking on any of the specified GUI-Elements. If changes are made, it sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
-
-<a id="architecture"></a>
-### Rough Architecture
-
-```AbstractLiteralProvider``` holds a singleton instance, which gets created by calling ```FileLiteralProvider.Initialize``` or ```ResourceLiteralProvider.Initialize```.
-```AbstractLiteralProvider.Instance``` is a central part of the library, because it determines where the translations come from.
-Incase of ```FileLiteralProvider``` the translations come directly from an ```IFileProvider``` object.
-Incase of ```ResourceLiteralProvider``` however translations will primarily be read from Resources files and only edits will be saved, read using an ```IFileProvider``` object.
-
-Since the full initialization of a LiteralProvider can take a lot of time, trying to access ```AbstractLiteralProvider.Instance``` before the initialization finished will cause ```AbstractLiteralProvider``` to "manually keep the UI alive", until the instance is available.
-The ```Exit``` function can be called to abort the initialization process
-
-```GuiTranslator``` is used to assign the correct localized texts to all GUI-elements of Views or Windows. It is required when using ```FileLiteralProvider``` or ```LocalizationUtils```. ```GuiTranslator``` uses ```AbstractLiteralProvider.Instance``` to get the localized texts needed for translation.
-
-```LocalizationUtils``` can be attached to a View / Window using the ```IsActive``` Property of ```LocalizationProperties```. Doing so will add the ```OpenLocalizationDialog``` Eventhandler to the ```MouseRightButtonUp``` event of all supported GUI-elements inside the View / Window it was attached to.
-If the ```OpenLocalizationDialog``` Eventhandler is triggered, ```LocalizationUtils``` will first get the localized texts for the clicked element from ```AbstractLiteralProvider.Instance```. Next it will open a ```LocalizationInputDialog``` for the user to edit the translations and then give the updated texts back to ```AbstractLiteralProvider.Instance```. Lastly ```GuiTranslator``` is also called to update the translation in the GUI.
 
 <a id="usecases"></a>
 ### Use Cases
@@ -138,21 +105,22 @@ the Excel Use Case shall be defined as using the ```FileLiteralProvider``` with 
 
 The .NET Framework version 4.7.2 aswell as Excel have to be installed.
 
-Then WPF-App-Internationalization-Library and Json.NET NuGet packages can be added to your project.
+WPF-App-Internationalization-Library and Json.NET NuGet packages have to be added to your project.
 
 <a id="filesrequired"></a>
 #### Files required
 
+<a id="filesrequiredExcel"></a>
 ##### Files required for Excel use case
 
 In case of the Excel use case, an Excel File will need to be used / created.
 The first worksheet of this file will need to have a first row similar to this example:
 
-| Dialog | Type | Name | English (United Kingdom) (en-UK) | (sv) Swedish | Deutsch (de) | (fr) |
+| Dialog | Type | Name | English (United Kingdom) (en-UK) | (sv) Swedish | Deutsch (de) | fr |
 | --- | --- | --- | --- | --- | --- | --- |
 |     |     |     |     |     |     |     |
 
-This list of languages has to include the original language of the application.
+The list of languages used in the Excel sheet has to include the original language of the application.
 
 ##### Files required for Resources use case
 
@@ -238,7 +206,8 @@ You can create an  instance of ```ExcelFileProvider``` using its constructor
 ExcelFileProvider(string translationFilePath, string oldTranslationFilePath)
 ```
 
-```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case] here.
+```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case](#filesrequiredExcel) here.
+
 ```oldTranslationFilePath``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
 
 ##### JsonFileProvider for Resources use case
@@ -247,10 +216,10 @@ You can create an instance of ```JsonFileProvider``` using
 JsonFileProvider(string translationFilePath)
 ```
 
-```translationFilePath``` is where ```JsonFileProvider``` will search for the JSON-file. This file does not need to be created prior to this step.
+```translationFilePath``` is where ```JsonFileProvider``` will search for the JSON-file. This file does not need to be created manually.
 
 <a id="initlp"></a>
-#### Loading the translation into the application
+#### Loading the translations into the application
 In order to initialize a localization feature (Excel file or Resources), the LiteralProvider's ```Initialize``` function has to be called, which creates the Instance in the AbstractLiteralProvider. The instance, and therefore also ```GuiTranslator``` and ```LocalizationUtils```, which are dependent on it, can not be used before initialization is complete.
 
 Note: If ```AbstractLiteralProvider.Instance``` is called before initialization has finished, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispacher to continuously push new frames to the UI, in order to not freeze up the UI during the initialization process.
@@ -323,6 +292,38 @@ Since the act of doing so after the View / Window was loaded does not translate 
 <a id="usage"></a>
 ## Further Notes
 
+<a id="components"></a>
+### Components
+
+This is a simplified class diagram of all key classes
+
+![Architecture Class Diagram](Docs/architecture.png)
+
+1. FileProvider - is used in order to read and write the existing translation dictionary of the target application from / to a given file.
+1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are two implementations for the LiteralProvider:
+
+   1. ```ResourceLiteralProvider``` - is used for applications that are translated using Resources (.resx) files. It reads the existing Resources in order to provide context to the translation and writes changes into a separate file using the FileProvider, since compiled resources files cannot be altered directly.
+   1. ```FileLiteralProvider``` - is used for applications that might not already have a translation and want to transition to a File-based translation (e.g. Excel or JSON). It uses the FileProvider in order to load and store the entire translation dictionary from/into one file (e.g. a translation Excel). It works using a "translation dictionary file", which contains the entire translation dictionary of the application, similar to a Resources (.resx) file but with all translations in one sheet.
+
+1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library. If the application is using the file-based approach as translation technology (see FileLiteralProvider), the GuiTranslator is used in order to update the views using the translations from the translation dictionary file.
+1. ```LocalizationUtils``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the localization pop-up feature. If the feature is activated, it loads the translation dialog when clicking on any of the specified GUI-Elements. If changes are made, it sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
+
+<a id="architecture"></a>
+### Rough Architecture
+
+```AbstractLiteralProvider``` holds a singleton instance, which gets created by calling ```FileLiteralProvider.Initialize``` or ```ResourceLiteralProvider.Initialize```.
+```AbstractLiteralProvider.Instance``` is a central part of the library, because it determines where the translations come from.
+Incase of ```FileLiteralProvider``` the translations come directly from an ```IFileProvider``` object.
+Incase of ```ResourceLiteralProvider``` however translations will primarily be read from Resources files and only edits will be saved and read using an ```IFileProvider``` object.
+
+Since the full initialization of a LiteralProvider can take a lot of time, trying to access ```AbstractLiteralProvider.Instance``` before the initialization finished will cause ```AbstractLiteralProvider``` to "manually keep the UI alive", until the instance is available.
+The ```Exit``` function can be called to abort the initialization process
+
+```GuiTranslator``` is used to assign the correct localized texts to all GUI-elements of Views or Windows. It is required when using ```FileLiteralProvider``` or ```LocalizationUtils```. ```GuiTranslator``` uses ```AbstractLiteralProvider.Instance``` to get the localized texts needed for translation.
+
+```LocalizationUtils``` can be attached to a View / Window using the ```IsActive``` Property of ```LocalizationProperties```. Doing so will add the ```OpenLocalizationDialog``` Eventhandler to the ```MouseRightButtonUp``` event of all supported GUI-elements inside the View / Window it was attached to.
+If the ```OpenLocalizationDialog``` Eventhandler is triggered, ```LocalizationUtils``` will first get the localized texts for the clicked element from ```AbstractLiteralProvider.Instance```. Next it will open a ```LocalizationInputDialog``` for the user to edit the translations and then give the updated texts back to ```AbstractLiteralProvider.Instance```. Lastly ```GuiTranslator``` is also called to update the translation in the GUI.
+
 <a id="exit"></a>
 ### Exiting
 
@@ -340,7 +341,7 @@ If possible, changes made to the translations will be saved. If initialization h
 
 ##### ```AbstractLiteralProvider.Exit(false)```
 The changes made to the translations will not be saved and initialization will be stoped, if it has not finished. The exact result caused by calling ```AbstractLiteralProvider.Exit(false)``` varies. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispacher to continuously push new frames, in order to not freeze up the UI during the cancellation process.  
-*In some cases calling ```AbstractLiteralProvider.Exit(false)``` takes as much time as calling no function.*
+*In some cases calling ```AbstractLiteralProvider.Exit(false)``` may take as much time as calling no function.*
 
 ##### no function called
 The changes made to the translations will not be saved and if initialization has not finished, its thread will stay active until completed. No Dispacher will be used.
