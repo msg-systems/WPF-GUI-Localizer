@@ -151,6 +151,13 @@ The translation feature should not be running for the end user in order to not i
 ##### XAML modifications needed for Excel use case
 All GUI-elements intended for translation need to have a "Name"-Property which is a unique key inside their View or Window. All Views and Windows need to have a "Name"-Property that uniquely identifies them aswell.
 
+If the Headers of DataGrids need to be localized as well, they will have to have a "Name" attached property provided by this library assigned to each DataGridColumn. This is necessary as the DataGridColumns are not Frameworkelements and therefore do not support the ```NameProperty```.
+
+The "Name" attached property can be added to a DataGrid Column like this
+```xaml
+<DataGridTextColumn internat:DataGridProperties.Name="dgcQuantity" />
+```
+
 <a id="translationpreperationRes"></a>
 ##### XAML modifications needed for Resources use case
 All GUI-elements intended for translation need to have a ```ResourceKey``` attached property, containing the corresponding key from the Resources file. This allows for the Resources key to be read at runtime.
