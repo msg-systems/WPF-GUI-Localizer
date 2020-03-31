@@ -105,7 +105,7 @@ the Excel Use Case shall be defined as using the ```FileLiteralProvider``` with 
 
 The .NET Framework version 4.7.2 aswell as Excel have to be installed.
 
-WPF-App-Internationalization-Library and Json.NET NuGet packages have to be added to your project.
+WPF-GUI-Localizer and Json.NET NuGet packages have to be added to your project.
 
 <a id="filesrequired"></a>
 #### Files required
@@ -183,14 +183,14 @@ The library uses a converter to convert the key into its corresponding value out
 
 ```xaml
 <Application.Resources>
-  <converter:ResourcesTextConverter x:Key="ResourcesTextConverter" />
+  <internatConverter:ResourcesTextConverter x:Key="ResourcesTextConverter" />
 </Application.Resources>
 ```
 
 In order to get the attached property and the converter into the view, the following namespaces must be declared:
 
 ```xaml
-xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internationalization"
+xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization"
 xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
 ```
 
@@ -234,7 +234,7 @@ ResourceLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo input
 ```
 when using Resource-based localization.
 
-```fileProvider``` should be the apropriate FileProvider from [Loading the translation files] for your use case.
+```fileProvider``` should be the apropriate FileProvider from [Loading the translation files](#initfiles) for your use case.
 
 ```inputLanguage``` represents the language your application was originally created in.
 
@@ -251,7 +251,7 @@ The ```GuiTranslator``` can be used to translate a whole view or window.
 ```GuiTranslator``` is essential for the Excel use case and needs to be called after the View / Window was loaded as well as after each time ```Thread.CurrentThread.CurrentUILanguage``` gets altered.
 
 For the Ressource use case ```GuiTranslator``` does not need to be called after the View or Window was loaded, but can still be called after ```Thread.CurrentThread.CurrentUILanguage``` gets altered.
-Alternatively the View / Window can be reloaded after changing ```Thread.CurrentThread.CurrentUILanguage``` in which case ```GuiTranslator``` will not need to be called explicitly at all. 
+Alternatively the View / Window can be reloaded after changing ```Thread.CurrentThread.CurrentUILanguage```, in which case ```GuiTranslator``` will not need to be called explicitly at all. 
 
 To call ```GuiTranslator``` for a View, call
 ```c#
@@ -266,14 +266,15 @@ GuiTranslator.TranslateWindow(window)
 #### ResourcesTextConverter for Resources use case
 The ```ResourcesTextConverter``` can be used to translate an individual GUI-element.
 
-If the Views / Windows are prepared like described in [XAML modifications needed for Resources use case](#translationpreperationRes), Views and Windows will automatically be translated according to ```Thread.CurrentThread.CurrentUILanguage``` once the binding expression is evaluated.
+If the Views / Windows are prepared like described in [XAML modifications needed for Resources use case](#translationpreperationRes), Views and Windows will automatically be translated according to ```Thread.CurrentThread.CurrentUILanguage```, once the binding expression is evaluated.
 
-If the translations need to be updated, the View / Window can be reloaded / reopened to re-evaluate the binding expression or ```GuiTranslator``` can be called like describen above.
+If the translations need to be updated, the View / Window can be reloaded / reopened to re-evaluate the binding expression or ```GuiTranslator``` can be called like described above.
 
 <a id="saving"></a>
 ### Saving the translations
 
 When Exiting the application, the altered texts, which have not been permanently stored so far, should be written into their original translation files.
+
 Note: It is recommended to skip the saving step, if the ability to alter the translations is turned off.
 
 To save translations, call
@@ -334,13 +335,16 @@ If the ```OpenLocalizationDialog``` Eventhandler is triggered, ```LocalizationUt
 Calling ```AbstractLiteralProvider.Instance.Save()``` guarantees changes made to the translations will be saved. If necessary, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispacher to continuously push new frames, in order to not freeze up the UI during the initialization process.
 
 ##### ```AbstractLiteralProvider.Exit(true)```
-If possible, changes made to the translations will be saved. If initialization has not finished, it will be aborted and changes will not be saved. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispacher to continuously push new frames, in order to not freeze up the UI during the cancellation process. In some cases calling ```AbstractLiteralProvider.Exit(true)``` takes as much time as calling no function.
+If possible, changes made to the translations will be saved. If initialization has not finished, it will be aborted and changes will not be saved. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispacher to continuously push new frames, in order to not freeze up the UI during the cancellation process.
+
+*In some cases calling ```AbstractLiteralProvider.Exit(true)``` may take as much time as calling no function.*
 
 <a id="exitnosave"></a>
 #### Exiting without saving
 
 ##### ```AbstractLiteralProvider.Exit(false)```
-The changes made to the translations will not be saved and initialization will be stoped, if it has not finished. The exact result caused by calling ```AbstractLiteralProvider.Exit(false)``` varies. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispacher to continuously push new frames, in order to not freeze up the UI during the cancellation process.  
+The changes made to the translations will not be saved and initialization will be stoped, if it has not finished. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispacher to continuously push new frames, in order to not freeze up the UI during the cancellation process.
+
 *In some cases calling ```AbstractLiteralProvider.Exit(false)``` may take as much time as calling no function.*
 
 ##### no function called
@@ -362,7 +366,7 @@ The ```ExcelFileProvider``` saves files in a human readable manner, but is also 
 ##### Reading
 The ```ExcelFileProvider``` will always open the Excel file at the path ```translationFilePath``` given in the constructor and search the first worksheet of that file.
 The first row will be interpreted as column headers. ```ExcelFileProvider``` will search these headers for language tags e.g. en-UK, fr-FR. For a full list of all language tags supported please refer to [this page](https://docs.microsoft.com/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c).
-A header will be interpreted as header of a translations column, if it is a language tag like "en-US" or "ru" or contains a language tag in parenthesis at the end like "Dansk (da)" or "Italian (it-IT)". Both "Portuguese (Brazil) (pt-BR)" and "(de) Deutsch" are also accepted, however "(en-AU) English (Australia)" would not be interpreted correctly.
+A header will be interpreted as header of a translations column, if it is a language tag like "en-US" or "ru" or contains a language tag in parenthesis at the end like "Dansk (da)" or "Italian (it-IT)". Both "Portuguese (Brazil) (pt-BR)" and "(de) German" are also accepted, however "(en-AU) English (Australia)" would not be interpreted correctly.
 
 Starting from the left, the first column that can be interpreted as a translations column, divides the columns.
 All columns prior will be interpreted as containing the key that uniquely identifies the row. All columns after the dividing column including itself, will be used for the translations.
@@ -406,18 +410,18 @@ If ```ExcelFileProvider``` recives a key with a number of ```|``` that does not 
 
 <a id="jsonfp"></a>
 #### Saving translations to .json (JsonFileProvider)
-The ```JsonFileProvider``` does not save files in a human readable manner, but it is relatively fast thanks to the usage of Json.NET. It is therefore recommended in combination with the ```ResourceLiteralProvider```. Since ```ResourceLiteralProvider``` does not store all translations needed for localization using its FileProvider, it is less likely that the file will have to be read by a user.
+The ```JsonFileProvider``` saves files in a less human readable manner, but it is relatively fast thanks to the usage of Json.NET. It is therefore recommended in combination with the ```ResourceLiteralProvider```. Since ```ResourceLiteralProvider``` does not store all translations needed for localization using its FileProvider, it is less likely that the file will have to be read by a user.
 
 ##### File Format
 ```json
 {
   "#1 Language": {
-    "resource_key1": "translation1_language1",
-    "resource_key2": "translation2_language1"
+    "key1": "translation1_language1",
+    "key2": "translation2_language1"
   },
   "#2 Language": {
-    "resource_key1": "translation1_language2",
-    "resource_key2": "translation2_language2"
+    "key1": "translation1_language2",
+    "key2": "translation2_language2"
   },
 }
 ```
@@ -426,9 +430,9 @@ The ```JsonFileProvider``` does not save files in a human readable manner, but i
 ### Translating Views and Windows
 
 #### Usages
-Views / Windows may be translated using ```GuiTranslator``` after ```Thread.CurrentThread.CurrentUICulture``` was changed (not required with ```ResourceLiteralProvider```) or after they were loaded (only when using ```FileLiteralProvider```).
+Views / Windows may be translated using ```GuiTranslator``` after ```Thread.CurrentThread.CurrentUICulture``` was changed (not needed with ```ResourceLiteralProvider```) or after they were loaded (only needed when using ```FileLiteralProvider```).
 
-Views and Windows may alternatively also be translated by having an attachedProperty ```ResourceKey``` and referencing this Property through a ```ResourcesTextConverter``` (only when using ```ResourceLiteralProvider```). This approach just like normal Resources localization only translates the View / Window once after it was loaded.
+Views and Windows may alternatively also be translated by having an attached property ```ResourceKey``` and referencing this Property through a ```ResourcesTextConverter``` (only when using ```ResourceLiteralProvider```). This approach just like normal Resources localization only translates the View / Window once while it is being loaded.
 
 GUI-elements always get automatically translated using ```GuiTranslator``` after their Translation was edited by the user.
 
@@ -456,7 +460,7 @@ In order to translate a single element, call: ```GuiTranslator.TranslateGuiEleme
 #### ResourcesTextConverter
 The ```ResourcesTextConverter``` supports converting a string to the value of the Resources file entry with a key that matched the given string. It will use ```AbstractLiteralProvider.Instance``` to get these entries. ```ResourcesTextConverter``` **only** works if ```AbstractLiteralProvider.Instance``` is a ```ResourceLiteralProvider``` and also does not support the ```ConvertBack``` function.
 
-For information about how to add the ```ResourcesTextConverter``` to an application read [Getting Started - Translation](#translate).
+For information about how to add the ```ResourcesTextConverter``` to an application read [XAML modifications needed for Resources use case](#translationpreperationRes).
 
 <a id="checklist"></a>
 ## Quickstart-Checklist and Examples
@@ -580,11 +584,11 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        mc:Ignorable="d"
        Title="MainWindow" Height="450" Width="800"
-       xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
+       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
      <Window.Resources>
-       <converter:CultureInfoStringConverter
+       <internatConverter:CultureInfoStringConverter
            x:Key="CultureInfoStringConverter" />
-       <converter:CultureInfoCollectionStringConverter
+       <internatConverter:CultureInfoCollectionStringConverter
            x:Key="CultureInfoCollectionStringConverter" />
      </Window.Resources>
      <Grid>
@@ -691,9 +695,9 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:vm="clr-namespace:Example_Resources.ViewModel"
        StartupUri="View/MainWindow.xaml"
-       xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
+       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
      <Application.Resources>
-       <converter:ResourcesTextConverter x:Key="ResourcesTextConverter" />
+       <internatConverter:ResourcesTextConverter x:Key="ResourcesTextConverter" />
      </Application.Resources>
    ```
    
@@ -750,11 +754,11 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        mc:Ignorable="d"
        Title="MainWindow" Height="450" Width="800"
-       xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
+       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
      <Window.Resources>
-       <converter:CultureInfoStringConverter
+       <internatConverter:CultureInfoStringConverter
            x:Key="CultureInfoStringConverter" />
-       <converter:CultureInfoCollectionStringConverter
+       <internatConverter:CultureInfoCollectionStringConverter
            x:Key="CultureInfoCollectionStringConverter" />
      </Window.Resources>
      <Grid>
