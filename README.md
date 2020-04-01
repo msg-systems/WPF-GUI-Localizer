@@ -790,4 +790,5 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
 
 -----
 
-Author: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group)
+Authors: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group),
+[Fabian Lewalder, msg systems ag](mailto:fabian.lewalder@msg.group)
