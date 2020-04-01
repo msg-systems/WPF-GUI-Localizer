@@ -227,11 +227,13 @@ JsonFileProvider(string translationFilePath)
 
 <a id="initlp"></a>
 #### Loading the translations into the application
+
 In order to initialize a localization feature (Excel file or Resources), the LiteralProvider's ```Initialize``` function has to be called, which creates the Instance in the AbstractLiteralProvider. The instance, and therefore also ```GuiTranslator``` and ```LocalizationUtils```, which are dependent on it, can not be used before initialization is complete.
 
-Note: If ```AbstractLiteralProvider.Instance``` is called before initialization has finished, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispacher to continuously push new frames to the UI, in order to not freeze up the UI during the initialization process.
+If ```AbstractLiteralProvider.Instance``` is called before initialization has finished, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispacher to continuously push new frames to the UI, in order to not freeze up the UI during the initialization process.
 
-```FileLiteralProvider``` and ```ResourceLiteralProvider``` can be initialized by calling either
+To avoid indirectly accessing ```AbstractLiteralProvider.Instance``` prior to starting the initialization process by loading a view, which has been set up to be translated by ```GuiTranslator``` or ```ResourcesTextConverter``` on load, it is recommended to call the following function on Application start up:
+
 ```c#
 FileLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
 ```
