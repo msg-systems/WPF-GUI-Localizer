@@ -124,7 +124,7 @@ The list of languages used in the Excel sheet has to include the original langua
 
 ##### Files required for Resources use case
 
-In case of the Resources use case, Resources (.resx) files will need to be used / created. These files need to be inside the Properties folder of the application and the Resources file for the original language of the application needs to be filled with the current texts used in the applicaion. More information on the Resources files will be presented in the next section about Preparing the Views / Windows.
+In case of the Resources use case, Resources (.resx) files will need to be used / created for each language that is meant to be localized. These files need to be inside the Properties folder of the application and the Resources file for the original language of the application needs to be filled with the current texts used in the applicaion. More information on the Resources files will be presented in the next section about Preparing the Views / Windows.
 
 All existing Resources files can stay unmodified.
 
