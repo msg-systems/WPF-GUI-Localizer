@@ -116,7 +116,7 @@ WPF-GUI-Localizer and Json.NET NuGet packages have to be added to your project.
 In case of the Excel use case, an Excel File will need to be used / created.
 The first worksheet of this file will need to have a first row similar to this example:
 
-| Dialog | Type | Name | English (United Kingdom) (en-UK) | (sv) Swedish | Deutsch (de) | fr |
+| Dialog | Type | Name | English (United Kingdom) (en-GB) | (sv) Swedish | Deutsch (de) | fr |
 | --- | --- | --- | --- | --- | --- | --- |
 |     |     |     |     |     |     |     |
 
@@ -374,7 +374,7 @@ The ```ExcelFileProvider``` saves files in a human readable manner, but is also 
 
 ##### Reading
 The ```ExcelFileProvider``` will always open the Excel file at the path ```translationFilePath``` given in the constructor and search the first worksheet of that file.
-The first row will be interpreted as column headers. ```ExcelFileProvider``` will search these headers for language tags e.g. en-UK, fr-FR. For a full list of all language tags supported please refer to [this page](https://docs.microsoft.com/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c).
+The first row will be interpreted as column headers. ```ExcelFileProvider``` will search these headers for language tags e.g. en-GB, fr-FR. For a full list of all language tags supported please refer to [this page](https://docs.microsoft.com/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c).
 A header will be interpreted as header of a translations column, if it is a language tag like "en-US" or "ru" or contains a language tag in parenthesis at the end like "Dansk (da)" or "Italian (it-IT)". Both "Portuguese (Brazil) (pt-BR)" and "(de) German" are also accepted, however "(en-AU) English (Australia)" would not be interpreted correctly.
 
 Starting from the left, the first column that can be interpreted as a translations column, divides the columns.
