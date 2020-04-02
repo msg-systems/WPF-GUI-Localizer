@@ -18,15 +18,15 @@ namespace Internationalization.FileProvider.Interface
         void CancelInitialization();
 
         /// <summary>
-        /// returns saved dictionary
+        /// Returns saved dictionary
         /// </summary>
         Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary();
         /// <summary>
-        /// updates a key-value-pair in the dictionary
+        /// Updates a key-value-pair in the dictionary
         /// </summary>
         void Update(string key, IEnumerable<TextLocalization> texts);
         /// <summary>
-        /// makes current dictionary persistent in some way
+        /// Makes current dictionary persistent in some way
         /// </summary>
         void SaveDictionary();
     }

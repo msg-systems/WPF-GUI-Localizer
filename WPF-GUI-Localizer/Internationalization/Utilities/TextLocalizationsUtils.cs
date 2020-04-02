@@ -22,7 +22,7 @@ namespace Internationalization.Utilities
                 return knownTranslations;
             }
 
-            //get all key outof sourceDictionary, where value matches given text
+            //get all keys out of sourceDictionary, where value matches given text
             IEnumerable<KeyValuePair<string, string>> fittingDictionaryEntries = sourceDictionary.Where(x => text.Equals(x.Value));
 
             //collect possible translations

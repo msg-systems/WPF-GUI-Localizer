@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.Model;
@@ -19,12 +20,12 @@ namespace Internationalization.FileProvider.JSON
 
         public ProviderStatus Status { get; private set; }
 
-        /// <param name="translationFilepath">the file under which the dictionary will be saved</param>
-        public JsonFileProvider(string translationFilepath)
+        /// <param name="translationFilePath">the file under which the dictionary will be saved</param>
+        public JsonFileProvider(string translationFilePath)
         {
             Status = ProviderStatus.InitializationInProgress;
 
-            _path = translationFilepath;
+            _path = translationFilePath;
             string fileContent = string.Empty;
 
             try

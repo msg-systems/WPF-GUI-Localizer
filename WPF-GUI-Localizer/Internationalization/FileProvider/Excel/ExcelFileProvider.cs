@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Internationalization.Converter;
 using Internationalization.Exception;
@@ -32,21 +33,17 @@ namespace Internationalization.FileProvider.Excel {
         private int _isInitializing = 0;
         private BackgroundWorker _backgroundWorker;
         private int _numKeyParts;
-
-        /// <summary>Saves file as Excel, no backup will be created</summary>
-        /// <param name="translationFilePath">File that will be worked on being worked on</param>
-        public ExcelFileProvider(string translationFilePath)
-        {
-            TranslationFilePath = translationFilePath;
-
-            Initialize();
-        }
+        private readonly string _glossaryTag;
 
         /// <summary>Saves file as Excel, a backup will be created before the file is edited</summary>
         /// <param name="translationFilePath">File that will be worked on being worked on</param>
+        /// <param name="glossaryTag">
+        /// Entries in the Excel table that start with this tag will be interpreted as part of the glossary
+        /// </param>
         /// <param name="oldTranslationFilePath">A copy of the original sheet will be put here if no copy exists jet</param>
-        public ExcelFileProvider(string translationFilePath, string oldTranslationFilePath) {
+        public ExcelFileProvider(string translationFilePath, string glossaryTag = null, string oldTranslationFilePath = null) {
             TranslationFilePath = translationFilePath;
+            _glossaryTag = glossaryTag;
             OldTranslationFilePath = oldTranslationFilePath;
             
             Initialize();
@@ -202,6 +199,7 @@ namespace Internationalization.FileProvider.Excel {
             //first row only contains column titles, no data
             int row = 2;
 
+            int numberOfGlossaryEntries = 0;
             object[,] values = worksheetGui.UsedRange.get_Value();
             int maxRow = values.GetUpperBound(0);
             int maxColumn = values.GetUpperBound(1);
@@ -227,18 +225,30 @@ namespace Internationalization.FileProvider.Excel {
                 }
             }
 
-            while (row <= maxRow && values[row, 1] != null) {
+            while (row <= maxRow && values[row, 1] != null)
+            {
 
+                bool isGlossaryEntry = _glossaryTag != null && _glossaryTag.Equals(values[row, 1]);
                 //check if current row has a comment
-                if (values[row, 2] != null)
+                //or part of glossary (assuming a glossary is being used)
+                if (values[row, 2] != null || isGlossaryEntry)
                 {
-                    string[] keyColumnCells = new string[_numKeyParts];
-                    for (int i = 0; i < _numKeyParts; i++)
+                    string key;
+                    if (isGlossaryEntry)
                     {
-                        keyColumnCells[i] = ExcelCellToString(values[row, i + 1]);
+                        key = "glossary" + numberOfGlossaryEntries;
+                        numberOfGlossaryEntries++;
+                    }
+                    else
+                    {
+                        string[] keyColumnCells = new string[_numKeyParts];
+                        for (int i = 0; i < _numKeyParts; i++)
+                        {
+                            keyColumnCells[i] = ExcelCellToString(values[row, i + 1]);
+                        }
+                        key = CreateGuiDictionaryKey(keyColumnCells);
                     }
 
-                    string key = CreateGuiDictionaryKey(keyColumnCells);
                     for (int langIndex = _numKeyParts + 1; langIndex <= maxColumn; langIndex++)
                     {
                         CultureInfo lang = CultureInfoUtil.GetCultureInfo(ExcelCellToString(values[1, langIndex]), true);
@@ -259,6 +269,13 @@ namespace Internationalization.FileProvider.Excel {
 
             foreach (var translation in texts)
             {
+                //if current entry is part of glossary, skip writing
+                Regex glossaryKey = new Regex(_glossaryTag + "\\d*");
+                if (glossaryKey.IsMatch(translation.Key))
+                {
+                    continue;
+                }
+
                 ExcelInterop.Range firstDialogFind = null;
                 bool updatedRow = false;
                 int lastFindForDialogIndex = -1;
@@ -274,6 +291,7 @@ namespace Internationalization.FileProvider.Excel {
                     int diff = keyParts.Length - _numKeyParts;
                     for (int overflowKeyPart = 0; overflowKeyPart < diff; overflowKeyPart++)
                     {
+                        newKeyParts[_numKeyParts - 1] += Properties.Settings.Default.Seperator_for_partial_Literalkeys;
                         newKeyParts[_numKeyParts - 1] += keyParts[_numKeyParts + overflowKeyPart];
                     }
                 }

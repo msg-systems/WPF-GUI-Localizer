@@ -30,6 +30,7 @@
 * [Quickstart-Checklist and Examples](#checklist)
   * [Excel](#excelquickstart)
   * [Resources](#resourcequickstart)
+* [Changes since v0.9.1](#changes)
 
 # WPF-GUI-Localizer
 
@@ -792,3 +793,9 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
 
 Authors: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group),
 [Fabian Lewalder, msg systems ag](mailto:fabian.lewalder@msg.group)
+
+# Changes
+
+1. Glossary
+   1. for excel: all marked as glossaryTag and glossaryTag given in constructor
+   1. for json: all glossary entries have unique keys already in file

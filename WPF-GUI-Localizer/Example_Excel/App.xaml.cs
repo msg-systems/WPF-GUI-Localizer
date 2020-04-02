@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Internationalization.FileProvider.Excel;
+using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.File;
 
@@ -25,7 +26,8 @@ namespace Example_Excel
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            FileLiteralProvider.Initialize(new ExcelFileProvider(@"Resource/Language_File.xlsx"), new CultureInfo("en"));
+            IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File.xlsx", "gloss");
+            FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
         }
 
         private void OnExit(object sender, ExitEventArgs e)
