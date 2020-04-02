@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Internationalization.Converter;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.Model;
@@ -41,8 +40,11 @@ namespace Internationalization.FileProvider.Excel {
         /// Entries in the Excel table that start with this tag will be interpreted as part of the glossary
         /// </param>
         /// <param name="oldTranslationFilePath">A copy of the original sheet will be put here if no copy exists jet</param>
-        public ExcelFileProvider(string translationFilePath, string glossaryTag = null, string oldTranslationFilePath = null) {
-            TranslationFilePath = translationFilePath;
+        public ExcelFileProvider(string translationFilePath, string glossaryTag = null, string oldTranslationFilePath = null)
+        {
+            Status = ProviderStatus.InitializationInProgress;
+
+            TranslationFilePath = InspectPath(translationFilePath);
             _glossaryTag = glossaryTag;
             OldTranslationFilePath = oldTranslationFilePath;
             
@@ -79,9 +81,9 @@ namespace Internationalization.FileProvider.Excel {
                 langDict.Add(key, textLocalization.Text);
             }
 
-            if (Status == ProviderStatus.InitializationInProgress && !File.Exists(Path.GetFullPath(TranslationFilePath)))
+            if (Status == ProviderStatus.InitializationInProgress && _isInitializing == 0)
             {
-                ExcelCreateNew(key, texts);
+                ExcelCreateFirst(key, texts);
 
                 //not great I know
                 GC.Collect();
@@ -115,13 +117,49 @@ namespace Internationalization.FileProvider.Excel {
             get;
         }
 
-        private void ExcelCreateNew(string key, IEnumerable<TextLocalization> texts)
+        private void ExcelCreateNew(string path)
         {
             ExcelInterop.Application excel = new ExcelInterop.Application();
             ExcelInterop.Workbook workbook = excel.Workbooks.Add();
-            ExcelInterop.Worksheet worksheet = (ExcelInterop.Worksheet)workbook.ActiveSheet;
+            //save empty excel without popup
             try
             {
+                excel.DisplayAlerts = false;
+                workbook.SaveAs(Path.GetFullPath(path));
+            }
+            catch
+            {
+                Console.WriteLine($@"Unable to create new language file ({path})");
+            }
+            finally
+            {
+                workbook.Close();
+                excel.Quit();
+
+                //to siganl that even with Status == IsInitaializing, no more reading is needed
+                Interlocked.Exchange(ref _isInitializing, 0);
+            }
+        }
+
+        private void ExcelCreateFirst(string key, IEnumerable<TextLocalization> texts)
+        {
+            ExcelInterop.Application excel = new ExcelInterop.Application();
+            ExcelInterop.Workbooks workbooks = excel.Workbooks;
+            ExcelInterop.Workbook workbook;
+
+            if (File.Exists(Path.GetFullPath(TranslationFilePath)))
+            {
+                workbook = workbooks.Open(Path.GetFullPath(TranslationFilePath));
+            }
+            else
+            {
+                Console.WriteLine($@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
+                return;
+            }
+
+            try
+            {
+                ExcelInterop.Worksheet worksheet = (ExcelInterop.Worksheet)workbook.ActiveSheet;//TODO worksheet[1]
                 string[] keyParts = key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
                 _numKeyParts = keyParts.Length;
 
@@ -140,12 +178,6 @@ namespace Internationalization.FileProvider.Excel {
                 }
 
                 //save excel without popup
-                try
-                {
-                    //throws IOException if file exists with same path as Path.GetDirectoryName(TranslationFilePath)
-                    Directory.CreateDirectory(Path.GetDirectoryName(TranslationFilePath));
-                }
-                catch (IOException) { }
                 excel.DisplayAlerts = false;
                 workbook.SaveAs(Path.GetFullPath(TranslationFilePath));
 
@@ -153,20 +185,18 @@ namespace Internationalization.FileProvider.Excel {
             }
             finally
             {
-                workbook.Close(true, Type.Missing, Type.Missing);
+                workbook.Close();
+                workbooks.Close();
                 excel.Quit();
             }
         }
 
         private void ExcelWriteActions()
         {
-            ExcelInterop.Application excel = null;
-            ExcelInterop.Workbooks workbooks = null;
-            ExcelInterop.Workbook workbook = null;
-            ExcelInterop.Worksheet worksheetGui = null;
 
-            excel = new ExcelInterop.Application();
-            workbooks = excel.Workbooks;
+            ExcelInterop.Application excel = new ExcelInterop.Application();
+            ExcelInterop.Workbooks workbooks = excel.Workbooks;
+            ExcelInterop.Workbook workbook;
 
             if (File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
@@ -174,12 +204,13 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                Console.WriteLine($@"Unable to write Langage File ({Path.GetFullPath(TranslationFilePath)}).");
+                Console.WriteLine($@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
+                return;
             }
 
             try
             {
-                worksheetGui = (ExcelInterop.Worksheet)workbook.Worksheets[1];
+                ExcelInterop.Worksheet worksheetGui = (ExcelInterop.Worksheet)workbook.Worksheets[1];
                 var textLocalizations = TextLocalizationsUtils.FlipLocalizationsDictionary(_dictOfDicts);
                 WriteGuiTranslations(worksheetGui, textLocalizations);
 
@@ -189,14 +220,14 @@ namespace Internationalization.FileProvider.Excel {
             }
             finally
             {
-                workbook?.Close(true, Type.Missing, Type.Missing);
+                workbook.Close();
                 workbooks.Close();
                 excel.Quit();
             }
         }
 
         private void ReadGuiTranslations(ExcelInterop.Worksheet worksheetGui) {
-            //first row only contains column titles, no data
+            //first row only contains column titles (which can be null in first column), no data
             int row = 2;
 
             int numberOfGlossaryEntries = 0;
@@ -227,8 +258,8 @@ namespace Internationalization.FileProvider.Excel {
 
             while (row <= maxRow && values[row, 1] != null)
             {
-
                 bool isGlossaryEntry = _glossaryTag != null && _glossaryTag.Equals(values[row, 1]);
+
                 //check if current row has a comment
                 //or part of glossary (assuming a glossary is being used)
                 if (values[row, 2] != null || isGlossaryEntry)
@@ -270,8 +301,8 @@ namespace Internationalization.FileProvider.Excel {
             foreach (var translation in texts)
             {
                 //if current entry is part of glossary, skip writing
-                Regex glossaryKey = new Regex(_glossaryTag + "\\d*");
-                if (glossaryKey.IsMatch(translation.Key))
+                Regex glossaryKey = new Regex($"^{_glossaryTag}\\d*$");
+                if (_glossaryTag != null && glossaryKey.IsMatch(translation.Key))
                 {
                     continue;
                 }
@@ -408,6 +439,7 @@ namespace Internationalization.FileProvider.Excel {
             var bw = sender as BackgroundWorker;
 
             ExcelInterop.Application excel = new ExcelInterop.Application();
+            //already checked in Initialize if file exists
             ExcelInterop.Workbook workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
 
             try
@@ -463,13 +495,16 @@ namespace Internationalization.FileProvider.Excel {
 
         private void Initialize()
         {
-            Status = ProviderStatus.InitializationInProgress;
             CopyOldExcelFile();
 
             if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0) {
                 if (!File.Exists(TranslationFilePath)) {
-                    string message = $"Unable to open Langauge file ({Path.GetFullPath(TranslationFilePath)}).";
-                    /*should be logger*/Console.WriteLine(message);
+                    Console.WriteLine($@"Unable to open langauge file ({Path.GetFullPath(TranslationFilePath)}).");
+
+                    ExcelCreateNew(TranslationFilePath);
+                    //not great I know
+                    GC.Collect();
+
                     return;
                 }
 
@@ -480,6 +515,33 @@ namespace Internationalization.FileProvider.Excel {
 
                 _backgroundWorker.RunWorkerAsync();
             }
+        }
+
+        private string InspectPath(string path)
+        {
+            if (path == null)
+            {
+                Console.WriteLine(@"Cannot access language file, bacause path is null");
+                return null;
+            }
+
+            path = path.EndsWith(".xlsx") ? path : path + ".xlsx";
+
+            if (File.Exists(Path.GetFullPath(path)))
+            {
+                return path;
+            }
+            Console.WriteLine($@"New Excel file will be created ({path})");
+
+            string directory = Path.GetDirectoryName(path);
+
+            if (directory != null)
+            {
+                //could throw IOException if file exists with same path as directory
+                Directory.CreateDirectory(directory);
+            }
+
+            return path;
         }
 
         /// <summary>
@@ -499,7 +561,7 @@ namespace Internationalization.FileProvider.Excel {
                 }
                 catch (IOException)
                 {
-                    Console.WriteLine($@"Unable to save Langage File as '{OldTranslationFilePath}'.");
+                    Console.WriteLine($@"Unable to save langage file ({OldTranslationFilePath}).");
                 }
             }
         }

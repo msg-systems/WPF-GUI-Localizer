@@ -799,3 +799,7 @@ Authors: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group),
 1. Glossary
    1. for excel: all marked as glossaryTag and glossaryTag given in constructor
    1. for json: all glossary entries have unique keys already in file
+
+# Notes
+
+when using ResLP with excelFP, no corrections will be loaded on first translation, bacause excelFP is still loading language file in parallel

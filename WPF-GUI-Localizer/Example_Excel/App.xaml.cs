@@ -26,7 +26,7 @@ namespace Example_Excel
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File.xlsx", "gloss");
+            IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File", "gloss");
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
         }
 

@@ -74,30 +74,6 @@ namespace Internationalization.LiteralProvider.Resource
                 catch (CultureNotFoundException) {}
             }
 
-            Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
-            try
-            {
-                changes = FileProviderInstance.GetDictionary();
-            }
-            catch (FileProviderNotInitializedException)
-            {
-                Console.WriteLine(@"Unable to read changes from FileProvider.");
-            }
-
-            if (changes != null)
-            {
-                //correct Resources entries where necessary
-                foreach (CultureInfo lang in _dictOfDicts.Keys)
-                {
-                    if (!changes.TryGetValue(lang, out Dictionary<string, string> deltaLangDict)) continue;
-
-                    foreach (var overriddenEntry in deltaLangDict)
-                    {
-                        _dictOfDicts[lang][overriddenEntry.Key] = overriddenEntry.Value;
-                    }
-                }
-            }
-
             _status = ProviderStatus.Initialized;
         }
 
@@ -159,13 +135,11 @@ namespace Internationalization.LiteralProvider.Resource
             if (_dictOfDicts.Keys.Contains(Thread.CurrentThread.CurrentUICulture))
             {
                 string translation = GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
-                if (!string.IsNullOrEmpty(translation))
-                {
-                    return translation;
-                }
+
+                return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
             }
 
-            return "<<empty>>";
+            return string.Empty;
         }
 
         /// <summary>
@@ -176,13 +150,11 @@ namespace Internationalization.LiteralProvider.Resource
             if (_dictOfDicts.Keys.Contains(Thread.CurrentThread.CurrentUICulture))
             {
                 string translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
-                if (!string.IsNullOrEmpty(translation))
-                {
-                    return translation;
-                }
+
+                return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
             }
 
-            return "<<empty>>";
+            return string.Empty;
         }
 
         protected override void CancelInitialization()
@@ -211,6 +183,29 @@ namespace Internationalization.LiteralProvider.Resource
 
             Dictionary<string, string> langDict = _dictOfDicts[language];
             langDict.TryGetValue(resourceKey, out string translation);
+
+            //check for changes everytime (changes dict can change due to late loading)
+            Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
+            try
+            {
+                changes = FileProviderInstance.GetDictionary();
+            }
+            catch (FileProviderNotInitializedException)
+            {
+                Console.WriteLine(@"Unable to read changes from FileProvider.");
+            }
+
+            if (changes != null)
+            {
+                try
+                {
+                    translation = changes.First(x => language.Equals(x.Key))
+                        .Value.First(x => resourceKey.Equals(x.Key)).Value;
+                }
+                catch (InvalidOperationException) { } //no match found; if exception was thrown, translation will not have been changed.
+                
+            }
+
             return translation ?? string.Empty;
         }
 

@@ -124,9 +124,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Resource\Resource_Corrections.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Resource\Resource_Corrections.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
