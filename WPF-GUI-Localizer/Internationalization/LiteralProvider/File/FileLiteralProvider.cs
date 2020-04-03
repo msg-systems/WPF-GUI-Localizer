@@ -89,7 +89,7 @@ namespace Internationalization.LiteralProvider.File
             }
 
             var dictOfDicts = FileProviderInstance.GetDictionary();
-            ObservableCollection<TextLocalization> localizations = new ObservableCollection<TextLocalization>();
+            ICollection<TextLocalization> localizations = new Collection<TextLocalization>();
 
             foreach (CultureInfo language in dictOfDicts.Keys)
             {
@@ -103,18 +103,22 @@ namespace Internationalization.LiteralProvider.File
             }
             GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
 
+            //fill known translations and convert to ObservableCollection
             TextLocalization sourceLocalization = localizations.FirstOrDefault(loc =>
                 Equals(loc.Language, InputLanguage));
-            if (sourceLocalization != null)
+            ObservableCollection<TextLocalization> observableLocalizations = new ObservableCollection<TextLocalization>();
+            foreach (TextLocalization localization in localizations)
             {
-                foreach (TextLocalization localization in localizations)
+                if (sourceLocalization != null)
                 {
                     localization.KnownTranslations = TextLocalizationsUtils
                         .ExtractKnownTranslations(sourceLocalization.Text, localization.Language, dictOfDicts, InputLanguage);
                 }
+
+                observableLocalizations.Add(localization);
             }
 
-            return localizations;
+            return observableLocalizations;
         }
 
         public override string GetGuiTranslationOfCurrentCulture(DependencyObject element)
@@ -128,12 +132,12 @@ namespace Internationalization.LiteralProvider.File
             return GetLiteral(Thread.CurrentThread.CurrentUICulture, parentDialogName, controlType, controlId).Text;
         }
 
-        public override List<CultureInfo> GetKnownLanguages()
+        public override IEnumerable<CultureInfo> GetKnownLanguages()
         {
             return FileProviderInstance.GetDictionary().Keys.ToList();
         }
 
-        public override void SetGuiTranslation(DependencyObject element, ObservableCollection<TextLocalization> texts)
+        public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)
         {
             GetControlProperties(element, out string controlId, out _, out string controlType, out string parentDialogName);
             if (string.IsNullOrWhiteSpace(parentDialogName) || string.IsNullOrWhiteSpace(controlId) ||
@@ -153,7 +157,7 @@ namespace Internationalization.LiteralProvider.File
             FileProviderInstance.CancelInitialization();
         }
 
-        private void SetLiteral(string dialogName, string type, string elementName, ObservableCollection<TextLocalization> texts)
+        private void SetLiteral(string dialogName, string type, string elementName, IEnumerable<TextLocalization> texts)
         {
             foreach (TextLocalization textLocalization in texts)
             {

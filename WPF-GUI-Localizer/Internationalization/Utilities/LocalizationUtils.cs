@@ -156,9 +156,8 @@ namespace Internationalization.Utilities
                 return;
             }
 
-            //set new translations
-            ObservableCollection<TextLocalization> localizedTextsNew = localizationDialog.LocalizedTexts;
-            localizedTextsNew.Add(localizationDialog.InputLocalization);
+            //localizedTexts and inputLanguageLocalization are automatically updated 
+            localizedTexts.Add(inputLanguageLocalization);
             AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement)sender, localizedTexts);
 
             //activate GuiTranslator, independent of how LiteralProvider operated, potentially unwanted?

@@ -105,29 +105,32 @@ namespace Internationalization.LiteralProvider.Resource
         public override ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element)
         {
             //collect translation individually
-            ObservableCollection<TextLocalization> translatedTexts = new ObservableCollection<TextLocalization>();
+            ICollection<TextLocalization> localizations = new Collection<TextLocalization>();
             foreach (CultureInfo lang in GetKnownLanguages())
             {
                 string translation = GetTranslation(GetKeyFromUnkownElementType(element), lang);
-                translatedTexts.Add(new TextLocalization{Language = lang, Text = translation});
+                localizations.Add(new TextLocalization{Language = lang, Text = translation});
             }
 
             //fill translations without Text
-            GetTranslationDummyText(translatedTexts, InputLanguage, PreferedLanguage);
+            GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
 
-            //fill known translations
-            TextLocalization sourceLocalization = translatedTexts.FirstOrDefault(loc =>
+            //fill known translations and convert to ObservableCollection
+            TextLocalization sourceLocalization = localizations.FirstOrDefault(loc =>
                 Equals(loc.Language, InputLanguage));
-            if (sourceLocalization != null)
+            ObservableCollection<TextLocalization> observableLocalizations = new ObservableCollection<TextLocalization>();
+            foreach (TextLocalization localization in localizations)
             {
-                foreach (TextLocalization localization in translatedTexts)
+                if (sourceLocalization != null)
                 {
                     localization.KnownTranslations = TextLocalizationsUtils
                         .ExtractKnownTranslations(sourceLocalization.Text, localization.Language, _dictOfDicts, InputLanguage);
                 }
+
+                observableLocalizations.Add(localization);
             }
 
-            return translatedTexts;
+            return observableLocalizations;
         }
 
         public override string GetGuiTranslationOfCurrentCulture(DependencyObject element)
@@ -209,12 +212,12 @@ namespace Internationalization.LiteralProvider.Resource
             return translation ?? string.Empty;
         }
 
-        public override List<CultureInfo> GetKnownLanguages()
+        public override IEnumerable<CultureInfo> GetKnownLanguages()
         {
             return _dictOfDicts.Keys.ToList();
         }
 
-        public override void SetGuiTranslation(DependencyObject element, ObservableCollection<TextLocalization> texts)
+        public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)
         {
             string key = GetKeyFromUnkownElementType(element);
 

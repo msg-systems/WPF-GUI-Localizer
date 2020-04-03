@@ -15,7 +15,7 @@ namespace Internationalization.Converter
         {
             if (value is CultureInfo language)
             { 
-                return language.DisplayName + " (" + language.Name + ")";
+                return $"{language.DisplayName} ({language.Name})";
             }
 
             return string.Empty;

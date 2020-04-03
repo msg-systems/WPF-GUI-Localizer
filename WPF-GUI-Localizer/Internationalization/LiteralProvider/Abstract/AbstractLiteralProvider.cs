@@ -88,10 +88,13 @@ namespace Internationalization.LiteralProvider.Abstract
             }
         }
 
-        public abstract void SetGuiTranslation(DependencyObject element, ObservableCollection<TextLocalization> texts);
+        public abstract void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts);
+        /// <summary>
+        /// This function returns an ObservableCollection object, as it is only used once by LocalizationUtils
+        /// </summary>
         public abstract ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
         public abstract string GetGuiTranslationOfCurrentCulture(DependencyObject element);
-        public abstract List<CultureInfo> GetKnownLanguages();
+        public abstract IEnumerable<CultureInfo> GetKnownLanguages();
 
         protected abstract void CancelInitialization();
 

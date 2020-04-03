@@ -37,7 +37,7 @@ namespace Internationalization.View {
                 //fill known translations
                 var textLocalization = (TextLocalization)comboBox.DataContext;
                 var knownTranslations = textLocalization.KnownTranslations;
-                if (knownTranslations != null && knownTranslations.Count > 0) {
+                if (knownTranslations != null) {
                     foreach (string knownTranslation in knownTranslations) {
                         comboBox.Items.Add(new ComboBoxItem {
                             Background = Brushes.DeepSkyBlue,

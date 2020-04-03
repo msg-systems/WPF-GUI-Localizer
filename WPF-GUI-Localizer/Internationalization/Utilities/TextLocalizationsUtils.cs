@@ -10,10 +10,10 @@ namespace Internationalization.Utilities
     public static class TextLocalizationsUtils
     {
 
-        public static ObservableCollection<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
+        public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
             Dictionary<CultureInfo, Dictionary<string, string>> allTranslations, CultureInfo inputLanguage)
         {
-            ObservableCollection<string> knownTranslations = new ObservableCollection<string>();
+            ICollection<string> knownTranslations = new Collection<string>();
 
             allTranslations.TryGetValue(inputLanguage, out Dictionary<string, string> sourceDictionary);
 
