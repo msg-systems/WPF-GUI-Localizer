@@ -9,8 +9,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
+using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.Utilities;
+using Microsoft.Extensions.Logging;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 
 namespace Internationalization.FileProvider.Excel {
@@ -133,7 +135,7 @@ namespace Internationalization.FileProvider.Excel {
             }
             catch
             {
-                Console.WriteLine($@"Unable to create new language file ({path})");
+                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"Unable to create new language file ({path})");
             }
             finally
             {
@@ -157,7 +159,8 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                Console.WriteLine($@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
+                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug,
+                    $@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
                 return;
             }
 
@@ -208,7 +211,8 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                Console.WriteLine($@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
+                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                    $@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
                 return;
             }
 
@@ -511,7 +515,8 @@ namespace Internationalization.FileProvider.Excel {
 
             if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0) {
                 if (!File.Exists(TranslationFilePath)) {
-                    Console.WriteLine($@"Unable to open langauge file ({Path.GetFullPath(TranslationFilePath)}).");
+                    AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                        $@"Unable to open langauge file ({Path.GetFullPath(TranslationFilePath)}).");
 
                     ExcelCreateNew(TranslationFilePath);
                     //not great I know
@@ -533,7 +538,7 @@ namespace Internationalization.FileProvider.Excel {
         {
             if (path == null)
             {
-                Console.WriteLine(@"Cannot access language file, bacause path is null");
+                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, @"Cannot access language file, bacause path is null");
                 return null;
             }
 
@@ -543,7 +548,7 @@ namespace Internationalization.FileProvider.Excel {
             {
                 return path;
             }
-            Console.WriteLine($@"New Excel file will be created ({path})");
+            AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"New Excel file will be created ({path})");
 
             string directory = Path.GetDirectoryName(path);
 
@@ -573,7 +578,8 @@ namespace Internationalization.FileProvider.Excel {
                 }
                 catch (IOException)
                 {
-                    Console.WriteLine($@"Unable to save langage file ({OldTranslationFilePath}).");
+                    AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                        $@"Unable to save langage file ({OldTranslationFilePath}).");
                 }
             }
         }

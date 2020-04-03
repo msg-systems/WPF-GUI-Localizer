@@ -15,6 +15,7 @@ using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.LiteralProvider.File
 {
@@ -56,9 +57,10 @@ namespace Internationalization.LiteralProvider.File
         /// </summary>
         /// <param name="fileProvider">has to be initialized before acessing Instance</param>
         /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
-        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
+        /// <param name="logger">This Logger will be used for all logging inside the Library</param>
+        public static void Initialize(ILogger logger, IFileProvider fileProvider, CultureInfo inputLanguage)
         {
-            Instance = new FileLiteralProvider(fileProvider, inputLanguage, new CultureInfo("en"));
+            Initialize(logger, fileProvider, inputLanguage, new CultureInfo("en"));
         }
 
         /// <summary>
@@ -70,8 +72,11 @@ namespace Internationalization.LiteralProvider.File
         /// <param name="preferedLanguage">
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
-        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        /// <param name="logger">This Logger will be used for all logging inside the Library</param>
+        public static void Initialize(ILogger logger, IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
+            LiteralProviderLogger = logger;
+
             Instance = new FileLiteralProvider(fileProvider, inputLanguage, preferedLanguage);
         }
 
@@ -143,8 +148,7 @@ namespace Internationalization.LiteralProvider.File
             if (string.IsNullOrWhiteSpace(parentDialogName) || string.IsNullOrWhiteSpace(controlId) ||
                 string.IsNullOrWhiteSpace(controlType) || texts == null)
             {
-                /*should be logger*/
-                Console.WriteLine(@"Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.", parentDialogName, controlType, controlId);
+                LiteralProviderLogger.Log(LogLevel.Debug, @"Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.", parentDialogName, controlType, controlId);
                 return;
             }
 
@@ -182,8 +186,7 @@ namespace Internationalization.LiteralProvider.File
 
             if (result == null)
             {
-                /*should be logger*/
-                Console.WriteLine(@"Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}'.",
+                LiteralProviderLogger.Log(LogLevel.Debug, @"Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}'.",
                     dialogName, type, elementName, language);
             }
             else
@@ -328,7 +331,7 @@ namespace Internationalization.LiteralProvider.File
                         }
                         catch
                         {
-                            Console.WriteLine(@"Unable to find parent of DataGridColumn.");
+                            LiteralProviderLogger.Log(LogLevel.Debug, @"Unable to find parent of DataGridColumn.");
                         }
                         break;
                     }

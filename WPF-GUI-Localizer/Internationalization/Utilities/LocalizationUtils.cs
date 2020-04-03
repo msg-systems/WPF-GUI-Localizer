@@ -11,6 +11,7 @@ using Internationalization.GUITranslator;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.View;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
 {
@@ -171,7 +172,8 @@ namespace Internationalization.Utilities
                     }
                     catch
                     {
-                        Console.WriteLine(@"Unable to update new translation for DataGrid GUI");
+                        AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug,
+                            @"Unable to update new translation for DataGrid in GUI");
                     }
 
                     break;

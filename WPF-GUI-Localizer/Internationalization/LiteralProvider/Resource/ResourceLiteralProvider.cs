@@ -15,6 +15,7 @@ using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.LiteralProvider.Resource
 {
@@ -57,7 +58,7 @@ namespace Internationalization.LiteralProvider.Resource
             {
                 string nameOfAssembly = ResourcesUtils.ResourcesAssembly == null ?
                     Assembly.GetEntryAssembly()?.FullName : ResourcesUtils.ResourcesAssembly.FullName;
-                Console.WriteLine($@"Unable to read Resources files from assembly ({nameOfAssembly}).");
+                LiteralProviderLogger.Log(LogLevel.Warning, $@"Unable to read Resources files from assembly ({nameOfAssembly}).");
                 return;
             }
 
@@ -91,10 +92,11 @@ namespace Internationalization.LiteralProvider.Resource
         /// Call this method before accessing the property Instance.
         /// </summary>
         /// <param name="fileProvider">does not have to be initialized before acessing Instance</param>
-        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
-        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
+        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param
+        /// <param name="logger">This Logger will be used for all logging inside the Library</param>
+        public static void Initialize(ILogger logger, IFileProvider fileProvider, CultureInfo inputLanguage)
         {
-            Instance = new ResourceLiteralProvider(fileProvider, inputLanguage, new CultureInfo("en"));
+            Initialize(logger, fileProvider, inputLanguage, new CultureInfo("en"));
         }
 
         /// <summary>
@@ -106,8 +108,11 @@ namespace Internationalization.LiteralProvider.Resource
         /// <param name="preferedLanguage">
         /// Used if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
-        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        /// <param name="logger">This Logger will be used for all logging inside the Library</param>
+        public static void Initialize(ILogger logger, IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
+            LiteralProviderLogger = logger;
+
             Instance = new ResourceLiteralProvider(fileProvider, inputLanguage, preferedLanguage);
         }
 
@@ -204,7 +209,7 @@ namespace Internationalization.LiteralProvider.Resource
             }
             catch (FileProviderNotInitializedException)
             {
-                Console.WriteLine(@"Unable to read changes from FileProvider.");
+                LiteralProviderLogger.Log(LogLevel.Debug, @"Unable to read changes from FileProvider.");
             }
 
             if (changes != null)
