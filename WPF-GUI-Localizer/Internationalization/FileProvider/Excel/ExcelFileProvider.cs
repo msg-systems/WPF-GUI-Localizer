@@ -81,6 +81,7 @@ namespace Internationalization.FileProvider.Excel {
                 langDict.Add(key, textLocalization.Text);
             }
 
+            //if file was created by ExcelFileProvider itself
             if (Status == ProviderStatus.InitializationInProgress && _isInitializing == 0)
             {
                 ExcelCreateFirst(key, texts);
@@ -159,7 +160,7 @@ namespace Internationalization.FileProvider.Excel {
 
             try
             {
-                ExcelInterop.Worksheet worksheet = (ExcelInterop.Worksheet)workbook.ActiveSheet;//TODO worksheet[1]
+                ExcelInterop.Worksheet worksheet = (ExcelInterop.Worksheet)workbook.Worksheets[1];
                 string[] keyParts = key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
                 _numKeyParts = keyParts.Length;
 
@@ -179,7 +180,7 @@ namespace Internationalization.FileProvider.Excel {
 
                 //save excel without popup
                 excel.DisplayAlerts = false;
-                workbook.SaveAs(Path.GetFullPath(TranslationFilePath));
+                workbook.Save();
 
                 Status = ProviderStatus.Initialized;
             }
@@ -267,7 +268,7 @@ namespace Internationalization.FileProvider.Excel {
                     string key;
                     if (isGlossaryEntry)
                     {
-                        key = "glossary" + numberOfGlossaryEntries;
+                        key = _glossaryTag + numberOfGlossaryEntries;
                         numberOfGlossaryEntries++;
                     }
                     else

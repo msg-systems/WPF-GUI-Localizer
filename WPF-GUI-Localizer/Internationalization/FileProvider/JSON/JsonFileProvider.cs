@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
@@ -15,67 +16,31 @@ namespace Internationalization.FileProvider.JSON
     /// </summary>
     public class JsonFileProvider : IFileProvider
     {
-        private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfdicts;
         private readonly string _path;
+        private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfdicts;
 
+        private bool successfullyCreatedFile;
         public ProviderStatus Status { get; private set; }
 
-        /// <param name="translationFilePath">the file under which the dictionary will be saved</param>
+        /// <param name="translationFilePath">the path under which the dictionary will be saved</param>
         public JsonFileProvider(string translationFilePath)
         {
             Status = ProviderStatus.InitializationInProgress;
 
-            _path = translationFilePath;
-            string fileContent = string.Empty;
+            _path = InspectPath(translationFilePath);
 
-            try
-            {
-                fileContent = System.IO.File.ReadAllText(_path);
-            }
-            catch
-            {
-                Console.WriteLine(@"Unable to read JSON file at '{0}'.", _path);
-
-                try
-                {
-                    fileContent = JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>()); //can also be rewritten as = "{}"
-                    try
-                    {
-                        //throws IOException if file exists with same path as System.IO.Path.GetDirectoryName(_path)
-                        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_path));
-                    }
-                    catch (System.IO.IOException) { }
-
-                    System.IO.File.WriteAllText(_path, fileContent);
-                }
-                catch
-                {
-                    Console.WriteLine(@"Unable to write to file at '{0}'.", _path);
-                }
-            }
-            _dictOfdicts = JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
-
-            //Cancelation identical to Initialization
-            switch (Status)
-            {
-                case ProviderStatus.CancellationInProgress:
-                    Status = ProviderStatus.CancellationComplete;
-                    break;
-                case ProviderStatus.InitializationInProgress:
-                    Status = ProviderStatus.Initialized;
-                    break;
-            }
+            ReadFile();
         }
 
         public void SaveDictionary()
         {
             try
             {
-                System.IO.File.WriteAllText(_path, JsonConvert.SerializeObject(_dictOfdicts));
+                File.WriteAllText(_path, JsonConvert.SerializeObject(_dictOfdicts));
             }
             catch
             {
-                Console.WriteLine(@"Failed to write to file at '{0}'.", _path);
+                Console.WriteLine($@"Unable to write langage file ({Path.GetFullPath(_path)}).");
             }
         }
 
@@ -96,6 +61,14 @@ namespace Internationalization.FileProvider.JSON
                 }
                 langDict.Add(key, textLocalization.Text);
             }
+
+            //if file was created by JsonFileProvider itself
+            if (Status == ProviderStatus.InitializationInProgress && successfullyCreatedFile)
+            {
+                SaveDictionary();
+
+                Status = ProviderStatus.Initialized;
+            }
         }
 
         public void CancelInitialization()
@@ -112,6 +85,77 @@ namespace Internationalization.FileProvider.JSON
             }
 
             return _dictOfdicts;
+        }
+
+        private string InspectPath(string path)
+        {
+            if (path == null)
+            {
+                Console.WriteLine(@"Cannot access language file, bacause path is null");
+                return null;
+            }
+
+            path = path.EndsWith(".json") ? path : path + ".json";
+
+            if (File.Exists(Path.GetFullPath(path)))
+            {
+                return path;
+            }
+            Console.WriteLine($@"New Json file will be created ({path})");
+
+            string directory = Path.GetDirectoryName(path);
+
+            if (directory != null)
+            {
+                //could throw IOException if file exists with same path as directory
+                Directory.CreateDirectory(directory);
+            }
+
+            return path;
+        }
+
+        private void ReadFile()
+        {
+            string fileContent = string.Empty;
+
+            try
+            {
+                fileContent = File.ReadAllText(_path);
+            }
+            catch
+            {
+                Console.WriteLine($@"Unable to open langauge file ({Path.GetFullPath(_path)}).");
+
+                try
+                {
+                    fileContent = "{}"; //can also be rewritten as JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
+                    File.WriteAllText(_path, fileContent);
+
+                    successfullyCreatedFile = true;
+                    if (Status == ProviderStatus.CancellationInProgress)
+                    {
+                        Status = ProviderStatus.CancellationComplete;
+                    }
+
+                    return;
+                }
+                catch
+                {
+                    Console.WriteLine($@"Unable to create new language file ({_path})");
+                }
+            }
+            _dictOfdicts = JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
+
+            //Cancelation identical to Initialization
+            switch (Status)
+            {
+                case ProviderStatus.CancellationInProgress:
+                    Status = ProviderStatus.CancellationComplete;
+                    break;
+                case ProviderStatus.InitializationInProgress:
+                    Status = ProviderStatus.Initialized;
+                    break;
+            }
         }
     }
 }

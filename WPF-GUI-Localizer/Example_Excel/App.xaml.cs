@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Internationalization.FileProvider.Excel;
 using Internationalization.FileProvider.Interface;
+using Internationalization.FileProvider.JSON;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.File;
 
@@ -27,6 +28,7 @@ namespace Example_Excel
         private void OnStartup(object sender, StartupEventArgs e)
         {
             IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File", "gloss");
+            IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
         }
 

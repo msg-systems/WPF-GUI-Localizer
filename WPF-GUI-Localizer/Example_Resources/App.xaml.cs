@@ -30,9 +30,9 @@ namespace Example_Resources
         {
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
 
-            //IFileProvider jfp = new JsonFileProvider(@"Resource/Resource_Corrections.json");
+            IFileProvider jfp = new JsonFileProvider(@"Resource/Resource_Corrections.json");
             IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel");
-            ResourceLiteralProvider.Initialize(efp, new CultureInfo("en"));
+            ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));
         }
 
         private void OnExit(object sender, ExitEventArgs e)
