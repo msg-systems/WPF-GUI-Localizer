@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.Model;
@@ -19,7 +18,7 @@ namespace Internationalization.FileProvider.JSON
         private readonly string _path;
         private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfdicts;
 
-        private bool successfullyCreatedFile;
+        private bool _successfullyCreatedFile;
         public ProviderStatus Status { get; private set; }
 
         /// <param name="translationFilePath">the path under which the dictionary will be saved</param>
@@ -63,7 +62,7 @@ namespace Internationalization.FileProvider.JSON
             }
 
             //if file was created by JsonFileProvider itself
-            if (Status == ProviderStatus.InitializationInProgress && successfullyCreatedFile)
+            if (Status == ProviderStatus.InitializationInProgress && _successfullyCreatedFile)
             {
                 SaveDictionary();
 
@@ -131,7 +130,7 @@ namespace Internationalization.FileProvider.JSON
                     fileContent = "{}"; //can also be rewritten as JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
                     File.WriteAllText(_path, fileContent);
 
-                    successfullyCreatedFile = true;
+                    _successfullyCreatedFile = true;
                     if (Status == ProviderStatus.CancellationInProgress)
                     {
                         Status = ProviderStatus.CancellationComplete;

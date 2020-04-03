@@ -29,7 +29,7 @@ namespace Internationalization.FileProvider.Excel {
 
         // 0: initialization is not yet started or completed
         // 1: initialization is already started and running
-        private int _isInitializing = 0;
+        private int _isInitializing;
         private BackgroundWorker _backgroundWorker;
         private int _numKeyParts;
         private readonly string _glossaryTag;
@@ -65,7 +65,10 @@ namespace Internationalization.FileProvider.Excel {
 
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
-            foreach (TextLocalization textLocalization in texts)
+            //in order to guarantee only one enumeration even if ExcelCreateFirst needs to be called
+            IList<TextLocalization> textsEnumerated = texts.ToList();
+
+            foreach (TextLocalization textLocalization in textsEnumerated)
             {
                 _dictOfDicts.TryGetValue(textLocalization.Language, out Dictionary<string, string> langDict);
                 if (langDict == null)
@@ -84,7 +87,7 @@ namespace Internationalization.FileProvider.Excel {
             //if file was created by ExcelFileProvider itself
             if (Status == ProviderStatus.InitializationInProgress && _isInitializing == 0)
             {
-                ExcelCreateFirst(key, texts);
+                ExcelCreateFirst(key, textsEnumerated);
 
                 //not great I know
                 GC.Collect();
@@ -308,7 +311,6 @@ namespace Internationalization.FileProvider.Excel {
                     continue;
                 }
 
-                ExcelInterop.Range firstDialogFind = null;
                 bool updatedRow = false;
                 int lastFindForDialogIndex = -1;
 
@@ -333,7 +335,7 @@ namespace Internationalization.FileProvider.Excel {
                     ExcelInterop.XlFindLookIn.xlValues, ExcelInterop.XlLookAt.xlPart,
                     ExcelInterop.XlSearchOrder.xlByRows, ExcelInterop.XlSearchDirection.xlNext, false,
                     Type.Missing, Type.Missing);
-                firstDialogFind = currentDialogFind;
+                var firstDialogFind = currentDialogFind;
 
                 //search for match with key
                 while (currentDialogFind != null)
@@ -436,8 +438,11 @@ namespace Internationalization.FileProvider.Excel {
             return cellValue == null ? string.Empty : cellValue.ToString();
         }
 
+        /// <summary>
+        /// Work for BackgroundWorker, can also be called without BackgroundWorker
+        /// </summary>
         private void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e) {
-            var bw = sender as BackgroundWorker;
+            BackgroundWorker bw = sender as BackgroundWorker;
 
             ExcelInterop.Application excel = new ExcelInterop.Application();
             //already checked in Initialize if file exists
@@ -445,7 +450,7 @@ namespace Internationalization.FileProvider.Excel {
 
             try
             {
-                if (!bw.CancellationPending)
+                if (bw != null && !bw.CancellationPending)
                 {
                     ExcelInterop.Worksheet worksheetGui = (ExcelInterop.Worksheet) workbook.Worksheets[1];
                     ReadGuiTranslations(worksheetGui);
@@ -457,9 +462,15 @@ namespace Internationalization.FileProvider.Excel {
                 excel.Quit();
             }
 
-            e.Cancel = bw.CancellationPending;
+            if (bw != null)
+            {
+                e.Cancel = bw.CancellationPending;
+            }
         }
 
+        /// <summary>
+        /// Clean up after BackgroundWorker finished, can also be called without BackgroundWorker
+        /// </summary>
         private void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e) {
             Interlocked.Exchange(ref _isInitializing, 0);
 

@@ -70,6 +70,7 @@
     <Compile Include="FileProvider\Excel\ExcelFileProvider.cs" />
     <Compile Include="FileProvider\Interface\IFileProvider.cs" />
     <Compile Include="FileProvider\JSON\JsonFileProvider.cs" />
+    <Compile Include="LiteralProvider\Interface\ILiteralProvider.cs" />
     <Compile Include="Utilities\LocalizationUtils.cs" />
     <Compile Include="LiteralProvider\File\FileLiteralProvider.cs" />
     <Compile Include="LiteralProvider\Resource\ResourceLiteralProvider.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Model\TextLocalization.cs" />
     <Compile Include="Utilities\CultureInfoUtils.cs" />
     <Compile Include="Utilities\LogicalTreeUtils.cs" />
+    <Compile Include="Utilities\ResourcesUtils.cs" />
     <Compile Include="Utilities\TextLocalizationsUtils.cs" />
     <Compile Include="Utilities\VisualTreeUtils.cs" />
     <Compile Include="GUITranslator\GuiTranslator.cs" />

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Resources;
 using Internationalization.Exception;
 
 namespace Internationalization.Utilities
@@ -28,15 +26,6 @@ namespace Internationalization.Utilities
             }
 
             return new CultureInfo(cultureName);
-        }
-
-        /// <summary>
-        /// returns resourceManager of entry assembly, might cause problems
-        /// </summary>
-        public static ResourceManager GetResourcesManager()
-        {
-            string nameOfAppToBeTranslated = Assembly.GetEntryAssembly().FullName.Split(',')[0];
-            return new ResourceManager(nameOfAppToBeTranslated + ".Properties.Resources", Assembly.GetEntryAssembly());
         }
     }
 }

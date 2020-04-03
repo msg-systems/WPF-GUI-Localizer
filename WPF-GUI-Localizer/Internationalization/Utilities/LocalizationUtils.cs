@@ -66,6 +66,7 @@ namespace Internationalization.Utilities
         /// Initiates the Attachment of OpenLocalizationDialog to the Views GUI-elements
         /// </summary>
         /// <param name="sender">View, whose GUI-elements should have the translation action attached to them</param>
+        /// <param name="e"></param>
         public static void ElementInitialized(object sender, EventArgs e)
         {
             ManageLocalizationEvents(sender as DependencyObject, true, true);
@@ -156,8 +157,8 @@ namespace Internationalization.Utilities
                 return;
             }
 
-            //localizedTexts and inputLanguageLocalization are automatically updated 
-            localizedTexts.Add(inputLanguageLocalization);
+            //give updated texts back to LiteralProvider
+            localizedTexts.Add(localizationDialog.InputLocalization); //localizedTexts (also inputLanguageLocalization) is already updated with out grabbing new value from dialog window
             AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement)sender, localizedTexts);
 
             //activate GuiTranslator, independent of how LiteralProvider operated, potentially unwanted?

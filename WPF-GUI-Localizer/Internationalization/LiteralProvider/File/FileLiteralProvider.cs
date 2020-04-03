@@ -52,9 +52,9 @@ namespace Internationalization.LiteralProvider.File
 
         /// <summary>
         /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property <see cref="Instance"/>.
+        /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">has to be initialized before acessing <see cref="Instance"/></param>
+        /// <param name="fileProvider">has to be initialized before acessing Instance</param>
         /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
@@ -63,9 +63,9 @@ namespace Internationalization.LiteralProvider.File
 
         /// <summary>
         /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property <see cref="Instance"/>.
+        /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">has to be initialized before acessing <see cref="Instance"/></param>
+        /// <param name="fileProvider">has to be initialized before acessing Instance</param>
         /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
         /// <param name="preferedLanguage">
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
@@ -148,7 +148,7 @@ namespace Internationalization.LiteralProvider.File
                 return;
             }
 
-            SetLiteral(parentDialogName, controlType, controlId, texts);
+            SetLiteral(parentDialogName, controlType, controlId, texts.ToList());
         }
 
         protected override void CancelInitialization()
@@ -157,7 +157,7 @@ namespace Internationalization.LiteralProvider.File
             FileProviderInstance.CancelInitialization();
         }
 
-        private void SetLiteral(string dialogName, string type, string elementName, IEnumerable<TextLocalization> texts)
+        private void SetLiteral(string dialogName, string type, string elementName, IList<TextLocalization> texts)
         {
             foreach (TextLocalization textLocalization in texts)
             {

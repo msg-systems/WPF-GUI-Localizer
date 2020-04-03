@@ -4,12 +4,13 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
 using Internationalization.FileProvider.Interface;
+using Internationalization.LiteralProvider.Interface;
 using Internationalization.Model;
 using Internationalization.Utilities;
 
 namespace Internationalization.LiteralProvider.Abstract
 {
-    public abstract class AbstractLiteralProvider
+    public abstract class AbstractLiteralProvider : ILiteralProvider
     {
 
         private static AbstractLiteralProvider _instance;
@@ -30,7 +31,7 @@ namespace Internationalization.LiteralProvider.Abstract
         /// (endless loop possible)
         /// Will return the singleton instance, if fully initialized
         /// </summary>
-        public static AbstractLiteralProvider Instance
+        public static ILiteralProvider Instance
         {
             get
             {
@@ -47,7 +48,7 @@ namespace Internationalization.LiteralProvider.Abstract
 
                 return _instance;
             }
-            protected set => _instance = value;
+            protected set => _instance = (AbstractLiteralProvider) value;
         }
 
         /// <summary>

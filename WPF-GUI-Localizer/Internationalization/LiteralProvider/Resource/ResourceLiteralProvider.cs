@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Resources;
 using System.Threading;
 using System.Windows;
@@ -51,8 +52,16 @@ namespace Internationalization.LiteralProvider.Resource
 
         private void ReadDicts()
         {
+            ResourceManager rm = ResourcesUtils.GetResourcesManager();
+            if (rm == null)
+            {
+                string nameOfAssembly = ResourcesUtils.ResourcesAssembly == null ?
+                    Assembly.GetEntryAssembly()?.FullName : ResourcesUtils.ResourcesAssembly.FullName;
+                Console.WriteLine($@"Unable to read Resources files from assembly ({nameOfAssembly}).");
+                return;
+            }
+
             //collect all Resource entries
-            ResourceManager rm = CultureInfoUtil.GetResourcesManager();
             var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
             foreach (CultureInfo lang in langs)
             {
@@ -79,9 +88,9 @@ namespace Internationalization.LiteralProvider.Resource
 
         /// <summary>
         /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property <see cref="Instance"/>.
+        /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">does not have to be initialized before acessing <see cref="Instance"/></param>
+        /// <param name="fileProvider">does not have to be initialized before acessing Instance</param>
         /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
@@ -90,9 +99,9 @@ namespace Internationalization.LiteralProvider.Resource
 
         /// <summary>
         /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property <see cref="Instance"/>.
+        /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">does not have to be initialized before acessing <see cref="Instance"/></param>
+        /// <param name="fileProvider">does not have to be initialized before acessing Instance</param>
         /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
         /// <param name="preferedLanguage">
         /// Used if InputLanguage is not english, to have recommendations be in english regardless.
@@ -219,9 +228,12 @@ namespace Internationalization.LiteralProvider.Resource
 
         public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)
         {
+            //in order to guarantee only one enumeration
+            IList<TextLocalization> textsEnumerated = texts.ToList();
+
             string key = GetKeyFromUnkownElementType(element);
 
-            foreach (TextLocalization textLocalization in texts)
+            foreach (TextLocalization textLocalization in textsEnumerated)
             {
                 _dictOfDicts.TryGetValue(textLocalization.Language, out Dictionary<string, string> langDict);
                 if (langDict == null)
@@ -236,7 +248,7 @@ namespace Internationalization.LiteralProvider.Resource
                 langDict.Add(key, textLocalization.Text);
             }
 
-            FileProviderInstance.Update(key, texts);
+            FileProviderInstance.Update(key, textsEnumerated);
         }
 
         public override void Save()
