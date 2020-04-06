@@ -23,6 +23,7 @@ namespace Internationalization.Utilities
         {
             Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(LocalizationUtils));
         }
+
         /// <summary>
         /// Attach <see cref="OpenLocalizationDialog"/> to all supported GUI-elements
         /// </summary>
@@ -168,24 +169,28 @@ namespace Internationalization.Utilities
             localizedTexts.Add(localizationDialog.InputLocalization); //localizedTexts (also inputLanguageLocalization) is already updated with out grabbing new value from dialog window
             AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement)sender, localizedTexts);
 
-            //activate GuiTranslator, independent of how LiteralProvider operated, potentially unwanted?
-            switch (sender)
+            //activate GuiTranslator, depending on GlobalSettings
+            if (GlobalSettings.UseGuiTranslatorForLocalizationUtils)
             {
-                case DataGridColumnHeader asColumnHeader:
-                    try
-                    {
-                        GuiTranslator.TranslateGuiElement(LogicalTreeUtils.GetDataGridParent(asColumnHeader.Column));
-                    }
-                    catch
-                    {
-                        Logger.Log(LogLevel.Debug,
-                            @"Unable to update new translation for DataGrid in GUI");
-                    }
+                switch (sender)
+                {
+                    case DataGridColumnHeader asColumnHeader:
+                        try
+                        {
+                            GuiTranslator.TranslateGuiElement(
+                                LogicalTreeUtils.GetDataGridParent(asColumnHeader.Column));
+                        }
+                        catch
+                        {
+                            Logger.Log(LogLevel.Debug,
+                                @"Unable to update new translation for DataGrid in GUI.");
+                        }
 
-                    break;
-                case FrameworkElement asFrameworkElement:
-                    GuiTranslator.TranslateGuiElement(asFrameworkElement);
-                    break;
+                        break;
+                    case FrameworkElement asFrameworkElement:
+                        GuiTranslator.TranslateGuiElement(asFrameworkElement);
+                        break;
+                }
             }
         }
     }

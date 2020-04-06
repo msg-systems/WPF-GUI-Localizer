@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization
 {
@@ -12,5 +13,16 @@ namespace Internationalization
         /// they will use the Console logger without a LogLevel filter by default and not update their logger after this property is set.
         /// </summary>
         public static ILoggerFactory LibraryLoggerFactory { internal get; set; } = LoggerFactory.Create(builder => { builder.AddConsole(); });
+
+        /// <summary>
+        /// The assembly of the project, whose Ressources files are supposed to be used; Default: null
+        /// </summary>
+        public static Assembly ResourcesAssembly { get; set; }
+
+        /// <summary>
+        /// Determines if LocalizationUtils updates the changed translation of an element in the GUI directly using GuiTranslator
+        /// or not; Default: true.
+        /// </summary>
+        public static bool UseGuiTranslatorForLocalizationUtils { get; set; } = true;
     }
 }

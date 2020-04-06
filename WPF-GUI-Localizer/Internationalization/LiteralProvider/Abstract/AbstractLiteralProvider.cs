@@ -50,7 +50,7 @@ namespace Internationalization.LiteralProvider.Abstract
 
                 return _instance;
             }
-            protected set => _instance = (AbstractLiteralProvider) value;
+            protected set => _instance = value as AbstractLiteralProvider;
         }
 
         /// <summary>

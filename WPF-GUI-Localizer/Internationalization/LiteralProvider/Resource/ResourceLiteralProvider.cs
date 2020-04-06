@@ -56,8 +56,8 @@ namespace Internationalization.LiteralProvider.Resource
             ResourceManager rm = ResourcesUtils.GetResourcesManager();
             if (rm == null)
             {
-                string nameOfAssembly = ResourcesUtils.ResourcesAssembly == null ?
-                    Assembly.GetEntryAssembly()?.FullName : ResourcesUtils.ResourcesAssembly.FullName;
+                string nameOfAssembly = GlobalSettings.ResourcesAssembly == null ?
+                    Assembly.GetEntryAssembly()?.FullName : GlobalSettings.ResourcesAssembly.FullName;
                 _logger.Log(LogLevel.Warning, $@"Unable to read Resources files from assembly ({nameOfAssembly}).");
                 return;
             }
