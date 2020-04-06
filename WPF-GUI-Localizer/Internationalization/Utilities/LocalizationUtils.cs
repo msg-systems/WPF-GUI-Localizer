@@ -17,6 +17,12 @@ namespace Internationalization.Utilities
 {
     public static class LocalizationUtils
     {
+        private static readonly ILogger Logger;
+
+        static LocalizationUtils()
+        {
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(LocalizationUtils));
+        }
         /// <summary>
         /// Attach <see cref="OpenLocalizationDialog"/> to all supported GUI-elements
         /// </summary>
@@ -172,7 +178,7 @@ namespace Internationalization.Utilities
                     }
                     catch
                     {
-                        AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug,
+                        Logger.Log(LogLevel.Debug,
                             @"Unable to update new translation for DataGrid in GUI");
                     }
 

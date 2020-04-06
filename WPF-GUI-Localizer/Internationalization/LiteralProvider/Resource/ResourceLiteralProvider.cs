@@ -23,7 +23,7 @@ namespace Internationalization.LiteralProvider.Resource
     public class ResourceLiteralProvider : AbstractLiteralProvider
     {
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts = new Dictionary<CultureInfo, Dictionary<string, string>>();
-        
+        private static ILogger _logger;
         private ProviderStatus _status;
 
         protected override ProviderStatus Status
@@ -58,7 +58,7 @@ namespace Internationalization.LiteralProvider.Resource
             {
                 string nameOfAssembly = ResourcesUtils.ResourcesAssembly == null ?
                     Assembly.GetEntryAssembly()?.FullName : ResourcesUtils.ResourcesAssembly.FullName;
-                LiteralProviderLogger.Log(LogLevel.Warning, $@"Unable to read Resources files from assembly ({nameOfAssembly}).");
+                _logger.Log(LogLevel.Warning, $@"Unable to read Resources files from assembly ({nameOfAssembly}).");
                 return;
             }
 
@@ -92,11 +92,10 @@ namespace Internationalization.LiteralProvider.Resource
         /// Call this method before accessing the property Instance.
         /// </summary>
         /// <param name="fileProvider">does not have to be initialized before acessing Instance</param>
-        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param
-        /// <param name="logger">This Logger will be used for all logging inside the Library</param>
-        public static void Initialize(ILogger logger, IFileProvider fileProvider, CultureInfo inputLanguage)
+        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
+        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
-            Initialize(logger, fileProvider, inputLanguage, new CultureInfo("en"));
+            Initialize(fileProvider, inputLanguage, new CultureInfo("en"));
         }
 
         /// <summary>
@@ -108,10 +107,9 @@ namespace Internationalization.LiteralProvider.Resource
         /// <param name="preferedLanguage">
         /// Used if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
-        /// <param name="logger">This Logger will be used for all logging inside the Library</param>
-        public static void Initialize(ILogger logger, IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
-            LiteralProviderLogger = logger;
+            _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ResourceLiteralProvider>();
 
             Instance = new ResourceLiteralProvider(fileProvider, inputLanguage, preferedLanguage);
         }
@@ -209,7 +207,7 @@ namespace Internationalization.LiteralProvider.Resource
             }
             catch (FileProviderNotInitializedException)
             {
-                LiteralProviderLogger.Log(LogLevel.Debug, @"Unable to read changes from FileProvider.");
+                _logger.Log(LogLevel.Debug, @"Unable to read changes from FileProvider.");
             }
 
             if (changes != null)

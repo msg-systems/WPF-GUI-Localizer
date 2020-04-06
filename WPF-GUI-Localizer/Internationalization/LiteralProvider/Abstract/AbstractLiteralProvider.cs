@@ -17,7 +17,6 @@ namespace Internationalization.LiteralProvider.Abstract
         private static AbstractLiteralProvider _instance;
         protected abstract ProviderStatus Status { get; }
 
-        internal static ILogger LiteralProviderLogger { get; private protected set; }
 
         /// <summary>
         /// The language originally used in the application, which is ment to be internatiolized

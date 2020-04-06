@@ -6,11 +6,15 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Internationalization;
 using Internationalization.FileProvider.Excel;
 using Internationalization.FileProvider.Interface;
 using Internationalization.FileProvider.JSON;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.File;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 
 namespace Example_Excel
 {
@@ -27,8 +31,19 @@ namespace Example_Excel
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
+
+            ILoggerFactory consoleLoggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .SetMinimumLevel(LogLevel.Information)
+                    .AddConsole();
+            });
+
+            GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
+
             IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File", "gloss");
             IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
+
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
         }
 

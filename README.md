@@ -801,9 +801,10 @@ Authors: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group),
    1. for json: all glossary entries have unique keys already in file
 1. More Stability with I/O stuff
 1. Added ILiteralProvider (AbstractLiteralProvider still has singleton management)
-1. Added first Logger DI option
+1. Added GlobalSettings
+   1.Added LoggingFactory Property with default as console.
 
 # Notes
 
 when using ResLP with excelFP, no corrections will be loaded on first translation, bacause excelFP is still loading language file in parallel.
-Logger implementation currently non satifactory, please redo.
+Microsoft.Extensions.Logging, Microsoft.Extensions.Logging.Console also needed.

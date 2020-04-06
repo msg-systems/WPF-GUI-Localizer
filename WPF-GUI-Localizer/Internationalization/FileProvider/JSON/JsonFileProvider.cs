@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
-using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -17,6 +15,8 @@ namespace Internationalization.FileProvider.JSON
     /// </summary>
     public class JsonFileProvider : IFileProvider
     {
+        private static ILogger _logger;
+
         private readonly string _path;
         private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfdicts;
 
@@ -28,6 +28,7 @@ namespace Internationalization.FileProvider.JSON
         {
             Status = ProviderStatus.InitializationInProgress;
 
+            _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<JsonFileProvider>();
             _path = InspectPath(translationFilePath);
 
             ReadFile();
@@ -41,7 +42,7 @@ namespace Internationalization.FileProvider.JSON
             }
             catch
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                _logger.Log(LogLevel.Debug, 
                     $@"Unable to write langage file ({Path.GetFullPath(_path)}).");
             }
         }
@@ -93,7 +94,7 @@ namespace Internationalization.FileProvider.JSON
         {
             if (path == null)
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, @"Cannot access language file, bacause path is null");
+                _logger.Log(LogLevel.Debug, @"Cannot access language file, bacause path is null");
                 return null;
             }
 
@@ -103,7 +104,7 @@ namespace Internationalization.FileProvider.JSON
             {
                 return path;
             }
-            AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"New Json file will be created ({path})");
+            _logger.Log(LogLevel.Debug, $@"New Json file will be created ({path})");
 
             string directory = Path.GetDirectoryName(path);
 
@@ -126,11 +127,11 @@ namespace Internationalization.FileProvider.JSON
             }
             catch
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"Unable to open langauge file ({Path.GetFullPath(_path)}).");
+                _logger.Log(LogLevel.Debug, $@"Unable to open langauge file ({Path.GetFullPath(_path)}).");
 
                 try
                 {
-                    fileContent = "{}"; //can also be rewritten as JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
+                    fileContent = "{}"; //identical to JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
                     File.WriteAllText(_path, fileContent);
 
                     _successfullyCreatedFile = true;
@@ -143,7 +144,7 @@ namespace Internationalization.FileProvider.JSON
                 }
                 catch
                 {
-                    AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"Unable to create new language file ({_path})");
+                    _logger.Log(LogLevel.Debug, $@"Unable to create new language file ({_path})");
                 }
             }
             _dictOfdicts = JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);

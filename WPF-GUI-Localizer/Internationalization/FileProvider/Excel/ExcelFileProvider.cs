@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
-using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
@@ -26,6 +25,8 @@ namespace Internationalization.FileProvider.Excel {
     /// </summary>
     public class ExcelFileProvider : IFileProvider
     {
+
+        private static ILogger _logger;
 
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts = new Dictionary<CultureInfo, Dictionary<string, string>>();
 
@@ -46,8 +47,10 @@ namespace Internationalization.FileProvider.Excel {
         {
             Status = ProviderStatus.InitializationInProgress;
 
-            TranslationFilePath = InspectPath(translationFilePath);
+            _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ExcelFileProvider>();
             _glossaryTag = glossaryTag;
+
+            TranslationFilePath = InspectPath(translationFilePath);
             OldTranslationFilePath = oldTranslationFilePath;
             
             Initialize();
@@ -135,7 +138,7 @@ namespace Internationalization.FileProvider.Excel {
             }
             catch
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"Unable to create new language file ({path})");
+                _logger.Log(LogLevel.Debug, $@"Unable to create new language file ({path})");
             }
             finally
             {
@@ -159,7 +162,7 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug,
+                _logger.Log(LogLevel.Debug,
                     $@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
                 return;
             }
@@ -211,7 +214,7 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                _logger.Log(LogLevel.Debug, 
                     $@"Unable to write langage file ({Path.GetFullPath(TranslationFilePath)}).");
                 return;
             }
@@ -515,7 +518,7 @@ namespace Internationalization.FileProvider.Excel {
 
             if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0) {
                 if (!File.Exists(TranslationFilePath)) {
-                    AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                    _logger.Log(LogLevel.Debug, 
                         $@"Unable to open langauge file ({Path.GetFullPath(TranslationFilePath)}).");
 
                     ExcelCreateNew(TranslationFilePath);
@@ -538,7 +541,7 @@ namespace Internationalization.FileProvider.Excel {
         {
             if (path == null)
             {
-                AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, @"Cannot access language file, bacause path is null");
+                _logger.Log(LogLevel.Debug, @"Cannot access language file, bacause path is null");
                 return null;
             }
 
@@ -548,7 +551,7 @@ namespace Internationalization.FileProvider.Excel {
             {
                 return path;
             }
-            AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, $@"New Excel file will be created ({path})");
+            _logger.Log(LogLevel.Debug, $@"New Excel file will be created ({path})");
 
             string directory = Path.GetDirectoryName(path);
 
@@ -578,7 +581,7 @@ namespace Internationalization.FileProvider.Excel {
                 }
                 catch (IOException)
                 {
-                    AbstractLiteralProvider.LiteralProviderLogger.Log(LogLevel.Debug, 
+                    _logger.Log(LogLevel.Debug, 
                         $@"Unable to save langage file ({OldTranslationFilePath}).");
                 }
             }
