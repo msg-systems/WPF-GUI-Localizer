@@ -340,8 +340,7 @@ namespace Internationalization.FileProvider.Excel {
                 //find first row, matching beginning of key
                 ExcelInterop.Range currentDialogFind = usedRange.Find(keyParts[0], Type.Missing,
                     ExcelInterop.XlFindLookIn.xlValues, ExcelInterop.XlLookAt.xlPart,
-                    ExcelInterop.XlSearchOrder.xlByRows, ExcelInterop.XlSearchDirection.xlNext, false,
-                    Type.Missing, Type.Missing);
+                    ExcelInterop.XlSearchOrder.xlByRows, ExcelInterop.XlSearchDirection.xlNext, false);
                 var firstDialogFind = currentDialogFind;
 
                 //search for match with key
@@ -396,7 +395,7 @@ namespace Internationalization.FileProvider.Excel {
                 else
                 {
                     ExcelInterop.Range lastRow =
-                        worksheetGui.Cells.SpecialCells(ExcelInterop.XlCellType.xlCellTypeLastCell, Type.Missing);
+                        worksheetGui.Cells.SpecialCells(ExcelInterop.XlCellType.xlCellTypeLastCell);
                     int indexlastRow = lastRow.Row;
                     newRow = worksheetGui.Rows[indexlastRow + 1];
                 }
@@ -465,7 +464,7 @@ namespace Internationalization.FileProvider.Excel {
             }
             finally
             {
-                workbook.Close(false, Type.Missing, Type.Missing);
+                workbook.Close(false);
                 excel.Quit();
             }
 
