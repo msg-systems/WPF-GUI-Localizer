@@ -60,7 +60,8 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                _logger.Log(LogLevel.Information, "Reading of excel files aborted.");
+                _logger.Log(LogLevel.Error, "Reading of excel files aborted due to error in path given "
+                                            + $"({translationFilePath}). Cannot recover from this.");
             }
         }
 
@@ -70,7 +71,8 @@ namespace Internationalization.FileProvider.Excel {
         {
             if (Status != ProviderStatus.Initialized)
             {
-                _logger.Log(LogLevel.Error, "Dictionary was accessed without ExcelFileProvider being initialized.");
+                //logged as warning not error, since this behaviour could be normal / intended (ResourceLiteralProvider)
+                _logger.Log(LogLevel.Warning, "Dictionary was accessed without ExcelFileProvider being initialized.");
                 throw new FileProviderNotInitializedException();
             }
 
@@ -79,7 +81,6 @@ namespace Internationalization.FileProvider.Excel {
 
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
-            //in order to guarantee only one enumeration even if ExcelCreateFirst needs to be called
             IList<TextLocalization> textsEnumerated = texts.ToList();
 
             string textsString = string.Join(", ", textsEnumerated.Select(l => l.ToString()));
@@ -134,6 +135,7 @@ namespace Internationalization.FileProvider.Excel {
             if (_backgroundWorker.IsBusy)
             {
                 Status = ProviderStatus.CancellationInProgress;
+                _logger.Log(LogLevel.Trace, "Cancellation started.");
                 _backgroundWorker.CancelAsync();
             }
         }
@@ -161,17 +163,26 @@ namespace Internationalization.FileProvider.Excel {
             }
             catch
             {
-                _logger.Log(LogLevel.Warning, $"Unable to create empty excel file ({path}).");
+                _logger.Log(LogLevel.Error, $"Unable to create empty excel file ({path}).");
             }
             finally
             {
                 workbook.Close();
                 excel.Quit();
 
-                if (!fail)
+                if (fail)
+                {
+                    _logger.Log(LogLevel.Trace, "Failed to create empty excel sheet.\n"
+                                                + "ExcelFileProvider is still in State IsInitializing and "
+                                                + "unable to create a first entry, but calling SaveDictionary"
+                                                + "is still possible.");
+                }
+                else
                 {
                     //to siganl that even with Status == IsInitaializing, no more reading is needed
                     Interlocked.Exchange(ref _isInitializing, 0);
+                    _logger.Log(LogLevel.Trace, "Successfully created empty excel sheet."
+                                                + "ExcelFileProvider is still in State IsInitializing, but can create first entry.");
                 }
             }
         }
@@ -179,12 +190,11 @@ namespace Internationalization.FileProvider.Excel {
         private void ExcelCreateFirst(string key, IEnumerable<TextLocalization> texts)
         {
             ExcelInterop.Application excel = new ExcelInterop.Application();
-            ExcelInterop.Workbooks workbooks = excel.Workbooks;
             ExcelInterop.Workbook workbook;
 
             if (File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
-                workbook = workbooks.Open(Path.GetFullPath(TranslationFilePath));
+                workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
             }
             else
             {
@@ -218,18 +228,18 @@ namespace Internationalization.FileProvider.Excel {
                 excel.DisplayAlerts = false;
                 workbook.Save();
 
-                _logger.Log(LogLevel.Trace, "Successfully created initial entry in excel sheet.");
+                _logger.Log(LogLevel.Trace, "Successfully created initial entry in excel sheet."
+                                            + "ExcelFileProvider is now in State Initialized.");
                 Status = ProviderStatus.Initialized;
             }
             catch
             {
-                //As this function can and will automatically be called again after this failiure, logging in info
-                _logger.Log(LogLevel.Information, "Failed to write initial entry of excel sheet.");
+                //As this function can and will automatically be called again after this failiure, logging in warning not error
+                _logger.Log(LogLevel.Warning, "Failed to write initial entry of excel sheet.");
             }
             finally
             {
                 workbook.Close();
-                workbooks.Close();
                 excel.Quit();
             }
         }
@@ -237,18 +247,20 @@ namespace Internationalization.FileProvider.Excel {
         private void ExcelWriteActions()
         {
             ExcelInterop.Application excel = new ExcelInterop.Application();
-            ExcelInterop.Workbooks workbooks = excel.Workbooks;
             ExcelInterop.Workbook workbook;
+            bool creatingNew = false;
 
             if (File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
-                workbook = workbooks.Open(Path.GetFullPath(TranslationFilePath));
+                workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
             }
             else
             {
                 _logger.Log(LogLevel.Warning, 
                     $@"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
-                return;
+
+                workbook = excel.Workbooks.Add();
+                creatingNew = true;
             }
 
             try
@@ -258,17 +270,25 @@ namespace Internationalization.FileProvider.Excel {
                 WriteGuiTranslations(worksheetGui, textLocalizations);
 
                 excel.DisplayAlerts = false;
-                workbook.Save();
+                if (creatingNew)
+                {
+                    workbook.SaveAs(Path.GetFullPath(TranslationFilePath));
+                }
+                else
+                {
+                    workbook.Save();
+                }
             }
             catch(System.Exception e)
             {
                 _logger.Log(LogLevel.Warning,
-                    $"Failed to write changed dictionary to excel file ({Path.GetFullPath(TranslationFilePath)}). {e.GetType()} ({e.Message}).");
+                    "Failed to write {0} excel file ({1}). {2} ({3}).",
+                    creatingNew ? "dictionary to new" : "changed dictionary to",
+                    Path.GetFullPath(TranslationFilePath), e.GetType(), e.Message);
             }
             finally
             {
                 workbook.Close();
-                workbooks.Close();
                 excel.Quit();
             }
         }
@@ -548,12 +568,23 @@ namespace Internationalization.FileProvider.Excel {
             switch (Status)
             {
                 case ProviderStatus.CancellationInProgress:
+
                     Status = ProviderStatus.CancellationComplete;
-                    _logger.Log(LogLevel.Trace, "Finished cancellation.");
+                    _logger.Log(LogLevel.Trace, "Finished cancellation. ExcelFileProvider is now in State CancellationComplete.");
                     break;
                 case ProviderStatus.InitializationInProgress:
-                    Status = ProviderStatus.Initialized;
-                    _logger.Log(LogLevel.Trace, "Finished initialization.");
+
+                    if (_dictOfDicts == null || _dictOfDicts.Count == 0)
+                    {
+                        _logger.Log(LogLevel.Trace, "Was unable to collect information from file.\nExcelFileProvider "
+                                                    + "is still in State IsInitializing and will override file content "
+                                                    + "with next Update call.");
+                    }
+                    else
+                    {
+                        Status = ProviderStatus.Initialized;
+                        _logger.Log(LogLevel.Trace, "Finished initialization. ExcelFileProvider is now in State Initialized.");
+                    }
                     break;
             }
         }
@@ -639,7 +670,7 @@ namespace Internationalization.FileProvider.Excel {
             {
                 return true;
             }
-            _logger.Log(LogLevel.Debug, $"Directory for Excel file will be created ({path}).");
+            _logger.Log(LogLevel.Information, $"Directory for Excel file will be created ({path}).");
 
             string directory = Path.GetDirectoryName(path);
 
@@ -680,7 +711,7 @@ namespace Internationalization.FileProvider.Excel {
                 }
                 catch (System.Exception e)
                 {
-                    _logger.Log(LogLevel.Warning, 
+                    _logger.Log(LogLevel.Warning,
                         $@"Unable to save langage file ({OldTranslationFilePath}). {e.GetType()} ({e.Message}).");
                 }
             }

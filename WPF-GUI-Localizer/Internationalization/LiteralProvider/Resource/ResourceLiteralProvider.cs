@@ -15,7 +15,6 @@ using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Office.Interop.Excel;
 
 namespace Internationalization.LiteralProvider.Resource
 {
@@ -228,7 +227,6 @@ namespace Internationalization.LiteralProvider.Resource
 
         public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)
         {
-            //in order to guarantee only one enumeration
             IList<TextLocalization> textsEnumerated = texts.ToList();
 
             string key = GetKeyFromUnkownElementType(element);

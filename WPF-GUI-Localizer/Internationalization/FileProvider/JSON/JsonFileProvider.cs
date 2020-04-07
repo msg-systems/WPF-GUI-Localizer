@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.Model;
@@ -30,38 +31,58 @@ namespace Internationalization.FileProvider.JSON
 
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<JsonFileProvider>();
             _logger.Log(LogLevel.Trace, "Initializing JsonFileProvider.");
-            _path = InspectPath(translationFilePath);
 
-            ReadFile();
+            if (PathLooksGood(ref translationFilePath))
+            {
+                _path = translationFilePath;
+
+                Initialize();
+            }
+            else
+            {
+                _logger.Log(LogLevel.Information, "Reading of excel files aborted.");
+            }
         }
 
         public void SaveDictionary()
         {
+            _logger.Log(LogLevel.Trace, "SaveDictionary was called.");
             try
             {
                 File.WriteAllText(_path, JsonConvert.SerializeObject(_dictOfdicts));
             }
-            catch
+            catch(System.Exception e)
             {
                 _logger.Log(LogLevel.Debug, 
-                    $@"Unable to write langage file ({Path.GetFullPath(_path)}).");
+                    $@"Unable to write langage file ({Path.GetFullPath(_path)}). {e.GetType()} ({e.Message}).");
             }
         }
 
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
-            foreach (TextLocalization textLocalization in texts)
+            IList<TextLocalization> textsEnumerated = texts.ToList();
+
+            string textsString = string.Join(", ", textsEnumerated.Select(l => l.ToString()));
+            _logger.Log(LogLevel.Trace, $"Update was called with {{{textsString}}} as translations for key ({key}).");
+
+            foreach (TextLocalization textLocalization in textsEnumerated)
             {
                 _dictOfdicts.TryGetValue(textLocalization.Language, out Dictionary<string, string> langDict);
                 if (langDict == null)
                 {
                     langDict = new Dictionary<string, string>();
                     _dictOfdicts.Add(textLocalization.Language, langDict);
+                    _logger.Log(LogLevel.Trace, $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
                 }
 
                 if (langDict.ContainsKey(key))
                 {
                     langDict.Remove(key);
+                    _logger.Log(LogLevel.Trace, "Updated existing entry for given value.");
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Trace, "Created new entry for given value.");
                 }
                 langDict.Add(key, textLocalization.Text);
             }
@@ -69,6 +90,7 @@ namespace Internationalization.FileProvider.JSON
             //if file was created by JsonFileProvider itself
             if (Status == ProviderStatus.InitializationInProgress && _successfullyCreatedFile)
             {
+                _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
                 SaveDictionary();
 
                 Status = ProviderStatus.Initialized;
@@ -91,35 +113,60 @@ namespace Internationalization.FileProvider.JSON
             return _dictOfdicts;
         }
 
-        private string InspectPath(string path)
+        private bool PathLooksGood(ref string path)
         {
             if (path == null)
             {
-                _logger.Log(LogLevel.Debug, @"Cannot access language file, bacause path is null");
-                return null;
+                _logger.Log(LogLevel.Warning, "Cannot access language file, bacause path is null.");
+                return false;
             }
 
-            path = path.EndsWith(".json") ? path : path + ".json";
-
-            if (File.Exists(Path.GetFullPath(path)))
+            string fullPath;
+            try
             {
-                return path;
+                fullPath = Path.GetFullPath(path);
             }
-            _logger.Log(LogLevel.Debug, $@"New Json file will be created ({path})");
+            catch
+            {
+                //Could get triggered, if path is not written correctly. Also if permissions for location are missing.
+                _logger.Log(LogLevel.Warning, $"There appear to be some problems with the given path ({path}).\n"
+                                              + "Failed to get fully qualified location for given path.");
+                return false;
+            }
+
+            if (!path.EndsWith(".json"))
+            {
+                _logger.Log(LogLevel.Debug, $"Added '.json' to path ({path}).");
+                path += ".json";
+            }
+
+            if (File.Exists(fullPath))
+            {
+                return true;
+            }
+            _logger.Log(LogLevel.Information, $"Directory for Json file will be created ({path}).");
 
             string directory = Path.GetDirectoryName(path);
 
-            if (directory != null)
+            if (!string.IsNullOrEmpty(directory))
             {
-                //could throw IOException if file exists with same path as directory
-                Directory.CreateDirectory(directory);
+                try
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                catch
+                {
+                    _logger.Log(LogLevel.Warning, $"Failed to create directory ({directory}) for path ({fullPath}).");
+                    return false;
+                }
             }
 
-            return path;
+            return true;
         }
 
-        private void ReadFile()
+        private void Initialize()
         {
+            _logger.Log(LogLevel.Trace, "Entering Initialize function.");
             string fileContent = string.Empty;
 
             try
@@ -127,12 +174,13 @@ namespace Internationalization.FileProvider.JSON
                 fileContent = File.ReadAllText(_path);
                 if ("null".Equals(fileContent))
                 {
+                    _logger.Log(LogLevel.Trace, "File had content 'null', will be treated as empty dictionary.");
                     fileContent = "{}";
                 }
             }
             catch
             {
-                _logger.Log(LogLevel.Debug, $@"Unable to open langauge file ({Path.GetFullPath(_path)}).");
+                _logger.Log(LogLevel.Information, $"Unable to open langauge file ({Path.GetFullPath(_path)}).");
 
                 try
                 {
@@ -143,13 +191,20 @@ namespace Internationalization.FileProvider.JSON
                     if (Status == ProviderStatus.CancellationInProgress)
                     {
                         Status = ProviderStatus.CancellationComplete;
+                        _logger.Log(LogLevel.Trace, "Cancellation finished after creating new file.");
+                    }
+                    else
+                    {
+                        _logger.Log(LogLevel.Trace, "Initialization finished after creating new file.");
                     }
 
                     return;
                 }
                 catch
                 {
-                    _logger.Log(LogLevel.Debug, $@"Unable to create new language file ({_path})");
+                    _logger.Log(LogLevel.Warning, $"Unable to open or create new language file ({_path})." 
+                                                  + "JsonFileProvider will not be Initialized.");
+                    return;
                 }
             }
             _dictOfdicts = JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
