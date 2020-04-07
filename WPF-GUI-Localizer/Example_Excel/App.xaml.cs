@@ -31,7 +31,7 @@ namespace Example_Excel
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-
+            Console.WriteLine((new CultureInfo("en-US")).Parent.Name);
             ILoggerFactory consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder

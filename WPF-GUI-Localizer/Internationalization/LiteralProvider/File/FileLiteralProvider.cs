@@ -178,13 +178,14 @@ namespace Internationalization.LiteralProvider.File
 
             var dictOfDicts = FileProviderInstance.GetDictionary();
 
-            dictOfDicts.TryGetValue(language, out Dictionary<string, string> langDict);
+            Dictionary<string, string> langDict = CultureInfoUtil.TryGetLanguageDict(dictOfDicts, language);
             langDict?.TryGetValue(key, out result);
 
             if (result == null)
             {
-                _logger.Log(LogLevel.Debug, @"Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}'.",
-                    dialogName, type, elementName, language);
+                _logger.Log(LogLevel.Debug,
+                    "Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}' ({4} not found)",
+                    dialogName, type, elementName, language, langDict==null ? "language" : "key");
             }
             else
             {

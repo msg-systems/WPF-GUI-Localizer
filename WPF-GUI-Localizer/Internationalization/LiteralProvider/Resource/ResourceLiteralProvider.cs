@@ -196,7 +196,7 @@ namespace Internationalization.LiteralProvider.Resource
                 return null;
             }
 
-            Dictionary<string, string> langDict = _dictOfDicts[language];
+            Dictionary<string, string> langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
             langDict.TryGetValue(resourceKey, out string translation);
 
             //check for changes everytime (changes dict can change due to late loading)
@@ -207,6 +207,7 @@ namespace Internationalization.LiteralProvider.Resource
             }
             catch (FileProviderNotInitializedException)
             {
+                //logged in Debug, as this behaviour is intended, if the file does not exists initially.
                 _logger.Log(LogLevel.Debug, @"Unable to read changes from FileProvider.");
             }
 
@@ -214,10 +215,11 @@ namespace Internationalization.LiteralProvider.Resource
             {
                 try
                 {
-                    translation = changes.First(x => language.Equals(x.Key))
-                        .Value.First(x => resourceKey.Equals(x.Key)).Value;
+                    Dictionary<string, string> changesForLanguage = 
+                        CultureInfoUtil.TryGetLanguageDict(changes, language);
+                    translation = changesForLanguage.First(x => resourceKey.Equals(x.Key)).Value;
                 }
-                catch (InvalidOperationException) { } //no match found; if exception was thrown, translation will not have been changed.
+                catch (InvalidOperationException) { } //no match found; if exception was thrown, translation was not changed.
                 
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Internationalization.Exception;
@@ -9,7 +10,7 @@ namespace Internationalization.Utilities
     {
         /// <param name="cultureName">string representation of CultureInfo as language tag</param>
         /// <param name="onlyBracketsAtEndOfString">will default back to false if no matching brackets are found</param>
-        /// <exception cref="InvalidCultureNameException">exception is thrown if language tag cannot be found within list of languages supported by .NET</exception>
+        /// <exception cref="CultureNotFoundException">exception is thrown if language tag cannot be found within list of languages supported by .NET</exception>
         public static CultureInfo GetCultureInfo(string cultureName, bool onlyBracketsAtEndOfString)
         {
             int begin = cultureName.LastIndexOf(@"(", StringComparison.Ordinal) + 1;
@@ -26,6 +27,45 @@ namespace Internationalization.Utilities
             }
 
             return new CultureInfo(cultureName);
+        }
+
+        /// <summary>
+        /// Tries to choose a compatible language dictionary from available dictionaries
+        /// </summary>
+        /// <param name="baseDictionary">Dictionary collection to be searched.</param>
+        /// <param name="targetLanguage">CultureInfo with which the return dictionary has to be compatible.</param>
+        /// <returns>
+        /// Dictionary for <see cref="targetLanguage"/>, its parent (usually same as two letter name), its two
+        /// letter name (e.g. en for en-US), its patents two letter version or null if no compatible dictionary
+        /// can be found in <see cref="baseDictionary"/>.
+        /// </returns>
+        public static Dictionary<string, string> TryGetLanguageDict(
+            Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage)
+        {
+            if (baseDictionary.ContainsKey(targetLanguage))
+            {
+                return baseDictionary[targetLanguage];
+            }
+
+            CultureInfo parentCultureInfo = targetLanguage.Parent;
+            if (baseDictionary.ContainsKey(parentCultureInfo))
+            {
+                return baseDictionary[parentCultureInfo];
+            }
+
+            CultureInfo twoLetterTarget = new CultureInfo(targetLanguage.TwoLetterISOLanguageName);
+            if (baseDictionary.ContainsKey(twoLetterTarget))
+            {
+                return baseDictionary[twoLetterTarget];
+            }
+
+            CultureInfo twoLetterParent = new CultureInfo(parentCultureInfo.TwoLetterISOLanguageName);
+            if (baseDictionary.ContainsKey(twoLetterParent))
+            {
+                return baseDictionary[twoLetterParent];
+            }
+
+            return null;
         }
     }
 }
