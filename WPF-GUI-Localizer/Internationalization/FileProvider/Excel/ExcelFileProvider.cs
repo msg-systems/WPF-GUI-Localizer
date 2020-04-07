@@ -290,7 +290,7 @@ namespace Internationalization.FileProvider.Excel {
                     _numKeyParts = column - 1;
                     break;
                 }
-                catch (InvalidCultureNameException) { }
+                catch (CultureNotFoundException) { }
             }
             _logger.Log(LogLevel.Debug,
                 $"Found {_numKeyParts} columns for key parts and {(maxColumn - _numKeyParts)} language columns.");

@@ -22,7 +22,7 @@ namespace Internationalization.Utilities
             var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
             if (!allCultures.Select(c => c.Name).Contains(cultureName) || string.IsNullOrEmpty(cultureName))
             {
-                throw new InvalidCultureNameException();
+                throw new CultureNotFoundException();
             }
 
             return new CultureInfo(cultureName);
