@@ -30,7 +30,7 @@ namespace Example_Resources
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
             ILoggerFactory consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
@@ -42,7 +42,7 @@ namespace Example_Resources
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
 
             IFileProvider jfp = new JsonFileProvider(@"Resource/Resource_Corrections.json");
-            IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel");
+            //IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel");
 
             ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));
         }

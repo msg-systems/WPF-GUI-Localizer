@@ -125,6 +125,10 @@ namespace Internationalization.FileProvider.JSON
             try
             {
                 fileContent = File.ReadAllText(_path);
+                if ("null".Equals(fileContent))
+                {
+                    fileContent = "{}";
+                }
             }
             catch
             {

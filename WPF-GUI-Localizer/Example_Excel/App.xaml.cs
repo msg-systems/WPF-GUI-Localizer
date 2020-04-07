@@ -42,7 +42,7 @@ namespace Example_Excel
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
 
             IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File", "gloss");
-            IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
+            //IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
 
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
         }

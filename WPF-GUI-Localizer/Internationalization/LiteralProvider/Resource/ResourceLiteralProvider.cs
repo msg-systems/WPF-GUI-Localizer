@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -16,6 +15,7 @@ using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Office.Interop.Excel;
 
 namespace Internationalization.LiteralProvider.Resource
 {
@@ -62,26 +62,36 @@ namespace Internationalization.LiteralProvider.Resource
                 return;
             }
 
+            var invariantFallback = new Dictionary<string, string>();
+
             //collect all Resource entries
             var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
             foreach (CultureInfo lang in langs)
             {
-                if (lang.Equals(CultureInfo.InvariantCulture))
-                {
-                    continue;
-                }
-
                 try
                 {
+                    //tryParents is false and will be handled in CultureInfoUtils insted to avoid registering same dict multiple times.
                     var resourceSet = rm.GetResourceSet(lang, true, false);
-                    if (resourceSet != null)
+                    if (resourceSet == null) continue;
+
+                    if (lang.Equals(CultureInfo.InvariantCulture))
+                    {
+                        invariantFallback = resourceSet.Cast<DictionaryEntry>().ToDictionary(
+                            r => r.Key.ToString(), r => r.Value.ToString());
+                    }
+                    else
                     {
                         _dictOfDicts.Add(lang, resourceSet.Cast<DictionaryEntry>().ToDictionary(
-                            r => r.Key.ToString(),r => r.Value.ToString()));
+                            r => r.Key.ToString(), r => r.Value.ToString()));
                     }
-                    
+
                 }
                 catch (CultureNotFoundException) {}
+            }
+
+            if (!_dictOfDicts.ContainsKey(InputLanguage))
+            {
+                _dictOfDicts.Add(InputLanguage, invariantFallback);
             }
 
             _status = ProviderStatus.Initialized;
@@ -147,14 +157,9 @@ namespace Internationalization.LiteralProvider.Resource
 
         public override string GetGuiTranslationOfCurrentCulture(DependencyObject element)
         {
-            if (_dictOfDicts.Keys.Contains(Thread.CurrentThread.CurrentUICulture))
-            {
-                string translation = GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
+            string translation = GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
 
-                return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
-            }
-
-            return string.Empty;
+            return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
         }
 
         /// <summary>
@@ -162,14 +167,9 @@ namespace Internationalization.LiteralProvider.Resource
         /// </summary>
         public string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {
-            if (_dictOfDicts.Keys.Contains(Thread.CurrentThread.CurrentUICulture))
-            {
-                string translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
+            string translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
 
-                return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
-            }
-
-            return string.Empty;
+            return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
         }
 
         protected override void CancelInitialization()
@@ -196,10 +196,7 @@ namespace Internationalization.LiteralProvider.Resource
                 return null;
             }
 
-            Dictionary<string, string> langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
-            langDict.TryGetValue(resourceKey, out string translation);
-
-            //check for changes everytime (changes dict can change due to late loading)
+            //check for changes everytime (changes-dict can change due to late loading)
             Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
             try
             {
@@ -211,17 +208,15 @@ namespace Internationalization.LiteralProvider.Resource
                 _logger.Log(LogLevel.Debug, @"Unable to read changes from FileProvider.");
             }
 
-            if (changes != null)
-            {
-                try
-                {
-                    Dictionary<string, string> changesForLanguage = 
-                        CultureInfoUtil.TryGetLanguageDict(changes, language);
-                    translation = changesForLanguage.First(x => resourceKey.Equals(x.Key)).Value;
-                }
-                catch (InvalidOperationException) { } //no match found; if exception was thrown, translation was not changed.
-                
-            }
+            string translation = null;
+
+            CultureInfoUtil.TryGetLanguageDict(changes, language)?.TryGetValue(resourceKey, out translation);
+
+            if (translation != null) return translation;
+
+            //if needed use translations from Resources
+            Dictionary<string, string> langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
+            langDict.TryGetValue(resourceKey, out translation);
 
             return translation ?? string.Empty;
         }

@@ -30,18 +30,29 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Tries to choose a compatible language dictionary from available dictionaries
+        /// Finds the dictionary for <see cref="targetLanguage"/>, its parent (usually same as two letter name), its two
+        /// letter name (e.g. en for en-US), its patents two letter version or returns null if no compatible dictionary
+        /// can be found in <see cref="baseDictionary"/>.
         /// </summary>
-        /// <param name="baseDictionary">Dictionary collection to be searched.</param>
-        /// <param name="targetLanguage">CultureInfo with which the return dictionary has to be compatible.</param>
+        /// <param name="baseDictionary">
+        /// Dictionary collection to be searched; Will return null if this parameter is null;
+        /// </param>
+        /// <param name="targetLanguage">
+        /// CultureInfo with which the return dictionary has to be compatible; Will return null if this parameter is null;
+        /// </param>
         /// <returns>
         /// Dictionary for <see cref="targetLanguage"/>, its parent (usually same as two letter name), its two
         /// letter name (e.g. en for en-US), its patents two letter version or null if no compatible dictionary
-        /// can be found in <see cref="baseDictionary"/>.
+        /// can be found in <see cref="baseDictionary"/> (Dictionaries will be sreached in this order).
         /// </returns>
         public static Dictionary<string, string> TryGetLanguageDict(
             Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage)
         {
+            if (baseDictionary == null || targetLanguage == null)
+            {
+                return null;
+            }
+
             if (baseDictionary.ContainsKey(targetLanguage))
             {
                 return baseDictionary[targetLanguage];
