@@ -51,10 +51,17 @@ namespace Internationalization.FileProvider.Excel {
             _logger.Log(LogLevel.Trace, "Initializing ExcelFileProvider.");
             _glossaryTag = glossaryTag;
 
-            TranslationFilePath = InspectPath(translationFilePath);
-            OldTranslationFilePath = oldTranslationFilePath;
-            
-            Initialize();
+            if (PathLooksGood(ref translationFilePath))
+            {
+                TranslationFilePath = translationFilePath;
+                OldTranslationFilePath = oldTranslationFilePath;
+
+                Initialize();
+            }
+            else
+            {
+                _logger.Log(LogLevel.Information, "Reading of excel files aborted.");
+            }
         }
 
         public ProviderStatus Status { get; private set; }
@@ -577,7 +584,7 @@ namespace Internationalization.FileProvider.Excel {
                 _logger.Log(LogLevel.Trace, "Starting initialization.");
                 if (!File.Exists(TranslationFilePath)) {
                     _logger.Log(LogLevel.Debug, 
-                        $@"Unable to find langauge file ({Path.GetFullPath(TranslationFilePath)}).");
+                        $"Unable to find langauge file ({Path.GetFullPath(TranslationFilePath)}).");
 
                     ExcelCreateNew(TranslationFilePath);
                     //not great I know
@@ -592,7 +599,7 @@ namespace Internationalization.FileProvider.Excel {
                 _backgroundWorker.RunWorkerCompleted += LoadExcelLanguageFileAsyncCompleted;
                 _backgroundWorker.WorkerSupportsCancellation = true;
 
-                _logger.Log(LogLevel.Trace, "Starting BackgraoundWorker.");
+                _logger.Log(LogLevel.Trace, "Starting BackgroundWorker.");
                 _backgroundWorker.RunWorkerAsync();
             }
             else
@@ -601,12 +608,25 @@ namespace Internationalization.FileProvider.Excel {
             }
         }
 
-        private string InspectPath(string path)
+        private bool PathLooksGood(ref string path)
         {
             if (path == null)
             {
                 _logger.Log(LogLevel.Warning, "Cannot access language file, bacause path is null.");
-                return null;
+                return false;
+            }
+
+            string fullPath;
+            try
+            {
+                fullPath = Path.GetFullPath(path);
+            }
+            catch
+            {
+                //Could get triggered, if path is not written correctly. Also if permissions for location are missing.
+                _logger.Log(LogLevel.Warning, $"There appear to be some problems with the given path ({path}).\n"
+                                              + "Failed to get fully qualified location for given path.");
+                return false;
             }
 
             if (!path.EndsWith(".xlsx"))
@@ -615,15 +635,15 @@ namespace Internationalization.FileProvider.Excel {
                 path += ".xlsx";
             }
 
-            if (File.Exists(Path.GetFullPath(path)))
+            if (File.Exists(fullPath))
             {
-                return path;
+                return true;
             }
-            _logger.Log(LogLevel.Debug, $"Dictionary for Excel file will be created ({path}).");
+            _logger.Log(LogLevel.Debug, $"Directory for Excel file will be created ({path}).");
 
             string directory = Path.GetDirectoryName(path);
 
-            if (directory != null)
+            if (!string.IsNullOrEmpty(directory))
             {
                 try
                 {
@@ -631,11 +651,12 @@ namespace Internationalization.FileProvider.Excel {
                 }
                 catch
                 {
-                    _logger.Log(LogLevel.Warning, $"Failed to create dictionary ({directory}) for path ({path}).");
+                    _logger.Log(LogLevel.Warning, $"Failed to create directory ({directory}) for path ({fullPath}).");
+                    return false;
                 }
             }
 
-            return path;
+            return true;
         }
 
         /// <summary>

@@ -29,7 +29,7 @@ namespace Internationalization.FileProvider.JSON
             Status = ProviderStatus.InitializationInProgress;
 
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<JsonFileProvider>();
-            _logger.Log(LogLevel.Trace, "Initializing ExcelFileProvider");
+            _logger.Log(LogLevel.Trace, "Initializing JsonFileProvider.");
             _path = InspectPath(translationFilePath);
 
             ReadFile();

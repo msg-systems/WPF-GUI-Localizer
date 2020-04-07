@@ -35,7 +35,7 @@ namespace Example_Excel
             ILoggerFactory consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
-                    .SetMinimumLevel(LogLevel.Information)
+                    .SetMinimumLevel(LogLevel.Trace)
                     .AddConsole();
             });
 

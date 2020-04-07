@@ -12,7 +12,7 @@ namespace Internationalization
         /// This LoggerFactory will be used for all logging inside the Library. If objects of this library are created / used before this Property is set,
         /// they will use the Console logger without a LogLevel filter by default and not update their logger after this property is set.
         /// </summary>
-        public static ILoggerFactory LibraryLoggerFactory { internal get; set; } = LoggerFactory.Create(builder => { builder.AddConsole(); });
+        public static ILoggerFactory LibraryLoggerFactory { internal get; set; }
 
         /// <summary>
         /// The assembly of the project, whose Ressources files are supposed to be used; Default: null
@@ -23,6 +23,21 @@ namespace Internationalization
         /// Determines if LocalizationUtils updates the changed translation of an element in the GUI directly using GuiTranslator
         /// or not; Default: true.
         /// </summary>
-        public static bool UseGuiTranslatorForLocalizationUtils { get; set; } = true;
+        public static bool UseGuiTranslatorForLocalizationUtils { get; set; }
+
+        /// <summary>
+        /// Initializes all Settings with their default value.
+        /// </summary>
+        static GlobalSettings()
+        {
+            LibraryLoggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .SetMinimumLevel(LogLevel.Information)
+                    .AddConsole();
+            });
+
+            UseGuiTranslatorForLocalizationUtils = true;
+        }
     }
 }
