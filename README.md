@@ -502,7 +502,7 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
    }
    ```
    
-3. LocalizationUtils is attached to all Views and Windows that need to be localized.
+3. LocalizationProperties is attached to all Views and Windows that need to be localized.
    
    Example:
    ```xaml
