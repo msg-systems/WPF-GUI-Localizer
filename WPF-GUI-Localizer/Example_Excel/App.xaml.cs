@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 using System.Windows;
 using Internationalization;
 using Internationalization.FileProvider.Excel;
@@ -13,8 +7,6 @@ using Internationalization.FileProvider.JSON;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.File;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Options;
 
 namespace Example_Excel
 {
@@ -31,7 +23,6 @@ namespace Example_Excel
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            Console.WriteLine(new CultureInfo("en-US").Parent.Name);
             var consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
@@ -41,7 +32,7 @@ namespace Example_Excel
 
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
 
-            IFileProvider efp = new ExcelFileProvider(@"Resource/Language_File", "gloss");
+            IFileProvider efp = new ExcelFileProvider("Resource/Language_File", "gloss");
             //IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
 
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));

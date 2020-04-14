@@ -493,7 +493,7 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
    
    private void OnStartup(object sender, StartupEventArgs e)
    {
-     FileLiteralProvider.Initialize(new ExcelFileProvider(@"Resource/Language_File.xlsx"), new CultureInfo("en"));
+     FileLiteralProvider.Initialize(new ExcelFileProvider("Resource/Language_File.xlsx"), new CultureInfo("en"));
    }
    
    private void OnExit(object sender, ExitEventArgs e)
@@ -640,7 +640,7 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
      Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
      
      ResourceLiteralProvider.Initialize(
-     new JsonFileProvider(@"Resource/Resource_Corrections.json"), new CultureInfo("en"));
+     new JsonFileProvider("Resource/Resource_Corrections.json"), new CultureInfo("en"));
    }
    
    private void OnExit(object sender, ExitEventArgs e)

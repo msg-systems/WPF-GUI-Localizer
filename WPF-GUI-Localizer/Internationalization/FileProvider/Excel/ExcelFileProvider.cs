@@ -30,19 +30,19 @@ namespace Internationalization.FileProvider.Excel
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
-        //0: initialization is not yet started or completed
-        //1: initialization is already started and running
+        //0: initialization is not yet started or completed.
+        //1: initialization is already started and running.
         private int _isInitializing;
         private BackgroundWorker _backgroundWorker;
         private int _numKeyParts;
         private readonly string _glossaryTag;
 
-        /// <summary>Saves file as Excel, a backup will be created before the file is edited</summary>
-        /// <param name="translationFilePath">File that will be worked on being worked on</param>
+        /// <summary>Saves file as Excel, a backup will be created before the file is edited.</summary>
+        /// <param name="translationFilePath">File that will be worked on being worked on.</param>
         /// <param name="glossaryTag">
-        /// Entries in the Excel table that start with this tag will be interpreted as part of the glossary
+        /// Entries in the Excel table that start with this tag will be interpreted as part of the glossary.
         /// </param>
-        /// <param name="oldTranslationFilePath">A copy of the original sheet will be put here if no copy exists jet</param>
+        /// <param name="oldTranslationFilePath">A copy of the original sheet will be put here if no copy exists jet.</param>
         public ExcelFileProvider(string translationFilePath, string glossaryTag = null,
             string oldTranslationFilePath = null)
         {
@@ -114,13 +114,13 @@ namespace Internationalization.FileProvider.Excel
                 langDict.Add(key, textLocalization.Text);
             }
 
-            //if file was created by ExcelFileProvider itself
+            //if file was created by ExcelFileProvider itself.
             if (Status == ProviderStatus.InitializationInProgress && _isInitializing == 0)
             {
                 _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
                 ExcelCreateFirst(key, textsEnumerated);
 
-                //not great I know
+                //not great, I know.
                 GC.Collect();
             }
         }
@@ -130,7 +130,7 @@ namespace Internationalization.FileProvider.Excel
             _logger.Log(LogLevel.Trace, "SaveDictionary was called.");
             ExcelWriteActions();
 
-            //not great I know
+            //not great, I know.
             GC.Collect();
         }
 
@@ -181,7 +181,7 @@ namespace Internationalization.FileProvider.Excel
                 }
                 else
                 {
-                    //to siganl that even with Status == IsInitaializing, no more reading is needed
+                    //to siganl that even with Status == IsInitaializing, no more reading is needed.
                     Interlocked.Exchange(ref _isInitializing, 0);
                     _logger.Log(LogLevel.Trace, "Successfully created empty excel sheet."
                                                 + "ExcelFileProvider is still in State IsInitializing, but can create first entry.");
@@ -200,9 +200,9 @@ namespace Internationalization.FileProvider.Excel
             }
             else
             {
-                //As this function can and will automatically be called again after this failiure, logging in info
+                //as this function can and will automatically be called again after this failiure, logging in info.
                 _logger.Log(LogLevel.Information,
-                    $@"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
+                    $"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
                 return;
             }
 
@@ -222,7 +222,7 @@ namespace Internationalization.FileProvider.Excel
                 foreach (var textLocalization in texts)
                 {
                     worksheet.Cells[1, currentColumn] =
-                        $@"{textLocalization.Language.NativeName} ({textLocalization.Language.Name})";
+                        $"{textLocalization.Language.NativeName} ({textLocalization.Language.Name})";
                     worksheet.Cells[2, currentColumn] = textLocalization.Text;
                     currentColumn++;
                 }
@@ -236,7 +236,7 @@ namespace Internationalization.FileProvider.Excel
             }
             catch
             {
-                //As this function can and will automatically be called again after this failiure, logging in warning not error
+                //as this function can and will automatically be called again after this failiure, logging in warning not error.
                 _logger.Log(LogLevel.Warning, "Failed to write initial entry of excel sheet.");
             }
             finally
@@ -259,7 +259,7 @@ namespace Internationalization.FileProvider.Excel
             else
             {
                 _logger.Log(LogLevel.Warning,
-                    $@"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
+                    $"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
 
                 workbook = excel.Workbooks.Add();
                 creatingNew = true;
@@ -297,7 +297,7 @@ namespace Internationalization.FileProvider.Excel
 
         private void ReadGuiTranslations(ExcelInterop.Worksheet worksheetGui)
         {
-            //first row only contains column titles (which can be null in first column), no data
+            //first row only contains column titles (which can be null in first column), no data.
             var row = 2;
 
             var numberOfGlossaryEntries = 0;
@@ -337,7 +337,7 @@ namespace Internationalization.FileProvider.Excel
                 var isGlossaryEntry = _glossaryTag != null && _glossaryTag.Equals(values[row, 1]);
 
                 //check if current row has a comment
-                //or part of glossary (assuming a glossary is being used)
+                //or part of glossary (assuming a glossary is being used).
                 if (values[row, 2] != null || isGlossaryEntry)
                 {
                     string key;
@@ -382,7 +382,7 @@ namespace Internationalization.FileProvider.Excel
 
             foreach (var translation in texts)
             {
-                //if current entry is part of glossary, skip writing
+                //if current entry is part of glossary, skip writing.
                 var glossaryKey = new Regex($"^{_glossaryTag}\\d*$");
                 if (_glossaryTag != null && glossaryKey.IsMatch(translation.Key))
                 {
@@ -394,7 +394,7 @@ namespace Internationalization.FileProvider.Excel
 
                 var keyParts = translation.Key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
 
-                //squeeze key parts into columns if necessary
+                //squeeze key parts into columns, if necessary.
                 if (keyParts.Length > _numKeyParts)
                 {
                     var newKeyParts = new string[_numKeyParts];
@@ -408,16 +408,16 @@ namespace Internationalization.FileProvider.Excel
                     }
                 }
 
-                //find first row, matching beginning of key
+                //find first row, matching beginning of key.
                 var currentDialogFind = usedRange.Find(keyParts[0], Type.Missing,
                     ExcelInterop.XlFindLookIn.xlValues, ExcelInterop.XlLookAt.xlPart,
                     ExcelInterop.XlSearchOrder.xlByRows, ExcelInterop.XlSearchDirection.xlNext, false);
                 var firstDialogFind = currentDialogFind;
 
-                //search for match with key
+                //search for match with key.
                 while (currentDialogFind != null)
                 {
-                    //get rest of key from sheet
+                    //get rest of key from sheet.
                     ExcelInterop.Range currentRow = worksheetGui.Rows[currentDialogFind.Row];
                     var keyColumnsCells = new string[_numKeyParts];
                     for (var i = 0; i < _numKeyParts; i++)
@@ -425,21 +425,19 @@ namespace Internationalization.FileProvider.Excel
                         keyColumnsCells[i] = currentRow.Cells[i + 1].Value;
                     }
 
-                    //check if whole key matches
+                    //check if whole key matches.
                     if (keyColumnsCells.SequenceEqual(keyParts))
                     {
-                        //now write to cell, values array and maxColumns may change if Excel sheet needs to be altered
+                        //now write to cell, values array and maxColumns may change if Excel sheet needs to be altered.
                         WriteToCell(translation.Value, ref values, ref maxColumn, currentRow.Row, worksheetGui);
                         updatedRow = true;
                         break;
                     }
 
-                    //remember current
                     lastFindForDialogIndex = currentDialogFind.Row;
-                    //get new current
                     currentDialogFind = usedRange.FindNext(currentDialogFind);
 
-                    //compare new and old current
+                    //compare new and old current.
                     if (currentDialogFind.Address == firstDialogFind.Address)
                     {
                         break;
@@ -451,20 +449,21 @@ namespace Internationalization.FileProvider.Excel
                     continue;
                 }
 
-                //if no row was found, a new one needs to be created
+                //if no row was found, a new one needs to be created.
                 _logger.Log(LogLevel.Trace, $"New Entry will be created in Excel sheet for key ({translation.Key}).");
 
                 ExcelInterop.Range newRow;
-                //try writing new line next to others with same key beginning
+                //try writing new line next to others with same key beginning.
                 if (lastFindForDialogIndex >= 0)
                 {
                     newRow = worksheetGui.Rows[lastFindForDialogIndex + 1];
                     newRow.Insert();
-                    //get inserted row
+                    //get inserted row.
                     newRow = worksheetGui.Rows[lastFindForDialogIndex + 1];
                     _logger.Log(LogLevel.Trace, "Entry was inserted after similar keys.");
                 }
-                //if first part (or whole key for single key fragment setups like ResourceLiteralProvider) can't be found write new line at end of sheet
+                //if first part (or whole key for single key fragment setups like ResourceLiteralProvider)
+                //can't be found write new line at end of sheet.
                 else
                 {
                     var lastRow =
@@ -474,13 +473,13 @@ namespace Internationalization.FileProvider.Excel
                     _logger.Log(LogLevel.Trace, "Entry was added to end of excel sheet.");
                 }
 
-                //write new key parts
+                //write new key parts.
                 for (var i = 0; i < _numKeyParts; i++)
                 {
                     newRow.Cells[i + 1] = keyParts[i];
                 }
 
-                //write new texts, values array and maxColumns may change if Excel sheet needs to be altered
+                //write new texts, values array and maxColumns may change if Excel sheet needs to be altered.
                 WriteToCell(translation.Value, ref values, ref maxColumn, newRow.Row, worksheetGui);
             }
         }
@@ -490,7 +489,7 @@ namespace Internationalization.FileProvider.Excel
         {
             foreach (var text in texts)
             {
-                //identify index for current Language
+                //identify index for current language.
                 int langIndex;
                 for (langIndex = _numKeyParts + 1; langIndex <= maxColumn; langIndex++)
                 {
@@ -503,8 +502,8 @@ namespace Internationalization.FileProvider.Excel
 
                 if (langIndex > maxColumn)
                 {
-                    //if language doesn't exist in sheet write new language string in header row of new column
-                    worksheetGui.Cells[1, langIndex].Value = $@"({text.Language.Name})";
+                    //if language doesn't exist in sheet, write new language string in header row of new column.
+                    worksheetGui.Cells[1, langIndex].Value = $"({text.Language.Name})";
                     maxColumn++;
                     values = worksheetGui.UsedRange.get_Value();
                     _logger.Log(LogLevel.Information,
@@ -522,7 +521,7 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Work for BackgroundWorker, can also be called without BackgroundWorker
+        /// Work for BackgroundWorker, can also be called without BackgroundWorker.
         /// </summary>
         private void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e)
         {
@@ -539,7 +538,7 @@ namespace Internationalization.FileProvider.Excel
             }
 
             var excel = new ExcelInterop.Application();
-            //already checked in Initialize if file exists
+            //already checked in Initialize, if file exists.
             var workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
 
             try
@@ -568,13 +567,13 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Clean up after BackgroundWorker finished, can also be called without BackgroundWorker
+        /// Clean up after BackgroundWorker finished, can also be called without BackgroundWorker.
         /// </summary>
         private void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             Interlocked.Exchange(ref _isInitializing, 0);
 
-            //not great I know
+            //not great, I know.
             GC.Collect();
 
             switch (Status)
@@ -635,7 +634,8 @@ namespace Internationalization.FileProvider.Excel
                         $"Unable to find langauge file ({Path.GetFullPath(TranslationFilePath)}).");
 
                     ExcelCreateNew(TranslationFilePath);
-                    //not great I know
+
+                    //not great, I know.
                     GC.Collect();
                     _logger.Log(LogLevel.Trace, "Ended new excel file creation.");
 
@@ -671,7 +671,7 @@ namespace Internationalization.FileProvider.Excel
             }
             catch
             {
-                //Could get triggered, if path is not written correctly. Also if permissions for location are missing.
+                //could get triggered, if path is not written correctly. Also if permissions for location are missing.
                 _logger.Log(LogLevel.Warning, $"There appear to be some problems with the given path ({path}).\n"
                                               + "Failed to get fully qualified location for given path.");
                 return false;
@@ -709,7 +709,7 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// save main sheet as old, if old doesn't exist jet
+        /// Saves main sheet as old, if old doesn't exist jet.
         /// </summary>
         private void CopyOldExcelFile()
         {
@@ -730,7 +730,7 @@ namespace Internationalization.FileProvider.Excel
                 catch (System.Exception e)
                 {
                     _logger.Log(LogLevel.Warning,
-                        $@"Unable to save langage file ({OldTranslationFilePath}). {e.GetType()} ({e.Message}).");
+                        $"Unable to save langage file ({OldTranslationFilePath}). {e.GetType()} ({e.Message}).");
                 }
             }
             else

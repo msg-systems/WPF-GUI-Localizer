@@ -12,7 +12,7 @@ namespace Internationalization.FileProvider.JSON
 {
     /// <summary>
     /// Saves its files using Json.NET.
-    /// The managed dictionary gets directly saved in its deserialized form
+    /// The managed dictionary gets directly saved in its deserialized form.
     /// </summary>
     public class JsonFileProvider : IFileProvider
     {
@@ -24,7 +24,7 @@ namespace Internationalization.FileProvider.JSON
         private bool _successfullyCreatedFile;
         public ProviderStatus Status { get; private set; }
 
-        /// <param name="translationFilePath">the path under which the dictionary will be saved</param>
+        /// <param name="translationFilePath">The path under which the dictionary will be saved.</param>
         public JsonFileProvider(string translationFilePath)
         {
             Status = ProviderStatus.InitializationInProgress;
@@ -54,7 +54,7 @@ namespace Internationalization.FileProvider.JSON
             catch (System.Exception e)
             {
                 _logger.Log(LogLevel.Debug,
-                    $@"Unable to write langage file ({Path.GetFullPath(_path)}). {e.GetType()} ({e.Message}).");
+                    $"Unable to write langage file ({Path.GetFullPath(_path)}). {e.GetType()} ({e.Message}).");
             }
         }
 
@@ -89,7 +89,7 @@ namespace Internationalization.FileProvider.JSON
                 langDict.Add(key, textLocalization.Text);
             }
 
-            //if file was created by JsonFileProvider itself
+            //if file was created by JsonFileProvider itself.
             if (Status == ProviderStatus.InitializationInProgress && _successfullyCreatedFile)
             {
                 _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
@@ -102,7 +102,7 @@ namespace Internationalization.FileProvider.JSON
         public void CancelInitialization()
         {
             Status = ProviderStatus.CancellationInProgress;
-            //Cancelation identical to Initialization
+            //cancelation identical to Initialization.
         }
 
         /// <exception cref="FileProviderNotInitializedException">
@@ -135,7 +135,7 @@ namespace Internationalization.FileProvider.JSON
             }
             catch
             {
-                //Could get triggered, if path is not written correctly. Also if permissions for location are missing.
+                //could get triggered, if path is not written correctly. Also if permissions for location are missing.
                 _logger.Log(LogLevel.Warning, $"There appear to be some problems with the given path ({path}).\n"
                                               + "Failed to get fully qualified location for given path.");
                 return false;
@@ -193,7 +193,7 @@ namespace Internationalization.FileProvider.JSON
                 try
                 {
                     fileContent = "{}";
-                    //identical to JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
+                    //identical to "JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())".
                     File.WriteAllText(_path, fileContent);
 
                     _successfullyCreatedFile = true;
@@ -220,7 +220,7 @@ namespace Internationalization.FileProvider.JSON
             _dictOfdicts =
                 JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
 
-            //Cancelation identical to Initialization
+            //cancelation identical to Initialization.
             switch (Status)
             {
                 case ProviderStatus.CancellationInProgress:

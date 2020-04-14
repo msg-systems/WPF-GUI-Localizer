@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Resources;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -28,11 +27,11 @@ namespace Internationalization.LiteralProvider.Resource
 
         protected override ProviderStatus Status
         {
-            //Information about languages comes from Resource not the file,
+            //information about languages comes from Resource not the file,
             //therefore Status property of FileProviderInstance is ignored.
             get
             {
-                //correct status when needed
+                //correct status when needed.
                 if (_status == ProviderStatus.CancellationInProgress &&
                     FileProviderInstance.Status == ProviderStatus.CancellationComplete)
                 {
@@ -61,19 +60,20 @@ namespace Internationalization.LiteralProvider.Resource
                 var nameOfAssembly = GlobalSettings.ResourcesAssembly == null
                     ? Assembly.GetEntryAssembly()?.FullName
                     : GlobalSettings.ResourcesAssembly.FullName;
-                _logger.Log(LogLevel.Warning, $@"Unable to read Resources files from assembly ({nameOfAssembly}).");
+                _logger.Log(LogLevel.Warning, $"Unable to read Resources files from assembly ({nameOfAssembly}).");
                 return;
             }
 
             var invariantFallback = new Dictionary<string, string>();
 
-            //collect all Resource entries
+            //collect all Resource entries.
             var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
             foreach (var lang in langs)
             {
                 try
                 {
-                    //tryParents is false and will be handled in CultureInfoUtils insted to avoid registering same dict multiple times.
+                    //tryParents is false and will be handled in CultureInfoUtils insted to avoid registering
+                    //same dict multiple times.
                     var resourceSet = rm.GetResourceSet(lang, true, false);
                     if (resourceSet == null) continue;
 
@@ -105,8 +105,10 @@ namespace Internationalization.LiteralProvider.Resource
         /// Initializes the singleton instance of AbstractLiteralProvider.
         /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">does not have to be initialized before acessing Instance</param>
-        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
+        /// <param name="fileProvider">Does not have to be initialized before acessing Instance.</param>
+        /// <param name="inputLanguage">
+        /// The language originally used in the application, which is ment to be internationalized.
+        /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
             Initialize(fileProvider, inputLanguage, new CultureInfo("en"));
@@ -116,10 +118,12 @@ namespace Internationalization.LiteralProvider.Resource
         /// Initializes the singleton instance of AbstractLiteralProvider.
         /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">does not have to be initialized before acessing Instance</param>
-        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
+        /// <param name="fileProvider">Does not have to be initialized before acessing Instance.</param>
+        /// <param name="inputLanguage">
+        /// The language originally used in the application, which is ment to be internationalized.
+        /// </param>
         /// <param name="preferedLanguage">
-        /// Used if InputLanguage is not english, to have recommendations be in english regardless.
+        /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
             CultureInfo preferedLanguage)
@@ -131,7 +135,7 @@ namespace Internationalization.LiteralProvider.Resource
 
         public override ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element)
         {
-            //collect translation individually
+            //collect translation individually.
             ICollection<TextLocalization> localizations = new Collection<TextLocalization>();
             foreach (var lang in GetKnownLanguages())
             {
@@ -139,10 +143,10 @@ namespace Internationalization.LiteralProvider.Resource
                 localizations.Add(new TextLocalization {Language = lang, Text = translation});
             }
 
-            //fill translations without Text
+            //fill translations without Text.
             GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
 
-            //fill known translations and convert to ObservableCollection
+            //fill known translations and convert to ObservableCollection.
             var sourceLocalization = localizations.FirstOrDefault(loc =>
                 Equals(loc.Language, InputLanguage));
             var observableLocalizations =
@@ -171,7 +175,7 @@ namespace Internationalization.LiteralProvider.Resource
         }
 
         /// <summary>
-        /// Workaround for ResourcesTextConverter, only supported by ResourceLiteralProvider
+        /// Workaround for ResourcesTextConverter, only supported by ResourceLiteralProvider.
         /// </summary>
         public string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {
@@ -188,7 +192,7 @@ namespace Internationalization.LiteralProvider.Resource
 
         private static string GetKeyFromUnkownElementType(DependencyObject element)
         {
-            //ResourceKeyProperty in only attached to DataGridColumn
+            //ResourceKeyProperty in only attached to DataGridColumn.
             if (element is DataGridColumnHeader asColumnHeader)
             {
                 return ResourcesProperties.GetResourceKey(asColumnHeader.Column);
@@ -204,7 +208,7 @@ namespace Internationalization.LiteralProvider.Resource
                 return null;
             }
 
-            //check for changes everytime (changes-dict can change due to late loading)
+            //check for changes everytime (changes-dict can change due to late loading).
             Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
             try
             {
@@ -213,7 +217,7 @@ namespace Internationalization.LiteralProvider.Resource
             catch (FileProviderNotInitializedException)
             {
                 //logged in Debug, as this behaviour is intended, if the file does not exists initially.
-                _logger.Log(LogLevel.Debug, @"Unable to read changes from FileProvider.");
+                _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
             }
 
             string translation = null;
@@ -222,7 +226,7 @@ namespace Internationalization.LiteralProvider.Resource
 
             if (translation != null) return translation;
 
-            //if needed use translations from Resources
+            //if needed use translations from Resources.
             var langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
             langDict.TryGetValue(resourceKey, out translation);
 

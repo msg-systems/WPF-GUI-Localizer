@@ -28,13 +28,13 @@ namespace Internationalization.LiteralProvider.File
             get
             {
                 //FileProvider is expected to have been initialized before using FileLiteralProvider,
-                //because information, about what Languages are supported, comes from file
+                //because information, about what Languages are supported, comes from file.
                 if (_status == ProviderStatus.Initialized)
                 {
                     return FileProviderInstance.Status;
                 }
 
-                //correct status when needed
+                //correct status when needed.
                 if (_status == ProviderStatus.CancellationInProgress &&
                     FileProviderInstance.Status == ProviderStatus.CancellationComplete)
                 {
@@ -57,8 +57,10 @@ namespace Internationalization.LiteralProvider.File
         /// Initializes the singleton instance of AbstractLiteralProvider.
         /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">has to be initialized before acessing Instance</param>
-        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
+        /// <param name="fileProvider">Has to be initialized before acessing Instance.</param>
+        /// <param name="inputLanguage">
+        /// The language originally used in the application, which is ment to be internationalized.
+        /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
             Initialize(fileProvider, inputLanguage, new CultureInfo("en"));
@@ -68,8 +70,10 @@ namespace Internationalization.LiteralProvider.File
         /// Initializes the singleton instance of AbstractLiteralProvider.
         /// Call this method before accessing the property Instance.
         /// </summary>
-        /// <param name="fileProvider">has to be initialized before acessing Instance</param>
-        /// <param name="inputLanguage">The language originally used in the application, which is ment to be internationalized</param>
+        /// <param name="fileProvider">Has to be initialized before acessing Instance.</param>
+        /// <param name="inputLanguage">
+        /// The language originally used in the application, which is ment to be internationalized.
+        /// </param>
         /// <param name="preferedLanguage">
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
@@ -104,7 +108,7 @@ namespace Internationalization.LiteralProvider.File
                 localizations.Add(GetLiteral(language, parentDialogName, controlType, controlId));
             }
 
-            //if entry is new, use text from XAML
+            //if entry is new, use text from XAML.
             if (localizations.All(localization => string.IsNullOrWhiteSpace(localization.Text)))
             {
                 localizations.First(localization => Equals(localization.Language, InputLanguage)).Text = currentText;
@@ -112,7 +116,7 @@ namespace Internationalization.LiteralProvider.File
 
             GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
 
-            //fill known translations and convert to ObservableCollection
+            //fill known translations and convert to ObservableCollection.
             var sourceLocalization = localizations.FirstOrDefault(loc =>
                 Equals(loc.Language, InputLanguage));
             var observableLocalizations =
@@ -158,7 +162,7 @@ namespace Internationalization.LiteralProvider.File
                 string.IsNullOrWhiteSpace(controlType) || texts == null)
             {
                 _logger.Log(LogLevel.Debug,
-                    @"Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.", parentDialogName,
+                    "Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.", parentDialogName,
                     controlType, controlId);
                 return;
             }
@@ -238,7 +242,7 @@ namespace Internationalization.LiteralProvider.File
                         break;
                     case '\\':
                         //using @"\\" caused problems, when used with Replace(@"\\", @"\").Replace(@"\n", "\n")
-                        //in situations like '\'+'n' -> "\\n" -> file -> "\\n" -> '\'+'n' -> '\n'
+                        //in situations like '\'+'n' -> "\\n" -> file -> "\\n" -> '\'+'n' -> '\n'.
                         builder.Append(@"\slash");
                         break;
                     default:
@@ -255,14 +259,14 @@ namespace Internationalization.LiteralProvider.File
         {
             parentDialogName = null;
 
-            //determine Name, Type and current Text
+            //determine Name, Type and current Text.
             switch (element)
             {
                 case RibbonTab ribbonTab:
                 {
                     controlId = ribbonTab.Name;
                     currentText = ribbonTab.Header as string;
-                    //RibbonTabs count as "TabItem" for determining Literals
+                    //RibbonTabs count as "TabItem" for determining Literals.
                     controlType = typeof(TabItem).Name;
                     break;
                 }
@@ -270,7 +274,7 @@ namespace Internationalization.LiteralProvider.File
                 {
                     controlId = ribbonGroup.Name;
                     currentText = ribbonGroup.Header as string;
-                    //RibbonGroups count as "TabItem" for determining Literals
+                    //RibbonGroups count as "TabItem" for determining Literals.
                     controlType = typeof(TabItem).Name;
                     break;
                 }
@@ -286,7 +290,7 @@ namespace Internationalization.LiteralProvider.File
                 {
                     controlId = ribbonButton.Name;
                     currentText = ribbonButton.Content as string;
-                    //RibbonButtons count as "Button" for determining Literals
+                    //RibbonButtons count as "Button" for determining Literals.
                     controlType = typeof(Button).Name;
                     break;
                 }
@@ -339,12 +343,12 @@ namespace Internationalization.LiteralProvider.File
                     controlType = typeof(DataGridColumn).Name;
                     try
                     {
-                        //column itself is not in the VisualTree, since it isn't a Visual
+                        //column itself is not in the VisualTree, since it isn't a Visual.
                         parentDialogName = GetParentDialogName(LogicalTreeUtils.GetDataGridParent(column));
                     }
                     catch
                     {
-                        _logger.Log(LogLevel.Debug, @"Unable to find parent of DataGridColumn.");
+                        _logger.Log(LogLevel.Debug, "Unable to find parent of DataGridColumn.");
                     }
 
                     break;
@@ -358,13 +362,13 @@ namespace Internationalization.LiteralProvider.File
                 }
             }
 
-            //determine Name of View or Window, if element isn't DataGridColumn
+            //determine Name of View or Window, if element isn't DataGridColumn.
             if (parentDialogName == null)
             {
                 parentDialogName = GetParentDialogName(element);
             }
 
-            //to avoid misalignment while using ExcelFileProvider
+            //to avoid misalignment while using ExcelFileProvider.
             controlId = controlId?.Replace(Properties.Settings.Default.Seperator_for_partial_Literalkeys.ToString(),
                 "");
             controlType = controlType?.Replace(Properties.Settings.Default.Seperator_for_partial_Literalkeys.ToString(),
@@ -378,8 +382,8 @@ namespace Internationalization.LiteralProvider.File
             string parentDialogName = null;
             var currentObject = (DependencyObject) sender;
 
-            //move up the VisualTree, until UserControl or Window is found
-            //search limeted to 40 iterations to stop infinite loops
+            //move up the VisualTree, until UserControl or Window is found.
+            //search limited to 40 iterations to stop infinite loops.
             for (var i = 0; i < 40 && currentObject != null && parentDialogName == null; i++)
             {
                 currentObject = VisualTreeHelper.GetParent(currentObject);

@@ -190,7 +190,7 @@ namespace Internationalization.Utilities
                         catch
                         {
                             Logger.Log(LogLevel.Debug,
-                                @"Unable to update new translation for DataGrid in GUI.");
+                                "Unable to update new translation for DataGrid in GUI.");
                         }
 
                         break;
