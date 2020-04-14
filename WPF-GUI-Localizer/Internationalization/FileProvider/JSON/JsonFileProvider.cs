@@ -175,7 +175,7 @@ namespace Internationalization.FileProvider.JSON
         private void Initialize()
         {
             _logger.Log(LogLevel.Trace, "Entering Initialize function.");
-            var fileContent = string.Empty;
+            string fileContent;
 
             try
             {

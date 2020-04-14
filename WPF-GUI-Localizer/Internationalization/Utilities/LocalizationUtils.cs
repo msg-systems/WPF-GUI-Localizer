@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +8,6 @@ using System.Windows.Controls.Ribbon;
 using System.Windows.Input;
 using Internationalization.GUITranslator;
 using Internationalization.LiteralProvider.Abstract;
-using Internationalization.Model;
 using Internationalization.View;
 using Microsoft.Extensions.Logging;
 

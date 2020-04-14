@@ -31,6 +31,7 @@ namespace Example_Excel
             });
 
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
+            GlobalSettings.UseGuiTranslatorForLocalizationUtils = true;
 
             IFileProvider efp = new ExcelFileProvider("Resource/Language_File", "gloss");
             //IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
