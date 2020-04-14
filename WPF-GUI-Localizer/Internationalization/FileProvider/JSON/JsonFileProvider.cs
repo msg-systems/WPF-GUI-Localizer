@@ -187,8 +187,8 @@ namespace Internationalization.FileProvider.JSON
 
                 try
                 {
-                    fileContent =
-                        "{}"; //identical to JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
+                    fileContent = "{}";
+                    //identical to JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
                     File.WriteAllText(_path, fileContent);
 
                     _successfullyCreatedFile = true;

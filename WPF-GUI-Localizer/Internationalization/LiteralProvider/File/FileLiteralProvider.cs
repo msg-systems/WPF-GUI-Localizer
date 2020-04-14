@@ -27,8 +27,8 @@ namespace Internationalization.LiteralProvider.File
         {
             get
             {
-                // FileProvider is expected to have been initialized before using FileLiteralProvider,
-                // because information, about what Languages are supported, comes from file
+                //FileProvider is expected to have been initialized before using FileLiteralProvider,
+                //because information, about what Languages are supported, comes from file
                 if (_status == ProviderStatus.Initialized)
                 {
                     return FileProviderInstance.Status;

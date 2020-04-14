@@ -30,8 +30,8 @@ namespace Internationalization.FileProvider.Excel
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
-        // 0: initialization is not yet started or completed
-        // 1: initialization is already started and running
+        //0: initialization is not yet started or completed
+        //1: initialization is already started and running
         private int _isInitializing;
         private BackgroundWorker _backgroundWorker;
         private int _numKeyParts;

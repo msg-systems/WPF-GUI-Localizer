@@ -28,8 +28,8 @@ namespace Internationalization.LiteralProvider.Resource
 
         protected override ProviderStatus Status
         {
-            // Information about languages comes from Resource not the file,
-            // therefore Status property of FileProviderInstance is ignored.
+            //Information about languages comes from Resource not the file,
+            //therefore Status property of FileProviderInstance is ignored.
             get
             {
                 //correct status when needed
