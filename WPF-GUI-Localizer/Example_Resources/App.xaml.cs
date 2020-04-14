@@ -24,15 +24,15 @@ namespace Example_Resources
     {
         public App()
         {
-            this.Startup += OnStartup;
-            this.Exit += OnExit;
+            Startup += OnStartup;
+            Exit += OnExit;
         }
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-            ILoggerFactory consoleLoggerFactory = LoggerFactory.Create(builder =>
+            var consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
                     .SetMinimumLevel(LogLevel.Information)

@@ -24,7 +24,6 @@ namespace Example_Resources.ViewModel
             get => Thread.CurrentThread.CurrentUICulture;
             set
             {
-
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
 

@@ -51,9 +51,9 @@ namespace Internationalization.FileProvider.JSON
             {
                 File.WriteAllText(_path, JsonConvert.SerializeObject(_dictOfdicts));
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
-                _logger.Log(LogLevel.Debug, 
+                _logger.Log(LogLevel.Debug,
                     $@"Unable to write langage file ({Path.GetFullPath(_path)}). {e.GetType()} ({e.Message}).");
             }
         }
@@ -62,17 +62,18 @@ namespace Internationalization.FileProvider.JSON
         {
             IList<TextLocalization> textsEnumerated = texts.ToList();
 
-            string textsString = string.Join(", ", textsEnumerated.Select(l => l.ToString()));
+            var textsString = string.Join(", ", textsEnumerated.Select(l => l.ToString()));
             _logger.Log(LogLevel.Trace, $"Update was called with {{{textsString}}} as translations for key ({key}).");
 
-            foreach (TextLocalization textLocalization in textsEnumerated)
+            foreach (var textLocalization in textsEnumerated)
             {
-                _dictOfdicts.TryGetValue(textLocalization.Language, out Dictionary<string, string> langDict);
+                _dictOfdicts.TryGetValue(textLocalization.Language, out var langDict);
                 if (langDict == null)
                 {
                     langDict = new Dictionary<string, string>();
                     _dictOfdicts.Add(textLocalization.Language, langDict);
-                    _logger.Log(LogLevel.Trace, $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
+                    _logger.Log(LogLevel.Trace,
+                        $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
                 }
 
                 if (langDict.ContainsKey(key))
@@ -84,6 +85,7 @@ namespace Internationalization.FileProvider.JSON
                 {
                     _logger.Log(LogLevel.Trace, "Created new entry for given value.");
                 }
+
                 langDict.Add(key, textLocalization.Text);
             }
 
@@ -144,9 +146,10 @@ namespace Internationalization.FileProvider.JSON
             {
                 return true;
             }
+
             _logger.Log(LogLevel.Information, $"Directory for Json file will be created ({path}).");
 
-            string directory = Path.GetDirectoryName(path);
+            var directory = Path.GetDirectoryName(path);
 
             if (!string.IsNullOrEmpty(directory))
             {
@@ -167,7 +170,7 @@ namespace Internationalization.FileProvider.JSON
         private void Initialize()
         {
             _logger.Log(LogLevel.Trace, "Entering Initialize function.");
-            string fileContent = string.Empty;
+            var fileContent = string.Empty;
 
             try
             {
@@ -184,7 +187,8 @@ namespace Internationalization.FileProvider.JSON
 
                 try
                 {
-                    fileContent = "{}"; //identical to JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
+                    fileContent =
+                        "{}"; //identical to JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())
                     File.WriteAllText(_path, fileContent);
 
                     _successfullyCreatedFile = true;
@@ -202,12 +206,14 @@ namespace Internationalization.FileProvider.JSON
                 }
                 catch
                 {
-                    _logger.Log(LogLevel.Warning, $"Unable to open or create new language file ({_path})." 
+                    _logger.Log(LogLevel.Warning, $"Unable to open or create new language file ({_path})."
                                                   + "JsonFileProvider will not be Initialized.");
                     return;
                 }
             }
-            _dictOfdicts = JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
+
+            _dictOfdicts =
+                JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
 
             //Cancelation identical to Initialization
             switch (Status)

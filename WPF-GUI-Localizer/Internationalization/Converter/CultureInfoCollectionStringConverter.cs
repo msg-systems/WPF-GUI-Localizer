@@ -17,7 +17,7 @@ namespace Internationalization.Converter
             ICollection<string> languageStrings = new List<string>();
             if (value is IEnumerable<CultureInfo> languages)
             {
-                foreach (CultureInfo language in languages)
+                foreach (var language in languages)
                 {
                     languageStrings.Add(language.DisplayName + " (" + language.Name + ")");
                 }
@@ -31,7 +31,7 @@ namespace Internationalization.Converter
             ICollection<CultureInfo> languages = new List<CultureInfo>();
             if (value is IEnumerable<string> languageStrings)
             {
-                foreach (string language in languageStrings)
+                foreach (var language in languageStrings)
                 {
                     languages.Add(CultureInfoUtil.GetCultureInfo(language, true));
                 }

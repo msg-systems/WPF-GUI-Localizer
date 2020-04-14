@@ -9,7 +9,6 @@ namespace Internationalization.FileProvider.Interface
     /// </summary>
     public interface IFileProvider
     {
-
         /// <summary>
         /// Represents progress on reading the data or cancellation of the reading action
         /// </summary>
@@ -21,10 +20,12 @@ namespace Internationalization.FileProvider.Interface
         /// Returns saved dictionary
         /// </summary>
         Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary();
+
         /// <summary>
         /// Updates a key-value-pair in the dictionary
         /// </summary>
         void Update(string key, IEnumerable<TextLocalization> texts);
+
         /// <summary>
         /// Makes current dictionary persistent in some way
         /// </summary>

@@ -9,13 +9,12 @@ namespace Internationalization.Utilities
 {
     public static class TextLocalizationsUtils
     {
-
         public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
             Dictionary<CultureInfo, Dictionary<string, string>> allTranslations, CultureInfo inputLanguage)
         {
             ICollection<string> knownTranslations = new Collection<string>();
 
-            allTranslations.TryGetValue(inputLanguage, out Dictionary<string, string> sourceDictionary);
+            allTranslations.TryGetValue(inputLanguage, out var sourceDictionary);
 
             if (string.IsNullOrWhiteSpace(text) || Equals(targetLanguage, inputLanguage) || sourceDictionary == null)
             {
@@ -23,13 +22,14 @@ namespace Internationalization.Utilities
             }
 
             //get all keys out of sourceDictionary, where value matches given text
-            IEnumerable<KeyValuePair<string, string>> fittingDictionaryEntries = sourceDictionary.Where(x => text.Equals(x.Value));
+            var fittingDictionaryEntries =
+                sourceDictionary.Where(x => text.Equals(x.Value));
 
             //collect possible translations
-            foreach (KeyValuePair<string, string> entry in fittingDictionaryEntries)
+            foreach (var entry in fittingDictionaryEntries)
             {
-                string value = "";
-                allTranslations.TryGetValue(targetLanguage, out Dictionary<string, string> langDict);
+                var value = "";
+                allTranslations.TryGetValue(targetLanguage, out var langDict);
                 langDict?.TryGetValue(entry.Key, out value);
 
                 //don't recommend the same translation twice
@@ -42,25 +42,29 @@ namespace Internationalization.Utilities
             return knownTranslations;
         }
 
-        public static string GetRecommendedText(TextLocalization selectedText, ICollection<TextLocalization> localizedTexts,
+        public static string GetRecommendedText(TextLocalization selectedText,
+            ICollection<TextLocalization> localizedTexts,
             bool preferPreferedOverInputLangauge, CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
-            bool usePreferedInsted = preferPreferedOverInputLangauge;
+            var usePreferedInsted = preferPreferedOverInputLangauge;
             if (usePreferedInsted && Equals(selectedText.Language, preferedLanguage))
             {
                 usePreferedInsted = false;
             }
+
             if (!usePreferedInsted && Equals(selectedText.Language, inputLanguage))
             {
                 usePreferedInsted = true;
             }
 
-            string recommendedTranslation = localizedTexts.FirstOrDefault(loc => Equals(loc.Language,
-                (usePreferedInsted) ? preferedLanguage : inputLanguage))?.Text;
+            var recommendedTranslation = localizedTexts.FirstOrDefault(loc => Equals(loc.Language,
+                usePreferedInsted ? preferedLanguage : inputLanguage))?.Text;
 
-            if (recommendedTranslation == null || recommendedTranslation.StartsWith(preferedLanguage.Name + "--", StringComparison.Ordinal))
+            if (recommendedTranslation == null ||
+                recommendedTranslation.StartsWith(preferedLanguage.Name + "--", StringComparison.Ordinal))
             {
-                recommendedTranslation = localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage))?.Text;
+                recommendedTranslation =
+                    localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage))?.Text;
             }
 
             return selectedText.Language.Name + "--" + recommendedTranslation;
@@ -77,13 +81,13 @@ namespace Internationalization.Utilities
         public static Dictionary<string, List<TextLocalization>> FlipLocalizationsDictionary(
             Dictionary<CultureInfo, Dictionary<string, string>> dictionary)
         {
-            Dictionary<string, List<TextLocalization>> returnDict = new Dictionary<string, List<TextLocalization>>();
+            var returnDict = new Dictionary<string, List<TextLocalization>>();
             foreach (var langDict in dictionary)
             {
                 foreach (var elementTranslation in langDict.Value)
                 {
-                    TryGetOrCreate(ref returnDict, elementTranslation.Key, out List<TextLocalization> texts);
-                    texts.Add(new TextLocalization{Language = langDict.Key, Text = elementTranslation.Value});
+                    TryGetOrCreate(ref returnDict, elementTranslation.Key, out var texts);
+                    texts.Add(new TextLocalization {Language = langDict.Key, Text = elementTranslation.Value});
                 }
             }
 

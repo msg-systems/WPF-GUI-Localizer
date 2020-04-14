@@ -11,7 +11,7 @@ namespace Internationalization.AttachedProperties
         {
             try
             {
-                return (string)d.GetValue(ResourceKeyProperty);
+                return (string) d.GetValue(ResourceKeyProperty);
             }
             catch
             {

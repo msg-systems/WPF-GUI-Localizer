@@ -11,7 +11,7 @@ namespace Internationalization.AttachedProperties
         {
             try
             {
-                return (string)obj.GetValue(NameProperty);
+                return (string) obj.GetValue(NameProperty);
             }
             catch
             {
@@ -25,6 +25,7 @@ namespace Internationalization.AttachedProperties
         }
 
         public static readonly DependencyProperty NameProperty =
-            DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridProperties), new UIPropertyMetadata(""));
+            DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridProperties),
+                new UIPropertyMetadata(""));
     }
 }

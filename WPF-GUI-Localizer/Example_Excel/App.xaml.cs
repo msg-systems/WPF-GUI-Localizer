@@ -25,14 +25,14 @@ namespace Example_Excel
     {
         public App()
         {
-            this.Startup += OnStartup;
-            this.Exit += OnExit;
+            Startup += OnStartup;
+            Exit += OnExit;
         }
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            Console.WriteLine((new CultureInfo("en-US")).Parent.Name);
-            ILoggerFactory consoleLoggerFactory = LoggerFactory.Create(builder =>
+            Console.WriteLine(new CultureInfo("en-US").Parent.Name);
+            var consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
                     .SetMinimumLevel(LogLevel.Trace)

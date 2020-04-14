@@ -13,8 +13,8 @@ namespace Internationalization.Utilities
         /// <exception cref="CultureNotFoundException">exception is thrown if language tag cannot be found within list of languages supported by .NET</exception>
         public static CultureInfo GetCultureInfo(string cultureName, bool onlyBracketsAtEndOfString)
         {
-            int begin = cultureName.LastIndexOf(@"(", StringComparison.Ordinal) + 1;
-            int length = cultureName.LastIndexOf(@")", StringComparison.Ordinal) - begin;
+            var begin = cultureName.LastIndexOf(@"(", StringComparison.Ordinal) + 1;
+            var length = cultureName.LastIndexOf(@")", StringComparison.Ordinal) - begin;
             if (onlyBracketsAtEndOfString && begin > 0 && length > 0)
             {
                 cultureName = cultureName.Substring(begin, length);
@@ -58,19 +58,19 @@ namespace Internationalization.Utilities
                 return baseDictionary[targetLanguage];
             }
 
-            CultureInfo parentCultureInfo = targetLanguage.Parent;
+            var parentCultureInfo = targetLanguage.Parent;
             if (baseDictionary.ContainsKey(parentCultureInfo))
             {
                 return baseDictionary[parentCultureInfo];
             }
 
-            CultureInfo twoLetterTarget = new CultureInfo(targetLanguage.TwoLetterISOLanguageName);
+            var twoLetterTarget = new CultureInfo(targetLanguage.TwoLetterISOLanguageName);
             if (baseDictionary.ContainsKey(twoLetterTarget))
             {
                 return baseDictionary[twoLetterTarget];
             }
 
-            CultureInfo twoLetterParent = new CultureInfo(parentCultureInfo.TwoLetterISOLanguageName);
+            var twoLetterParent = new CultureInfo(parentCultureInfo.TwoLetterISOLanguageName);
             if (baseDictionary.ContainsKey(twoLetterParent))
             {
                 return baseDictionary[twoLetterParent];

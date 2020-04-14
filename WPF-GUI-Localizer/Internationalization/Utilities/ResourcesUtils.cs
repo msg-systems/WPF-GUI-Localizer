@@ -13,11 +13,12 @@ namespace Internationalization.Utilities
             if (GlobalSettings.ResourcesAssembly == null)
             {
                 GlobalSettings.ResourcesAssembly = Assembly.GetEntryAssembly();
-                if (GlobalSettings.ResourcesAssembly == null) return null;//TODO error werfen?
+                if (GlobalSettings.ResourcesAssembly == null) return null; //TODO error werfen?
             }
 
-            string nameOfAppToBeTranslated = GlobalSettings.ResourcesAssembly.FullName.Split(',')[0];
-            return new ResourceManager(nameOfAppToBeTranslated + ".Properties.Resources", GlobalSettings.ResourcesAssembly);
+            var nameOfAppToBeTranslated = GlobalSettings.ResourcesAssembly.FullName.Split(',')[0];
+            return new ResourceManager(nameOfAppToBeTranslated + ".Properties.Resources",
+                GlobalSettings.ResourcesAssembly);
         }
     }
 }

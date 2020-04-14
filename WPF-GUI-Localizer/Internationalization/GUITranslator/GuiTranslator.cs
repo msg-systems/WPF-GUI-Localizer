@@ -3,15 +3,18 @@ using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using Internationalization.LiteralProvider.Abstract;
 
-namespace Internationalization.GUITranslator {
-    public static class GuiTranslator {
-
+namespace Internationalization.GUITranslator
+{
+    public static class GuiTranslator
+    {
         /// <summary>
         /// Goes through all elements of this View and writes the current translation into each element
         /// </summary>
         /// <param name="userControl">the View that is ment to be searched for translatable elements</param>
-        public static void TranslateDialog(UserControl userControl) {
-            if (userControl != null) {
+        public static void TranslateDialog(UserControl userControl)
+        {
+            if (userControl != null)
+            {
                 TranslateGui(userControl);
             }
         }
@@ -20,24 +23,29 @@ namespace Internationalization.GUITranslator {
         /// Goes through all elements of this Window and writes the current translation into each element
         /// </summary>
         /// <param name="mainWindow">the Window that is ment to be searched for translatable elements</param>
-        public static void TranslateWindow(Window mainWindow) {
-            if (mainWindow != null) {
+        public static void TranslateWindow(Window mainWindow)
+        {
+            if (mainWindow != null)
+            {
                 TranslateGui(mainWindow);
             }
         }
 
-        private static void TranslateGui(FrameworkElement visual) {
-
+        private static void TranslateGui(FrameworkElement visual)
+        {
             //TranslateGuiElement will do nothing if visual is a non translatable like Grid
             TranslateGuiElement(visual);
 
-            foreach (var childVisual in LogicalTreeHelper.GetChildren(visual)) {
+            foreach (var childVisual in LogicalTreeHelper.GetChildren(visual))
+            {
                 // If View or Window contain a TabControl - break foreach to prevent translating sub View
-                if (childVisual is TabControl) {
+                if (childVisual is TabControl)
+                {
                     break;
                 }
 
-                if (childVisual is FrameworkElement element) {
+                if (childVisual is FrameworkElement element)
+                {
                     //also iterate all childs of visual, if they are FrameworkElements
                     //as DataGridColumns are not FrameworkElements, they require special treatment in TranslateGuiElement
                     TranslateGui(element);
@@ -58,7 +66,7 @@ namespace Internationalization.GUITranslator {
                     return;
             }
 
-            string guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(visual);
+            var guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(visual);
 
             //visual is non translatable, doeasn't have a Name or not supported type like Grid, Stackpanel ...
             if (guiString == null)
@@ -92,6 +100,7 @@ namespace Internationalization.GUITranslator {
                     {
                         button.Content = guiString;
                     }
+
                     break;
                 case TabItem tabItem:
                     tabItem.Header = guiString;
@@ -117,9 +126,12 @@ namespace Internationalization.GUITranslator {
         {
             foreach (var column in grid.Columns)
             {
-                if (column == null) { return; }
+                if (column == null)
+                {
+                    return;
+                }
 
-                string guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(column);
+                var guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(column);
                 if (guiString != null)
                 {
                     column.Header = guiString;

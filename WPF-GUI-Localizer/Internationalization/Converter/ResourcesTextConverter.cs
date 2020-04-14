@@ -19,7 +19,7 @@ namespace Internationalization.Converter
             {
                 if (AbstractLiteralProvider.Instance is ResourceLiteralProvider resourceLiteralProvider)
                 {
-                    string translation = resourceLiteralProvider.GetGuiTranslationOfCurrentCulture(resource);
+                    var translation = resourceLiteralProvider.GetGuiTranslationOfCurrentCulture(resource);
 
                     if (!string.IsNullOrEmpty(translation))
                     {
@@ -27,6 +27,7 @@ namespace Internationalization.Converter
                     }
                 }
             }
+
             return Binding.DoNothing;
         }
 

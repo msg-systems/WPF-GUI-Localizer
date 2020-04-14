@@ -14,7 +14,7 @@ namespace Internationalization.AttachedProperties
 
         public static string GetIsActive(DependencyObject d)
         {
-            return (string)d.GetValue(IsActiveProperty);
+            return (string) d.GetValue(IsActiveProperty);
         }
 
         public static void SetIsActive(DependencyObject d, string value)
@@ -31,7 +31,7 @@ namespace Internationalization.AttachedProperties
         {
             var isActive = "True".Equals(e.NewValue.ToString());
 
-            var parent = (FrameworkElement)d;
+            var parent = (FrameworkElement) d;
 
 
             if (isActive)

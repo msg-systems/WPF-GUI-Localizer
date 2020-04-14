@@ -25,7 +25,8 @@
 
         <ComboBox Grid.Row="0" Grid.Column="1"
                   ItemsSource="{Binding TranslatableLanguages,Converter={StaticResource CultureInfoCollectionStringConverter}}"
-                  SelectedItem="{Binding SelectedLanguage,Converter={StaticResource CultureInfoStringConverter}}"/>
-        <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="CurrentView" NavigationUIVisibility="Hidden" Content="{Binding CurrentView, Mode=TwoWay}"/>
+                  SelectedItem="{Binding SelectedLanguage,Converter={StaticResource CultureInfoStringConverter}}" />
+        <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="CurrentView" NavigationUIVisibility="Hidden"
+               Content="{Binding CurrentView, Mode=TwoWay}" />
     </Grid>
 </Window>

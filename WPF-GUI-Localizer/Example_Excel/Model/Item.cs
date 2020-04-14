@@ -9,7 +9,9 @@ namespace Example_Excel.Model
         private bool _recived;
         private string _website;
 
-        public Item() { }
+        public Item()
+        {
+        }
 
         public Item(string quantity, string name, bool recived, string website)
         {
@@ -22,25 +24,25 @@ namespace Example_Excel.Model
         public string Quantity
         {
             get => _quantity;
-            set { Set<string>(() => this.Quantity, ref _quantity, value); }
+            set { Set<string>(() => Quantity, ref _quantity, value); }
         }
 
         public string Name
         {
             get => _name;
-            set { Set<string>(() => this.Name, ref _name, value); }
+            set { Set<string>(() => Name, ref _name, value); }
         }
 
         public bool Recived
         {
             get => _recived;
-            set { Set<bool>(() => this.Recived, ref _recived, value); }
+            set { Set<bool>(() => Recived, ref _recived, value); }
         }
 
         public string Website
         {
             get => _website;
-            set { Set<string>(() => this.Website, ref _website, value); }
+            set { Set<string>(() => Website, ref _website, value); }
         }
     }
 }

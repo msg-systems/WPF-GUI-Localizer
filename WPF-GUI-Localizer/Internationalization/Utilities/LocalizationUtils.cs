@@ -40,11 +40,11 @@ namespace Internationalization.Utilities
             //make sure views don't get initialized multiple times
             if (calledByLoaded)
             {
-                var parentFrameworkElement = (FrameworkElement)parent;
+                var parentFrameworkElement = (FrameworkElement) parent;
                 parentFrameworkElement.Loaded -= ElementInitialized;
             }
 
-            List<FrameworkElement> supportedElements = new List<FrameworkElement>();
+            var supportedElements = new List<FrameworkElement>();
 
             //read all supported child elements from parent
             supportedElements.AddRange(LogicalTreeUtils.GetLogicalChildCollection<RibbonTab>(parent));
@@ -118,7 +118,10 @@ namespace Internationalization.Utilities
                 case TabItem tabItem:
                 {
                     //a TabItem may contain nested Elements, make sure the tabItem itself was clicked
-                    if ( !(e.Source is TabItem && tabItem.Header is string) ) { return; }
+                    if (!(e.Source is TabItem && tabItem.Header is string))
+                    {
+                        return;
+                    }
 
                     break;
                 }
@@ -126,7 +129,8 @@ namespace Internationalization.Utilities
                 {
                     //find the DataGridColumnHeader that was originally clicked
                     //use the VisualTree, as Headers aren't found in the LogicalTree
-                    var columnHeader = VisualTreeUtils.FindVisualParent<DataGridColumnHeader>((DependencyObject)e.OriginalSource);
+                    var columnHeader =
+                        VisualTreeUtils.FindVisualParent<DataGridColumnHeader>((DependencyObject) e.OriginalSource);
 
                     if (columnHeader == null)
                     {
@@ -135,7 +139,7 @@ namespace Internationalization.Utilities
                     }
 
                     sender = columnHeader;
-                    
+
                     break;
                 }
             }
@@ -145,14 +149,16 @@ namespace Internationalization.Utilities
             e.Handled = true;
 
             //get translations
-            ObservableCollection<TextLocalization> localizedTexts = AbstractLiteralProvider.Instance.GetGuiTranslation((FrameworkElement) sender);
+            var localizedTexts =
+                AbstractLiteralProvider.Instance.GetGuiTranslation((FrameworkElement) sender);
             if (localizedTexts == null)
             {
                 return;
             }
 
             //extract InputLanguage
-            var inputLanguageLocalization = localizedTexts.First(localization => Equals(localization.Language, AbstractLiteralProvider.Instance.InputLanguage));
+            var inputLanguageLocalization = localizedTexts.First(localization =>
+                Equals(localization.Language, AbstractLiteralProvider.Instance.InputLanguage));
             localizedTexts.Remove(inputLanguageLocalization);
             //show LocalizationDialog with InputLanguage seperated
             var localizationDialog = new LocalizationInputDialog
@@ -166,8 +172,9 @@ namespace Internationalization.Utilities
             }
 
             //give updated texts back to LiteralProvider
-            localizedTexts.Add(localizationDialog.InputLocalization); //localizedTexts (also inputLanguageLocalization) is already updated with out grabbing new value from dialog window
-            AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement)sender, localizedTexts);
+            localizedTexts.Add(localizationDialog
+                .InputLocalization); //localizedTexts (also inputLanguageLocalization) is already updated with out grabbing new value from dialog window
+            AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement) sender, localizedTexts);
 
             //activate GuiTranslator, depending on GlobalSettings
             if (GlobalSettings.UseGuiTranslatorForLocalizationUtils)

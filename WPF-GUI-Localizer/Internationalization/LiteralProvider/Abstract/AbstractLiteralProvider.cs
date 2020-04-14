@@ -13,7 +13,6 @@ namespace Internationalization.LiteralProvider.Abstract
 {
     public abstract class AbstractLiteralProvider : ILiteralProvider
     {
-
         private static AbstractLiteralProvider _instance;
         protected abstract ProviderStatus Status { get; }
 
@@ -22,6 +21,7 @@ namespace Internationalization.LiteralProvider.Abstract
         /// The language originally used in the application, which is ment to be internatiolized
         /// </summary>
         public CultureInfo InputLanguage { get; protected set; }
+
         /// <summary>
         /// Used if InputLanguage is not english, to have recommendations be in english regardless
         /// </summary>
@@ -74,7 +74,10 @@ namespace Internationalization.LiteralProvider.Abstract
         /// </param>
         public static void Exit(bool saveToFile)
         {
-            if (_instance == null) { return; }
+            if (_instance == null)
+            {
+                return;
+            }
 
             if (_instance.Status == ProviderStatus.InitializationInProgress)
             {
@@ -92,25 +95,27 @@ namespace Internationalization.LiteralProvider.Abstract
         }
 
         public abstract void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts);
+
         /// <summary>
         /// This function returns an ObservableCollection object, as it is only used once by LocalizationUtils
         /// </summary>
         public abstract ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
+
         public abstract string GetGuiTranslationOfCurrentCulture(DependencyObject element);
         public abstract IEnumerable<CultureInfo> GetKnownLanguages();
 
         protected abstract void CancelInitialization();
 
 
-
-        protected static void GetTranslationDummyText(ICollection<TextLocalization> localizedTexts, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        protected static void GetTranslationDummyText(ICollection<TextLocalization> localizedTexts,
+            CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
             if (localizedTexts == null)
             {
                 return;
             }
 
-            foreach (TextLocalization localization in localizedTexts)
+            foreach (var localization in localizedTexts)
             {
                 if (localization != null && string.IsNullOrWhiteSpace(localization.Text))
                 {
@@ -125,9 +130,9 @@ namespace Internationalization.LiteralProvider.Abstract
             var frame = new DispatcherFrame();
             Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background,
                 new DispatcherOperationCallback(
-                    delegate (object f)
+                    delegate(object f)
                     {
-                        ((DispatcherFrame)f).Continue = false;
+                        ((DispatcherFrame) f).Continue = false;
                         return null;
                     }), frame);
             Dispatcher.PushFrame(frame);

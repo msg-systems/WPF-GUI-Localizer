@@ -14,8 +14,8 @@ using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
 
-namespace Internationalization.FileProvider.Excel {
-
+namespace Internationalization.FileProvider.Excel
+{
     /// <summary>
     /// Saves its files using an Excel Application.
     /// This Excel Application will under normal circumstances always be closed,
@@ -25,10 +25,10 @@ namespace Internationalization.FileProvider.Excel {
     /// </summary>
     public class ExcelFileProvider : IFileProvider
     {
-
         private static ILogger _logger;
 
-        private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts = new Dictionary<CultureInfo, Dictionary<string, string>>();
+        private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
+            new Dictionary<CultureInfo, Dictionary<string, string>>();
 
         // 0: initialization is not yet started or completed
         // 1: initialization is already started and running
@@ -43,7 +43,8 @@ namespace Internationalization.FileProvider.Excel {
         /// Entries in the Excel table that start with this tag will be interpreted as part of the glossary
         /// </param>
         /// <param name="oldTranslationFilePath">A copy of the original sheet will be put here if no copy exists jet</param>
-        public ExcelFileProvider(string translationFilePath, string glossaryTag = null, string oldTranslationFilePath = null)
+        public ExcelFileProvider(string translationFilePath, string glossaryTag = null,
+            string oldTranslationFilePath = null)
         {
             Status = ProviderStatus.InitializationInProgress;
 
@@ -83,17 +84,18 @@ namespace Internationalization.FileProvider.Excel {
         {
             IList<TextLocalization> textsEnumerated = texts.ToList();
 
-            string textsString = string.Join(", ", textsEnumerated.Select(l => l.ToString()));
+            var textsString = string.Join(", ", textsEnumerated.Select(l => l.ToString()));
             _logger.Log(LogLevel.Trace, $"Update was called with {{{textsString}}} as translations for key ({key}).");
 
-            foreach (TextLocalization textLocalization in textsEnumerated)
+            foreach (var textLocalization in textsEnumerated)
             {
-                _dictOfDicts.TryGetValue(textLocalization.Language, out Dictionary<string, string> langDict);
+                _dictOfDicts.TryGetValue(textLocalization.Language, out var langDict);
                 if (langDict == null)
                 {
                     langDict = new Dictionary<string, string>();
                     _dictOfDicts.Add(textLocalization.Language, langDict);
-                    _logger.Log(LogLevel.Trace, $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
+                    _logger.Log(LogLevel.Trace,
+                        $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
                 }
 
                 if (langDict.ContainsKey(key))
@@ -105,6 +107,7 @@ namespace Internationalization.FileProvider.Excel {
                 {
                     _logger.Log(LogLevel.Trace, "Created new entry for given value.");
                 }
+
                 langDict.Add(key, textLocalization.Text);
             }
 
@@ -140,20 +143,16 @@ namespace Internationalization.FileProvider.Excel {
             }
         }
 
-        private string TranslationFilePath {
-            get;
-        }
+        private string TranslationFilePath { get; }
 
-        private string OldTranslationFilePath {
-            get;
-        }
+        private string OldTranslationFilePath { get; }
 
         private void ExcelCreateNew(string path)
         {
-            ExcelInterop.Application excel = new ExcelInterop.Application();
-            ExcelInterop.Workbook workbook = excel.Workbooks.Add();
+            var excel = new ExcelInterop.Application();
+            var workbook = excel.Workbooks.Add();
 
-            bool fail = true;
+            var fail = true;
             try
             {
                 excel.DisplayAlerts = false;
@@ -189,7 +188,7 @@ namespace Internationalization.FileProvider.Excel {
 
         private void ExcelCreateFirst(string key, IEnumerable<TextLocalization> texts)
         {
-            ExcelInterop.Application excel = new ExcelInterop.Application();
+            var excel = new ExcelInterop.Application();
             ExcelInterop.Workbook workbook;
 
             if (File.Exists(Path.GetFullPath(TranslationFilePath)))
@@ -206,8 +205,8 @@ namespace Internationalization.FileProvider.Excel {
 
             try
             {
-                ExcelInterop.Worksheet worksheet = (ExcelInterop.Worksheet) workbook.Worksheets[1];
-                string[] keyParts = key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
+                var worksheet = (ExcelInterop.Worksheet) workbook.Worksheets[1];
+                var keyParts = key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
                 _numKeyParts = keyParts.Length;
 
                 int currentColumn;
@@ -217,7 +216,7 @@ namespace Internationalization.FileProvider.Excel {
                     worksheet.Cells[2, currentColumn] = keyParts[currentColumn - 1];
                 }
 
-                foreach (TextLocalization textLocalization in texts)
+                foreach (var textLocalization in texts)
                 {
                     worksheet.Cells[1, currentColumn] =
                         $@"{textLocalization.Language.NativeName} ({textLocalization.Language.Name})";
@@ -246,9 +245,9 @@ namespace Internationalization.FileProvider.Excel {
 
         private void ExcelWriteActions()
         {
-            ExcelInterop.Application excel = new ExcelInterop.Application();
+            var excel = new ExcelInterop.Application();
             ExcelInterop.Workbook workbook;
-            bool creatingNew = false;
+            var creatingNew = false;
 
             if (File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
@@ -256,7 +255,7 @@ namespace Internationalization.FileProvider.Excel {
             }
             else
             {
-                _logger.Log(LogLevel.Warning, 
+                _logger.Log(LogLevel.Warning,
                     $@"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
 
                 workbook = excel.Workbooks.Add();
@@ -265,7 +264,7 @@ namespace Internationalization.FileProvider.Excel {
 
             try
             {
-                ExcelInterop.Worksheet worksheetGui = (ExcelInterop.Worksheet) workbook.Worksheets[1];
+                var worksheetGui = (ExcelInterop.Worksheet) workbook.Worksheets[1];
                 var textLocalizations = TextLocalizationsUtils.FlipLocalizationsDictionary(_dictOfDicts);
                 WriteGuiTranslations(worksheetGui, textLocalizations);
 
@@ -279,7 +278,7 @@ namespace Internationalization.FileProvider.Excel {
                     workbook.Save();
                 }
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
                 _logger.Log(LogLevel.Warning,
                     "Failed to write {0} excel file ({1}). {2} ({3}).",
@@ -293,16 +292,17 @@ namespace Internationalization.FileProvider.Excel {
             }
         }
 
-        private void ReadGuiTranslations(ExcelInterop.Worksheet worksheetGui) {
+        private void ReadGuiTranslations(ExcelInterop.Worksheet worksheetGui)
+        {
             //first row only contains column titles (which can be null in first column), no data
-            int row = 2;
+            var row = 2;
 
-            int numberOfGlossaryEntries = 0;
+            var numberOfGlossaryEntries = 0;
             object[,] values = worksheetGui.UsedRange.get_Value();
-            int maxRow = values.GetUpperBound(0);
-            int maxColumn = values.GetUpperBound(1);
+            var maxRow = values.GetUpperBound(0);
+            var maxColumn = values.GetUpperBound(1);
 
-            for (int column = 1; column < maxColumn; column++)
+            for (var column = 1; column < maxColumn; column++)
             {
                 try
                 {
@@ -310,14 +310,17 @@ namespace Internationalization.FileProvider.Excel {
                     _numKeyParts = column - 1;
                     break;
                 }
-                catch (CultureNotFoundException) { }
+                catch (CultureNotFoundException)
+                {
+                }
             }
-            _logger.Log(LogLevel.Debug,
-                $"Found {_numKeyParts} columns for key parts and {(maxColumn - _numKeyParts)} language columns.");
 
-            for (int langIndex = _numKeyParts + 1; langIndex <= maxColumn; langIndex++)
+            _logger.Log(LogLevel.Debug,
+                $"Found {_numKeyParts} columns for key parts and {maxColumn - _numKeyParts} language columns.");
+
+            for (var langIndex = _numKeyParts + 1; langIndex <= maxColumn; langIndex++)
             {
-                CultureInfo lang = CultureInfoUtil.GetCultureInfo(ExcelCellToString(values[1, langIndex]), true);
+                var lang = CultureInfoUtil.GetCultureInfo(ExcelCellToString(values[1, langIndex]), true);
 
                 if (!_dictOfDicts.ContainsKey(lang))
                 {
@@ -328,7 +331,7 @@ namespace Internationalization.FileProvider.Excel {
             _logger.Log(LogLevel.Trace, "Now reading rows from excel sheet.");
             while (row <= maxRow && values[row, 1] != null)
             {
-                bool isGlossaryEntry = _glossaryTag != null && _glossaryTag.Equals(values[row, 1]);
+                var isGlossaryEntry = _glossaryTag != null && _glossaryTag.Equals(values[row, 1]);
 
                 //check if current row has a comment
                 //or part of glossary (assuming a glossary is being used)
@@ -342,17 +345,18 @@ namespace Internationalization.FileProvider.Excel {
                     }
                     else
                     {
-                        string[] keyColumnCells = new string[_numKeyParts];
-                        for (int i = 0; i < _numKeyParts; i++)
+                        var keyColumnCells = new string[_numKeyParts];
+                        for (var i = 0; i < _numKeyParts; i++)
                         {
                             keyColumnCells[i] = ExcelCellToString(values[row, i + 1]);
                         }
+
                         key = CreateGuiDictionaryKey(keyColumnCells);
                     }
 
-                    for (int langIndex = _numKeyParts + 1; langIndex <= maxColumn; langIndex++)
+                    for (var langIndex = _numKeyParts + 1; langIndex <= maxColumn; langIndex++)
                     {
-                        CultureInfo lang = CultureInfoUtil.GetCultureInfo(ExcelCellToString(values[1, langIndex]), true);
+                        var lang = CultureInfoUtil.GetCultureInfo(ExcelCellToString(values[1, langIndex]), true);
                         _dictOfDicts[lang].Add(key, ExcelCellToString(values[row, langIndex]));
                     }
                 }
@@ -365,35 +369,36 @@ namespace Internationalization.FileProvider.Excel {
             }
         }
 
-        private void WriteGuiTranslations(ExcelInterop.Worksheet worksheetGui, Dictionary<string, List<TextLocalization>> texts) {
-
-            ExcelInterop.Range usedRange = worksheetGui.UsedRange;
+        private void WriteGuiTranslations(ExcelInterop.Worksheet worksheetGui,
+            Dictionary<string, List<TextLocalization>> texts)
+        {
+            var usedRange = worksheetGui.UsedRange;
 
             object[,] values = usedRange.get_Value();
-            int maxColumn = values.GetUpperBound(1);
+            var maxColumn = values.GetUpperBound(1);
 
             foreach (var translation in texts)
             {
                 //if current entry is part of glossary, skip writing
-                Regex glossaryKey = new Regex($"^{_glossaryTag}\\d*$");
+                var glossaryKey = new Regex($"^{_glossaryTag}\\d*$");
                 if (_glossaryTag != null && glossaryKey.IsMatch(translation.Key))
                 {
                     continue;
                 }
 
-                bool updatedRow = false;
-                int lastFindForDialogIndex = -1;
+                var updatedRow = false;
+                var lastFindForDialogIndex = -1;
 
-                string[] keyParts = translation.Key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
+                var keyParts = translation.Key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
 
                 //squeeze key parts into columns if necessary
                 if (keyParts.Length > _numKeyParts)
                 {
-                    string[] newKeyParts = new string[_numKeyParts];
+                    var newKeyParts = new string[_numKeyParts];
                     Array.Copy(keyParts, newKeyParts, _numKeyParts);
 
-                    int diff = keyParts.Length - _numKeyParts;
-                    for (int overflowKeyPart = 0; overflowKeyPart < diff; overflowKeyPart++)
+                    var diff = keyParts.Length - _numKeyParts;
+                    for (var overflowKeyPart = 0; overflowKeyPart < diff; overflowKeyPart++)
                     {
                         newKeyParts[_numKeyParts - 1] += Properties.Settings.Default.Seperator_for_partial_Literalkeys;
                         newKeyParts[_numKeyParts - 1] += keyParts[_numKeyParts + overflowKeyPart];
@@ -401,7 +406,7 @@ namespace Internationalization.FileProvider.Excel {
                 }
 
                 //find first row, matching beginning of key
-                ExcelInterop.Range currentDialogFind = usedRange.Find(keyParts[0], Type.Missing,
+                var currentDialogFind = usedRange.Find(keyParts[0], Type.Missing,
                     ExcelInterop.XlFindLookIn.xlValues, ExcelInterop.XlLookAt.xlPart,
                     ExcelInterop.XlSearchOrder.xlByRows, ExcelInterop.XlSearchDirection.xlNext, false);
                 var firstDialogFind = currentDialogFind;
@@ -411,11 +416,12 @@ namespace Internationalization.FileProvider.Excel {
                 {
                     //get rest of key from sheet
                     ExcelInterop.Range currentRow = worksheetGui.Rows[currentDialogFind.Row];
-                    string[] keyColumnsCells = new string[_numKeyParts];
-                    for (int i = 0; i < _numKeyParts; i++)
+                    var keyColumnsCells = new string[_numKeyParts];
+                    for (var i = 0; i < _numKeyParts; i++)
                     {
                         keyColumnsCells[i] = currentRow.Cells[i + 1].Value;
                     }
+
                     //check if whole key matches
                     if (keyColumnsCells.SequenceEqual(keyParts))
                     {
@@ -435,13 +441,13 @@ namespace Internationalization.FileProvider.Excel {
                     {
                         break;
                     }
-
                 }
 
                 if (updatedRow)
                 {
                     continue;
                 }
+
                 //if no row was found, a new one needs to be created
                 _logger.Log(LogLevel.Trace, $"New Entry will be created in Excel sheet for key ({translation.Key}).");
 
@@ -458,15 +464,15 @@ namespace Internationalization.FileProvider.Excel {
                 //if first part (or whole key for single key fragment setups like ResourceLiteralProvider) can't be found write new line at end of sheet
                 else
                 {
-                    ExcelInterop.Range lastRow =
+                    var lastRow =
                         worksheetGui.Cells.SpecialCells(ExcelInterop.XlCellType.xlCellTypeLastCell);
-                    int indexlastRow = lastRow.Row;
+                    var indexlastRow = lastRow.Row;
                     newRow = worksheetGui.Rows[indexlastRow + 1];
                     _logger.Log(LogLevel.Trace, "Entry was added to end of excel sheet.");
                 }
 
                 //write new key parts
-                for (int i = 0; i < _numKeyParts; i++)
+                for (var i = 0; i < _numKeyParts; i++)
                 {
                     newRow.Cells[i + 1] = keyParts[i];
                 }
@@ -476,9 +482,10 @@ namespace Internationalization.FileProvider.Excel {
             }
         }
 
-        private void WriteToCell(IEnumerable<TextLocalization> texts, ref object[,] values, ref int maxColumn, int currentRow, ExcelInterop.Worksheet worksheetGui)
+        private void WriteToCell(IEnumerable<TextLocalization> texts, ref object[,] values, ref int maxColumn,
+            int currentRow, ExcelInterop.Worksheet worksheetGui)
         {
-            foreach (TextLocalization text in texts)
+            foreach (var text in texts)
             {
                 //identify index for current Language
                 int langIndex;
@@ -514,8 +521,9 @@ namespace Internationalization.FileProvider.Excel {
         /// <summary>
         /// Work for BackgroundWorker, can also be called without BackgroundWorker
         /// </summary>
-        private void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e) {
-            BackgroundWorker bw = sender as BackgroundWorker;
+        private void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e)
+        {
+            var bw = sender as BackgroundWorker;
 
             if (bw == null)
             {
@@ -527,16 +535,16 @@ namespace Internationalization.FileProvider.Excel {
                 _logger.Log(LogLevel.Trace, "LoadExcelLanguageFileAsync functions was called by BackgroundWorker.");
             }
 
-            ExcelInterop.Application excel = new ExcelInterop.Application();
+            var excel = new ExcelInterop.Application();
             //already checked in Initialize if file exists
-            ExcelInterop.Workbook workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
+            var workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
 
             try
             {
                 if (bw == null || !bw.CancellationPending)
                 {
-                    _logger.Log(LogLevel.Trace,"Reading excel file not aborted.");
-                    ExcelInterop.Worksheet worksheetGui = (ExcelInterop.Worksheet) workbook.Worksheets[1];
+                    _logger.Log(LogLevel.Trace, "Reading excel file not aborted.");
+                    var worksheetGui = (ExcelInterop.Worksheet) workbook.Worksheets[1];
                     ReadGuiTranslations(worksheetGui);
                 }
                 else
@@ -559,7 +567,8 @@ namespace Internationalization.FileProvider.Excel {
         /// <summary>
         /// Clean up after BackgroundWorker finished, can also be called without BackgroundWorker
         /// </summary>
-        private void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        private void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
             Interlocked.Exchange(ref _isInitializing, 0);
 
             //not great I know
@@ -570,7 +579,8 @@ namespace Internationalization.FileProvider.Excel {
                 case ProviderStatus.CancellationInProgress:
 
                     Status = ProviderStatus.CancellationComplete;
-                    _logger.Log(LogLevel.Trace, "Finished cancellation. ExcelFileProvider is now in State CancellationComplete.");
+                    _logger.Log(LogLevel.Trace,
+                        "Finished cancellation. ExcelFileProvider is now in State CancellationComplete.");
                     break;
                 case ProviderStatus.InitializationInProgress:
 
@@ -583,16 +593,18 @@ namespace Internationalization.FileProvider.Excel {
                     else
                     {
                         Status = ProviderStatus.Initialized;
-                        _logger.Log(LogLevel.Trace, "Finished initialization. ExcelFileProvider is now in State Initialized.");
+                        _logger.Log(LogLevel.Trace,
+                            "Finished initialization. ExcelFileProvider is now in State Initialized.");
                     }
+
                     break;
             }
         }
 
         private static string CreateGuiDictionaryKey(string[] keyParts)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < keyParts.Length - 1; i++)
+            var stringBuilder = new StringBuilder();
+            for (var i = 0; i < keyParts.Length - 1; i++)
             {
                 stringBuilder.Append(keyParts[i]);
                 stringBuilder.Append(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
@@ -611,17 +623,19 @@ namespace Internationalization.FileProvider.Excel {
             _logger.Log(LogLevel.Trace, "Entering Initialize function.");
             CopyOldExcelFile();
 
-            if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0) {
+            if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0)
+            {
                 _logger.Log(LogLevel.Trace, "Starting initialization.");
-                if (!File.Exists(TranslationFilePath)) {
-                    _logger.Log(LogLevel.Debug, 
+                if (!File.Exists(TranslationFilePath))
+                {
+                    _logger.Log(LogLevel.Debug,
                         $"Unable to find langauge file ({Path.GetFullPath(TranslationFilePath)}).");
 
                     ExcelCreateNew(TranslationFilePath);
                     //not great I know
                     GC.Collect();
                     _logger.Log(LogLevel.Trace, "Ended new excel file creation.");
-                    
+
                     return;
                 }
 
@@ -670,9 +684,10 @@ namespace Internationalization.FileProvider.Excel {
             {
                 return true;
             }
+
             _logger.Log(LogLevel.Information, $"Directory for Excel file will be created ({path}).");
 
-            string directory = Path.GetDirectoryName(path);
+            var directory = Path.GetDirectoryName(path);
 
             if (!string.IsNullOrEmpty(directory))
             {
@@ -701,8 +716,8 @@ namespace Internationalization.FileProvider.Excel {
                 return;
             }
 
-            string translationFilePathFullPath = Path.GetFullPath(TranslationFilePath);
-            string oldTranslationFilePathFullPath = Path.GetFullPath(OldTranslationFilePath);
+            var translationFilePathFullPath = Path.GetFullPath(TranslationFilePath);
+            var oldTranslationFilePathFullPath = Path.GetFullPath(OldTranslationFilePath);
             if (!File.Exists(oldTranslationFilePathFullPath))
             {
                 try
@@ -720,6 +735,5 @@ namespace Internationalization.FileProvider.Excel {
                 _logger.Log(LogLevel.Trace, "Backup file already created, No new backup was made.");
             }
         }
-
     }
 }

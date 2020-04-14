@@ -18,10 +18,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Internationalization.LiteralProvider.Resource
 {
-
     public class ResourceLiteralProvider : AbstractLiteralProvider
     {
-        private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts = new Dictionary<CultureInfo, Dictionary<string, string>>();
+        private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
+            new Dictionary<CultureInfo, Dictionary<string, string>>();
+
         private static ILogger _logger;
         private ProviderStatus _status;
 
@@ -32,7 +33,8 @@ namespace Internationalization.LiteralProvider.Resource
             get
             {
                 //correct status when needed
-                if (_status == ProviderStatus.CancellationInProgress && FileProviderInstance.Status == ProviderStatus.CancellationComplete)
+                if (_status == ProviderStatus.CancellationInProgress &&
+                    FileProviderInstance.Status == ProviderStatus.CancellationComplete)
                 {
                     _status = ProviderStatus.CancellationComplete;
                 }
@@ -41,7 +43,8 @@ namespace Internationalization.LiteralProvider.Resource
             }
         }
 
-        private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
+            CultureInfo preferedLanguage)
         {
             FileProviderInstance = fileProvider;
             InputLanguage = inputLanguage;
@@ -52,11 +55,12 @@ namespace Internationalization.LiteralProvider.Resource
 
         private void ReadDicts()
         {
-            ResourceManager rm = ResourcesUtils.GetResourcesManager();
+            var rm = ResourcesUtils.GetResourcesManager();
             if (rm == null)
             {
-                string nameOfAssembly = GlobalSettings.ResourcesAssembly == null ?
-                    Assembly.GetEntryAssembly()?.FullName : GlobalSettings.ResourcesAssembly.FullName;
+                var nameOfAssembly = GlobalSettings.ResourcesAssembly == null
+                    ? Assembly.GetEntryAssembly()?.FullName
+                    : GlobalSettings.ResourcesAssembly.FullName;
                 _logger.Log(LogLevel.Warning, $@"Unable to read Resources files from assembly ({nameOfAssembly}).");
                 return;
             }
@@ -65,7 +69,7 @@ namespace Internationalization.LiteralProvider.Resource
 
             //collect all Resource entries
             var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            foreach (CultureInfo lang in langs)
+            foreach (var lang in langs)
             {
                 try
                 {
@@ -83,9 +87,10 @@ namespace Internationalization.LiteralProvider.Resource
                         _dictOfDicts.Add(lang, resourceSet.Cast<DictionaryEntry>().ToDictionary(
                             r => r.Key.ToString(), r => r.Value.ToString()));
                     }
-
                 }
-                catch (CultureNotFoundException) {}
+                catch (CultureNotFoundException)
+                {
+                }
             }
 
             if (!_dictOfDicts.ContainsKey(InputLanguage))
@@ -116,7 +121,8 @@ namespace Internationalization.LiteralProvider.Resource
         /// <param name="preferedLanguage">
         /// Used if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
-        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
+            CultureInfo preferedLanguage)
         {
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ResourceLiteralProvider>();
 
@@ -127,25 +133,27 @@ namespace Internationalization.LiteralProvider.Resource
         {
             //collect translation individually
             ICollection<TextLocalization> localizations = new Collection<TextLocalization>();
-            foreach (CultureInfo lang in GetKnownLanguages())
+            foreach (var lang in GetKnownLanguages())
             {
-                string translation = GetTranslation(GetKeyFromUnkownElementType(element), lang);
-                localizations.Add(new TextLocalization{Language = lang, Text = translation});
+                var translation = GetTranslation(GetKeyFromUnkownElementType(element), lang);
+                localizations.Add(new TextLocalization {Language = lang, Text = translation});
             }
 
             //fill translations without Text
             GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
 
             //fill known translations and convert to ObservableCollection
-            TextLocalization sourceLocalization = localizations.FirstOrDefault(loc =>
+            var sourceLocalization = localizations.FirstOrDefault(loc =>
                 Equals(loc.Language, InputLanguage));
-            ObservableCollection<TextLocalization> observableLocalizations = new ObservableCollection<TextLocalization>();
-            foreach (TextLocalization localization in localizations)
+            var observableLocalizations =
+                new ObservableCollection<TextLocalization>();
+            foreach (var localization in localizations)
             {
                 if (sourceLocalization != null)
                 {
                     localization.KnownTranslations = TextLocalizationsUtils
-                        .ExtractKnownTranslations(sourceLocalization.Text, localization.Language, _dictOfDicts, InputLanguage);
+                        .ExtractKnownTranslations(sourceLocalization.Text, localization.Language, _dictOfDicts,
+                            InputLanguage);
                 }
 
                 observableLocalizations.Add(localization);
@@ -156,7 +164,8 @@ namespace Internationalization.LiteralProvider.Resource
 
         public override string GetGuiTranslationOfCurrentCulture(DependencyObject element)
         {
-            string translation = GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
+            var translation =
+                GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
 
             return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
         }
@@ -166,7 +175,7 @@ namespace Internationalization.LiteralProvider.Resource
         /// </summary>
         public string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {
-            string translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
+            var translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
 
             return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
         }
@@ -214,7 +223,7 @@ namespace Internationalization.LiteralProvider.Resource
             if (translation != null) return translation;
 
             //if needed use translations from Resources
-            Dictionary<string, string> langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
+            var langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
             langDict.TryGetValue(resourceKey, out translation);
 
             return translation ?? string.Empty;
@@ -229,11 +238,11 @@ namespace Internationalization.LiteralProvider.Resource
         {
             IList<TextLocalization> textsEnumerated = texts.ToList();
 
-            string key = GetKeyFromUnkownElementType(element);
+            var key = GetKeyFromUnkownElementType(element);
 
-            foreach (TextLocalization textLocalization in textsEnumerated)
+            foreach (var textLocalization in textsEnumerated)
             {
-                _dictOfDicts.TryGetValue(textLocalization.Language, out Dictionary<string, string> langDict);
+                _dictOfDicts.TryGetValue(textLocalization.Language, out var langDict);
                 if (langDict == null)
                 {
                     continue;
@@ -243,6 +252,7 @@ namespace Internationalization.LiteralProvider.Resource
                 {
                     langDict.Remove(key);
                 }
+
                 langDict.Add(key, textLocalization.Text);
             }
 
