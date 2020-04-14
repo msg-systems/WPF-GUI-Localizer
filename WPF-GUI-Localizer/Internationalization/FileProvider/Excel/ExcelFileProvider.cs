@@ -68,11 +68,14 @@ namespace Internationalization.FileProvider.Excel
 
         public ProviderStatus Status { get; private set; }
 
+        /// <exception cref="FileProviderNotInitializedException">
+        /// Will be thrown if the object has not found a language file to pull translations from.
+        /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
             if (Status != ProviderStatus.Initialized)
             {
-                //logged as warning not error, since this behaviour could be normal / intended (ResourceLiteralProvider)
+                //logged as warning not error, since this behaviour could be normal / intended (ResourceLiteralProvider).
                 _logger.Log(LogLevel.Warning, "Dictionary was accessed without ExcelFileProvider being initialized.");
                 throw new FileProviderNotInitializedException();
             }
