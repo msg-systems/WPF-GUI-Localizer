@@ -176,6 +176,9 @@ namespace Internationalization.LiteralProvider.Resource
 
         /// <summary>
         /// Workaround for ResourcesTextConverter, only supported by ResourceLiteralProvider.
+        /// The ResourcesTextConverter can only access the resourceKey string, not the element
+        /// itself. It can therefore not use the GetGuiTranslationOfCurrentCulture(DependencyObject)
+        /// method provided by all ILiteralProviders.
         /// </summary>
         public string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {

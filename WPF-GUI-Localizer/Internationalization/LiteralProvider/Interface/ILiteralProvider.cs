@@ -26,7 +26,7 @@ namespace Internationalization.LiteralProvider.Interface
         void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts);
 
         /// <summary>
-        /// This function returns an ObservableCollection object, as it is only used once by LocalizationUtils
+        /// This function returns an ObservableCollection object, as it is only used once by LocalizerEventHandler
         /// </summary>
         ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
 

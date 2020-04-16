@@ -130,9 +130,10 @@
     <Compile Include="FileProvider\JSON\JsonFileProvider.cs" />
     <Compile Include="GlobalSettings.cs" />
     <Compile Include="LiteralProvider\Interface\ILiteralProvider.cs" />
-    <Compile Include="Utilities\LocalizationUtils.cs" />
     <Compile Include="LiteralProvider\File\FileLiteralProvider.cs" />
     <Compile Include="LiteralProvider\Resource\ResourceLiteralProvider.cs" />
+    <Compile Include="Localizer\LocalizerDialogHandler\LocalizerDialogHandler.cs" />
+    <Compile Include="Localizer\LocalizerEventHandler\LocalizerEventHandler.cs" />
     <Compile Include="Model\ProviderStatus.cs" />
     <Compile Include="Model\TextLocalization.cs" />
     <Compile Include="Utilities\CultureInfoUtils.cs" />

@@ -17,7 +17,7 @@ namespace Internationalization.LiteralProvider.Abstract
 
 
         /// <summary>
-        /// The language originally used in the application, which is ment to be internationalized.
+        /// The language originally used in the application, which is meant to be internationalized.
         /// </summary>
         public CultureInfo InputLanguage { get; protected set; }
 
@@ -96,7 +96,7 @@ namespace Internationalization.LiteralProvider.Abstract
         public abstract void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts);
 
         /// <summary>
-        /// This function returns an ObservableCollection object, as it is only used once by LocalizationUtils.
+        /// This function returns an ObservableCollection object, as it is only used once by LocalizerEventHandler.
         /// </summary>
         public abstract ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
 

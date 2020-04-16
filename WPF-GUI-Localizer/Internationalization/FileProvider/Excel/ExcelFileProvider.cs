@@ -172,6 +172,7 @@ namespace Internationalization.FileProvider.Excel
                 workbook.Close();
                 excel.Quit();
 
+                //status updates
                 if (fail)
                 {
                     _logger.Log(LogLevel.Trace, "Failed to create empty excel sheet.\n"
@@ -200,8 +201,8 @@ namespace Internationalization.FileProvider.Excel
             }
             else
             {
-                //as this function can and will automatically be called again after this failiure, logging in info.
-                _logger.Log(LogLevel.Information,
+                //as this function can and will automatically be called again after this failure, logging in warn.
+                _logger.Log(LogLevel.Warning,
                     $"Unable to find langage file ({Path.GetFullPath(TranslationFilePath)}).");
                 return;
             }
@@ -246,15 +247,20 @@ namespace Internationalization.FileProvider.Excel
             }
         }
 
+        /// <summary>
+        /// Can be used to update the excel sheet with the current dictionary, write the first
+        /// entry into an empty sheet or create a new excel sheet based on the dictionary.
+        /// </summary>
         private void ExcelWriteActions()
         {
             var excel = new ExcelInterop.Application();
             ExcelInterop.Workbook workbook;
-            var creatingNew = false;
+            bool creatingNew;
 
             if (File.Exists(Path.GetFullPath(TranslationFilePath)))
             {
                 workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
+                creatingNew = false;
             }
             else
             {
@@ -297,7 +303,7 @@ namespace Internationalization.FileProvider.Excel
 
         private void ReadGuiTranslations(ExcelInterop.Worksheet worksheetGui)
         {
-            //first row only contains column titles (which can be null in first column), no data.
+            //first row only contains column titles (which can be null in cell 1,1), no data.
             var row = 2;
 
             var numberOfGlossaryEntries = 0;
@@ -541,6 +547,7 @@ namespace Internationalization.FileProvider.Excel
             //already checked in Initialize, if file exists.
             var workbook = excel.Workbooks.Open(Path.GetFullPath(TranslationFilePath));
 
+            //try only needed for finally statement, normally no exceptions should occur.
             try
             {
                 if (bw == null || !bw.CancellationPending)
@@ -625,8 +632,9 @@ namespace Internationalization.FileProvider.Excel
             _logger.Log(LogLevel.Trace, "Entering Initialize function.");
             CopyOldExcelFile();
 
-            if (Status == ProviderStatus.InitializationInProgress && Interlocked.Exchange(ref _isInitializing, 1) == 0)
+            if (Status == ProviderStatus.InitializationInProgress && _isInitializing == 0)
             {
+                Interlocked.Exchange(ref _isInitializing, 1);
                 _logger.Log(LogLevel.Trace, "Starting initialization.");
                 if (!File.Exists(TranslationFilePath))
                 {

@@ -20,7 +20,7 @@ namespace Internationalization
         public static Assembly ResourcesAssembly { get; set; }
 
         /// <summary>
-        /// Determines if LocalizationUtils updates the changed translation of an element in the GUI directly using GuiTranslator
+        /// Determines if LocalizerEventHandler updates the changed translation of an element in the GUI directly using GuiTranslator
         /// or not; Default: true.
         /// </summary>
         public static bool UseGuiTranslatorForLocalizationUtils { get; set; }

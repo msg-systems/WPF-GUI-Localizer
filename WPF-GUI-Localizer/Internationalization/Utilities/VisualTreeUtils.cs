@@ -31,8 +31,13 @@ namespace Internationalization.Utilities
             }
         }
 
+        /// <summary>
+        /// Returns null if no fitting parent is found or given child is null.
+        /// </summary>
         public static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
         {
+            if (child == null) return null;
+
             //get parent item
             var parentObject = VisualTreeHelper.GetParent(child);
 
