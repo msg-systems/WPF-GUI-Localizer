@@ -9,14 +9,8 @@ namespace Internationalization.AttachedProperties
     {
         public static string GetName(DependencyObject obj)
         {
-            try
-            {
-                return (string) obj.GetValue(NameProperty);
-            }
-            catch
-            {
-                return null;
-            }
+            //only fails, if other property with same name is also attached.
+            return (string) obj.GetValue(NameProperty);
         }
 
         public static void SetName(DependencyObject obj, string value)

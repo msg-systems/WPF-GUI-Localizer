@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using Internationalization.Exception;
 using Internationalization.Model;
 
 namespace Internationalization.Utilities
@@ -46,47 +47,44 @@ namespace Internationalization.Utilities
             ICollection<TextLocalization> localizedTexts,
             bool preferPreferedOverInputLangauge, CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
-            var usePreferedInsted = preferPreferedOverInputLangauge;
-            if (usePreferedInsted && Equals(selectedText.Language, preferedLanguage))
+            if (localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage)) == null)
             {
-                usePreferedInsted = false;
+                //the list of TextLocalizations has to contain at least the InputLanguage
+                throw new InputLanguageNotFoundException(
+                    "Unable to generate translation recommendations for Localizaions without InputLanguage.");
             }
 
-            if (!usePreferedInsted && Equals(selectedText.Language, inputLanguage))
-            {
-                usePreferedInsted = true;
-            }
+            var usePreferedInsted = EvaluateLanguagePreference(preferPreferedOverInputLangauge, localizedTexts,
+                selectedText.Language, preferedLanguage, inputLanguage);
 
-            var recommendedTranslation = localizedTexts.FirstOrDefault(loc => Equals(loc.Language,
-                usePreferedInsted ? preferedLanguage : inputLanguage))?.Text;
-
-            if (recommendedTranslation == null ||
-                recommendedTranslation.StartsWith(preferedLanguage.Name + "--", StringComparison.Ordinal))
-            {
-                recommendedTranslation =
-                    localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage))?.Text;
-            }
+            //Sould not throw InvalidOperationException, because EvaluateLanguagePreference returns false
+            //to usePreferedInsted if list does not contain the preferedLanguage and this function
+            //throws InputLanguageNotFoundException is inputLanguage is not in the list.
+            var recommendedTranslation = localizedTexts.First(loc => Equals(loc.Language,
+                usePreferedInsted ? preferedLanguage : inputLanguage)).Text;
 
             return selectedText.Language.Name + "--" + recommendedTranslation;
         }
 
         /// <summary>
-        /// turns multiple Dictionarys, each assigning translation to element / key into one
-        /// Dictionary that assigns all possible translations to an element / key
+        /// It converts the association CultureInfo - translation into a TextLocalization object,
+        /// reducing multiple dictionaries with CultureInfo objects as keys to one dictionary
+        /// that uses elements / ressources keys as dictionary keys.
         /// </summary>
         /// <param name="dictionary">
-        /// flipped dictionary will be based on this dictionary, dictionary not required to
-        /// have same number of translation for all languages
+        /// Flipped dictionary will be based on this dictionary. The dictionary is not required to
+        /// have same number of translation for all languages.
         /// </param>
         public static Dictionary<string, List<TextLocalization>> FlipLocalizationsDictionary(
             Dictionary<CultureInfo, Dictionary<string, string>> dictionary)
         {
             var returnDict = new Dictionary<string, List<TextLocalization>>();
+
             foreach (var langDict in dictionary)
             {
                 foreach (var elementTranslation in langDict.Value)
                 {
-                    TryGetOrCreate(ref returnDict, elementTranslation.Key, out var texts);
+                    var texts = GetOrCreate(ref returnDict, elementTranslation.Key);
                     texts.Add(new TextLocalization {Language = langDict.Key, Text = elementTranslation.Value});
                 }
             }
@@ -94,15 +92,45 @@ namespace Internationalization.Utilities
             return returnDict;
         }
 
-        private static void TryGetOrCreate(ref Dictionary<string, List<TextLocalization>> dictionary,
-            string key, out List<TextLocalization> value)
+        private static bool EvaluateLanguagePreference(bool usePreferedInsted,
+            ICollection<TextLocalization> localizedTexts, CultureInfo languageOfText, CultureInfo preferedLanguage,
+            CultureInfo inputLanguage)
         {
-            dictionary.TryGetValue(key, out value);
+            var testingprefered = localizedTexts.FirstOrDefault(loc => Equals(loc.Language, preferedLanguage))?.Text;
+
+            //if prefered does not exist or is itself a recommendation fallback to inputlang.
+            if (testingprefered == null ||
+                testingprefered.StartsWith(preferedLanguage.Name + "--", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            //the following code can *probably* not be simplified.
+            if (usePreferedInsted && Equals(languageOfText, preferedLanguage))
+            {
+                return false;
+            }
+
+            if (!usePreferedInsted && Equals(languageOfText, inputLanguage))
+            {
+                return true;
+            }
+
+            return usePreferedInsted;
+        }
+
+        private static List<TextLocalization> GetOrCreate(ref Dictionary<string,
+                List<TextLocalization>> dictionary, string key)
+        {
+            dictionary.TryGetValue(key, out var value);
+
             if (value == null)
             {
                 value = new List<TextLocalization>();
                 dictionary.Add(key, value);
             }
+
+            return value;
         }
     }
 }

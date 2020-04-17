@@ -114,7 +114,8 @@ namespace Internationalization.FileProvider.JSON
             {
                 //logged as warning not error, since this behaviour could be normal / intended (ResourceLiteralProvider).
                 _logger.Log(LogLevel.Warning, "Dictionary was accessed without JsonFileProvider being initialized.");
-                throw new FileProviderNotInitializedException();
+                throw new FileProviderNotInitializedException(
+                    "Dictionary was accessed without JsonFileProvider being initialized.");
             }
 
             return _dictOfdicts;

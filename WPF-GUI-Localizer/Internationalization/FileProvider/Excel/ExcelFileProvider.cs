@@ -77,7 +77,8 @@ namespace Internationalization.FileProvider.Excel
             {
                 //logged as warning not error, since this behaviour could be normal / intended (ResourceLiteralProvider).
                 _logger.Log(LogLevel.Warning, "Dictionary was accessed without ExcelFileProvider being initialized.");
-                throw new FileProviderNotInitializedException();
+                throw new FileProviderNotInitializedException(
+                    "Dictionary was accessed without ExcelFileProvider being initialized.");
             }
 
             return _dictOfDicts;

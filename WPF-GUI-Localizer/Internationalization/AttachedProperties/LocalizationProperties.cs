@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using Internationalization.Localizer.LocalizerEventHandler;
 
 namespace Internationalization.AttachedProperties
@@ -14,6 +15,7 @@ namespace Internationalization.AttachedProperties
 
         public static string GetIsActive(DependencyObject d)
         {
+            //only fails, if other property with same name is also attached.
             return (string) d.GetValue(IsActiveProperty);
         }
 
@@ -29,7 +31,8 @@ namespace Internationalization.AttachedProperties
         /// <param name="e">Event Parameter / Info (used for access to new value).</param>
         private static void IsActiveChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var isActive = "True".Equals(e.NewValue.ToString());
+            //isActive will also be false if Property is anything other than true, false.
+            bool.TryParse(e.NewValue.ToString(), out var isActive);
 
             var parent = (FrameworkElement) d;
 

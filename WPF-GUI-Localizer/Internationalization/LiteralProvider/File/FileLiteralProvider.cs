@@ -268,16 +268,14 @@ namespace Internationalization.LiteralProvider.File
                 {
                     controlId = ribbonTab.Name;
                     currentText = ribbonTab.Header as string;
-                    //RibbonTabs count as "TabItem" for determining Literals.
-                    controlType = typeof(TabItem).Name;
+                    controlType = typeof(RibbonTab).Name;
                     break;
                 }
                 case RibbonGroup ribbonGroup:
                 {
                     controlId = ribbonGroup.Name;
                     currentText = ribbonGroup.Header as string;
-                    //RibbonGroups count as "TabItem" for determining Literals.
-                    controlType = typeof(TabItem).Name;
+                    controlType = typeof(RibbonGroup).Name;
                     break;
                 }
                 case TabItem tabItem:
@@ -292,8 +290,7 @@ namespace Internationalization.LiteralProvider.File
                 {
                     controlId = ribbonButton.Name;
                     currentText = ribbonButton.Content as string;
-                    //RibbonButtons count as "Button" for determining Literals.
-                    controlType = typeof(Button).Name;
+                    controlType = typeof(RibbonButton).Name;
                     break;
                 }
                 case Label label:

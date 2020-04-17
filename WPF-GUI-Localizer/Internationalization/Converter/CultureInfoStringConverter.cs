@@ -18,7 +18,7 @@ namespace Internationalization.Converter
                 return $"{language.DisplayName} ({language.Name})";
             }
 
-            return string.Empty;
+            return Binding.DoNothing;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -28,7 +28,7 @@ namespace Internationalization.Converter
                 return CultureInfoUtil.GetCultureInfo(langString, true);
             }
 
-            return null;
+            return Binding.DoNothing;
         }
     }
 }

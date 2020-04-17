@@ -33,6 +33,8 @@ namespace Internationalization.Converter
             {
                 foreach (var language in languageStrings)
                 {
+                    if (language == null) continue;
+
                     languages.Add(CultureInfoUtil.GetCultureInfo(language, true));
                 }
             }

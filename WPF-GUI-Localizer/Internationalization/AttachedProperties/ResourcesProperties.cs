@@ -9,14 +9,8 @@ namespace Internationalization.AttachedProperties
     {
         public static string GetResourceKey(DependencyObject d)
         {
-            try
-            {
-                return (string) d.GetValue(ResourceKeyProperty);
-            }
-            catch
-            {
-                return null;
-            }
+            //only fails, if other property with same name is also attached.
+            return (string) d.GetValue(ResourceKeyProperty);
         }
 
         public static void SetResourceKey(DependencyObject d, string value)
