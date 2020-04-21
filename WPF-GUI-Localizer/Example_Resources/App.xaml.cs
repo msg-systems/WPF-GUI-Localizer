@@ -35,13 +35,13 @@ namespace Example_Resources
             var consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
-                    .SetMinimumLevel(LogLevel.Information)
+                    .SetMinimumLevel(LogLevel.Trace)
                     .AddConsole();
             });
 
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
 
-            IFileProvider jfp = new JsonFileProvider("Resource/Resource_Corrections.json");
+            IFileProvider jfp = new JsonFileProvider("Resource_Corrections");
             //IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel");
 
             ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));

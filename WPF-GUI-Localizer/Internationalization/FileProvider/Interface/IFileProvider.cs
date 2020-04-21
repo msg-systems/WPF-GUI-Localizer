@@ -10,24 +10,27 @@ namespace Internationalization.FileProvider.Interface
     public interface IFileProvider
     {
         /// <summary>
-        /// Represents progress on reading the data or cancellation of the reading action
+        /// Represents progress on reading the data or cancellation of the reading action.
         /// </summary>
         ProviderStatus Status { get; }
 
+        /// <summary>
+        /// The objects initialization can be stoped by calling this method.
+        /// </summary>
         void CancelInitialization();
 
         /// <summary>
-        /// Returns saved dictionary
+        /// Returns saved dictionary.
         /// </summary>
         Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary();
 
         /// <summary>
-        /// Updates a key-value-pair in the dictionary
+        /// Updates a key-value-pair in the dictionary.
         /// </summary>
         void Update(string key, IEnumerable<TextLocalization> texts);
 
         /// <summary>
-        /// Makes current dictionary persistent in some way
+        /// Makes current dictionary persistent in some way.
         /// </summary>
         void SaveDictionary();
     }

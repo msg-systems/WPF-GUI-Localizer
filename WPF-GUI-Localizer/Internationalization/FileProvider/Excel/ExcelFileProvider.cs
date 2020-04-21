@@ -46,12 +46,24 @@ namespace Internationalization.FileProvider.Excel
         public ExcelFileProvider(string translationFilePath, string glossaryTag = null,
             string oldTranslationFilePath = null)
         {
+            //set Status.
             Status = ProviderStatus.InitializationInProgress;
 
+            //easy initializations.
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ExcelFileProvider>();
             _logger.Log(LogLevel.Trace, "Initializing ExcelFileProvider.");
             _glossaryTag = glossaryTag;
 
+            //null check.
+            if (translationFilePath == null)
+            {
+                var e = new ArgumentNullException(nameof(translationFilePath), "Unable to open null path.");
+                _logger.Log(LogLevel.Error, e,
+                    "ExcelFileProvider recived null parameter in constructor for translationFilePath.");
+                throw e;
+            }
+
+            //start proper initialization
             if (PathLooksGood(ref translationFilePath))
             {
                 TranslationFilePath = translationFilePath;
@@ -667,12 +679,6 @@ namespace Internationalization.FileProvider.Excel
 
         private bool PathLooksGood(ref string path)
         {
-            if (path == null)
-            {
-                _logger.Log(LogLevel.Warning, "Cannot access language file, bacause path is null.");
-                return false;
-            }
-
             string fullPath;
             try
             {

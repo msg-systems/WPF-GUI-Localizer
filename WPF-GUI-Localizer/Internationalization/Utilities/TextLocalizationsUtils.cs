@@ -57,7 +57,7 @@ namespace Internationalization.Utilities
             var usePreferedInsted = EvaluateLanguagePreference(preferPreferedOverInputLangauge, localizedTexts,
                 selectedText.Language, preferedLanguage, inputLanguage);
 
-            //Sould not throw InvalidOperationException, because EvaluateLanguagePreference returns false
+            //Sould find a fitting entry, because EvaluateLanguagePreference returns false
             //to usePreferedInsted if list does not contain the preferedLanguage and this function
             //throws InputLanguageNotFoundException is inputLanguage is not in the list.
             var recommendedTranslation = localizedTexts.First(loc => Equals(loc.Language,

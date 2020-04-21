@@ -78,18 +78,25 @@ namespace Internationalization.LiteralProvider.Abstract
                 return;
             }
 
-            if (_instance.Status == ProviderStatus.InitializationInProgress)
+            switch (_instance.Status)
             {
-                _instance.CancelInitialization();
-
-                while (_instance.Status == ProviderStatus.CancellationInProgress)
+                case ProviderStatus.InitializationInProgress:
                 {
-                    DoEventsDispatcher();
+                    _instance.CancelInitialization();
+
+                    while (_instance.Status == ProviderStatus.CancellationInProgress)
+                    {
+                        DoEventsDispatcher();
+                    }
+
+                    break;
                 }
-            }
-            else if (_instance.Status == ProviderStatus.Initialized && saveToFile)
-            {
-                _instance.Save();
+                case ProviderStatus.Initialized when saveToFile:
+                    _instance.Save();
+                    break;
+                default:
+                    //TODO unknwn state
+                    break;
             }
         }
 
