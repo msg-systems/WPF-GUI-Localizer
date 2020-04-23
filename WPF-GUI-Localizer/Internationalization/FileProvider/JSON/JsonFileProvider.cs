@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using Internationalization.Exception;
+﻿using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.Model;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using Internationalization.FileProvider.FileHandler;
 
 namespace Internationalization.FileProvider.JSON
 {
@@ -20,9 +21,12 @@ namespace Internationalization.FileProvider.JSON
         private static ILogger _logger;
 
         private readonly string _path;
-        private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts;
+        private readonly UniversalFileHandler _fileHandler;
 
         private bool _successfullyCreatedFile;
+        private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
+            new Dictionary<CultureInfo, Dictionary<string, string>>();
+
         public ProviderStatus Status { get; private set; }
 
         /// <summary>
@@ -43,6 +47,7 @@ namespace Internationalization.FileProvider.JSON
         /// </exception>
         /// <exception cref="FileNotFoundException">
         /// Thrown, if <paramref name="translationFilePath"/> does not exist or cannot be found.
+        /// For example because it is a direcory.
         /// </exception>
         /// <exception cref="IOException">
         /// Thrown, if an unknown I/O-Error occurres.
@@ -66,6 +71,7 @@ namespace Internationalization.FileProvider.JSON
             //easy initializations.
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<JsonFileProvider>();
             _logger.Log(LogLevel.Trace, "Initializing JsonFileProvider.");
+            _fileHandler = new UniversalFileHandler(typeof(JsonFileProvider), ".json");
 
             //null check.
             if (translationFilePath == null)
@@ -76,7 +82,7 @@ namespace Internationalization.FileProvider.JSON
             }
 
             //start proper initialization.
-            _path = GetPathAndHandleProblems(translationFilePath);
+            _path = _fileHandler.GetPathAndHandleProblems(translationFilePath);
             Initialize();
         }
 
@@ -105,12 +111,12 @@ namespace Internationalization.FileProvider.JSON
             {
                 var e = new FileProviderNotInitializedException(
                     "SaveDictionary was called, without JsonFileProvider being initialized.");
-                _logger.Log(LogLevel.Error, e, 
+                _logger.Log(LogLevel.Error, e,
                     "SaveDictionary was called, without JsonFileProvider being initialized.");
                 throw e;
             }
 
-            WriteAllTextWrapper(JsonConvert.SerializeObject(_dictOfDicts));
+            _fileHandler.WriteAllTextWrapper(JsonConvert.SerializeObject(_dictOfDicts), _path);
 
             _logger.Log(LogLevel.Trace, "Dictionary was saved without errors.");
         }
@@ -152,7 +158,7 @@ namespace Internationalization.FileProvider.JSON
             //dictionary updates.
             if (!UpdateDictionary(key, textsEnumerated))
             {
-                _logger.Log(LogLevel.Trace, "Did not update dictionary.");
+                _logger.Log(LogLevel.Debug, "Did not update dictionary.");
                 return;
             }
 
@@ -190,202 +196,12 @@ namespace Internationalization.FileProvider.JSON
             {
                 var e = new FileProviderNotInitializedException(
                     "Dictionary was accessed, without JsonFileProvider being initialized.");
-                _logger.Log(LogLevel.Error, e, 
+                _logger.Log(LogLevel.Error, e,
                     "Dictionary was accessed, without JsonFileProvider being initialized.");
                 throw e;
             }
 
             return _dictOfDicts;
-        }
-
-        /// <summary>
-        /// Throws + logs exceptions and in a few cases handles problems regarding the given <paramref name="path"/>.
-        /// </summary>
-        /// <param name="path">The path that should </param>
-        /// <returns>The given path with a ".json" ending, if it was not present.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown, if <paramref name="path"/> contains only white space, includes
-        /// unsupported characters or if the system fails to get the fully qualified
-        /// location for the given path.
-        /// </exception>
-        /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
-        /// </exception>
-        /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
-        /// </exception>
-        /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="path"/> is too long.
-        /// </exception>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
-        /// </exception>
-        /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
-        /// </exception>
-        private string GetPathAndHandleProblems(string path)
-        {
-            if (!path.EndsWith(".json"))
-            {
-                _logger.Log(LogLevel.Debug, $"Added '.json' to path ({path}).");
-                path += ".json";
-            }
-
-            string fullPath = GetFullPathWrapper(path);
-
-
-            if (File.Exists(fullPath))
-            {
-                return fullPath;
-            }
-
-            CreateDirectoryWrapper(fullPath);
-            
-            return path;
-        }
-
-        /// <summary>
-        /// Handles Exception logging for the <see cref="Path.GetFullPath(string)"/> function.
-        /// </summary>
-        /// <param name="path">
-        /// The path that should be used for the GetFullPath call.
-        /// Is assumes to not be null, since this was checked in <see cref="JsonFileProvider"/>s constructor.
-        /// </param>
-        /// <returns>The result of the GetFullPath call.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown, if <paramref name="path"/> contains only white space, includes
-        /// unsupported characters or if the system fails to get the fully qualified
-        /// location for the given path.
-        /// </exception>
-        /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
-        /// </exception>
-        /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
-        /// </exception>
-        /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="path"/> is too long.
-        /// </exception>
-        private string GetFullPathWrapper(string path)
-        {
-            string fullPath;
-
-            try
-            {
-                fullPath = Path.GetFullPath(path);
-                //ArgumentNullException is not caught, because path was already
-                //checked for being null in constructor.
-            }
-            catch (ArgumentException e)
-            {
-                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given "
-                                               + $"path ({path}).\n"
-                                               + "... It may be empty, contain only white space, include "
-                                               + "unsupported characters or the system may have "
-                                               + "failed to get the fully qualified "
-                                               + "location for given path.");
-                throw;
-            }
-            catch (System.Security.SecurityException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), due to missing permissions.");
-                throw;
-            }
-            catch (NotSupportedException e)
-            {
-                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given "
-                                               + $"path ({path}). It contains a colon in an invalid "
-                                               + "position.");
-                throw;
-            }
-            catch (PathTooLongException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), because it is too long");
-                throw;
-            }
-
-            return fullPath;
-        }
-
-        /// <summary>
-        /// Handles Exception logging for the <see cref="Directory.CreateDirectory(string)"/> function.
-        /// It is assumes that <see cref="GetFullPathWrapper"/> was called prior to this function
-        /// and that no exceptions were thrown.
-        /// </summary>
-        /// <param name="fullPath">
-        /// The path of the file, for which a directory should be created.
-        /// It is assumed to not be null, since this was checked in <see cref="JsonFileProvider"/>s constructor.
-        /// </param>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
-        /// </exception>
-        /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
-        /// </exception>
-        private void CreateDirectoryWrapper(string fullPath)
-        {
-
-            //GetDirectoryName call should be save, as the same exceptions that can occur here
-            //have been checked in GetFullPathWrapper.
-            var directory = Path.GetDirectoryName(fullPath);
-
-            //GetDirectoryName returns null if path denotes a root directory or is null. Returns empty string
-            //if path does not contain directory information.
-            if (directory == null)
-            {
-                //directory can only be null, if directry is a root directory.
-                _logger.Log(LogLevel.Trace, "Given path is a root directory. No directory will be created.");
-            }
-            else if (string.IsNullOrWhiteSpace(directory))
-            {
-                _logger.Log(LogLevel.Trace, "Given path does not contain directory information. "
-                                            + "No directory will be created.");
-            }
-            else
-            {
-                try
-                {
-                    Directory.CreateDirectory(directory);
-                    //uncaught Exceptions:
-                    //ArgumentException, PathTooLongException and NotSupportedException
-                    //are not caught, because GetDirectoryName will not generate invalid paths.
-                    //ArgumentNullException is not caught, because directory was already
-                    //checked for being null.
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed "
-                                                   + $"for path ({fullPath}), due to missing permissions.");
-                    throw;
-                }
-                catch (DirectoryNotFoundException e)
-                {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed "
-                                                   + $"for path ({fullPath}). The directory was not found. "
-                                                   + "It may lie on an unmapped device.");
-                    throw;
-                }
-                catch (IOException e)
-                {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed "
-                                                   + $"for path ({fullPath}). The directory has conflicts with "
-                                                   + "names of existing files.");
-                    throw;
-                }
-
-                //success.
-                _logger.Log(LogLevel.Information, $"Created directory for Json file ({fullPath}).");
-            }
         }
 
         /// <summary>
@@ -415,7 +231,14 @@ namespace Internationalization.FileProvider.JSON
             {
                 _logger.Log(LogLevel.Trace, $"Langauge file is present ({Path.GetFullPath(_path)}).");
 
-                fileContent = ReadAllTextWrapper();
+                fileContent = _fileHandler.ReadAllTextWrapper(_path);
+
+                if ("null".Equals(fileContent))
+                {
+                    _logger.Log(LogLevel.Information,
+                        "File had content 'null', will be treated as empty dictionary.");
+                    fileContent = "{}";
+                }
             }
             else
             {
@@ -423,14 +246,16 @@ namespace Internationalization.FileProvider.JSON
 
                 //identical to "JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())".
                 fileContent = "{}";
-                WriteAllTextWrapper(fileContent);
+                _fileHandler.WriteAllTextWrapper(fileContent, _path);
+
+                _successfullyCreatedFile = true;
             }
 
             _dictOfDicts =
                 JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
 
             //cancelation identical to Initialization.
-            switch (Status)//TODO revisit after adding more states to Status
+            switch (Status) //TODO revisit after adding more states to Status
             {
                 case ProviderStatus.CancellationInProgress:
                     Status = ProviderStatus.CancellationComplete;
@@ -439,80 +264,6 @@ namespace Internationalization.FileProvider.JSON
                     Status = ProviderStatus.Initialized;
                     break;
             }
-        }
-
-        /// <summary>
-        /// Handles Exception logging for the <see cref="File.ReadAllText(string)"/>
-        /// function based on <see cref="_path"/>.
-        /// It is assumes that <see cref="GetPathAndHandleProblems"/> was called prior to
-        /// this function and that no errors were thrown.
-        /// </summary>
-        /// <returns>The text returned by the <see cref="File.ReadAllText(string)"/> call.</returns>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if <see cref="_path"/> is write-only, a directory, the needed permissions
-        /// are missing or the operation is not supported on the current platform.
-        /// </exception>
-        /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
-        /// </exception>
-        /// <exception cref="FileNotFoundException">
-        /// Thrown, if <see cref="_path"/> does not exist or cannot be found.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
-        /// </exception>
-        private string ReadAllTextWrapper()
-        {
-            string fileContent;
-            try
-            {
-                fileContent = File.ReadAllText(_path);
-                //uncaught Exceptions:
-                //ArgumentException, ArgumentNullException, PathTooLongException,
-                //DirectoryNotFoundException and NotSupportedException are not
-                //caught, because GetPathAndHandleProblems ran without errors.
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                //Documentation lists the following reasons for UnauthorizedAccessException:
-                //Path specified a file that is read-only. (probably meant write-only or not applicaple at all)
-                // -or-
-                //This operation is not supported on the current platform.
-                // -or-
-                //Path specified a directory.
-                // -or-
-                //The caller does not have the required permission.
-
-                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({_path}), due to "
-                                               + "missing permissions.");
-                throw;
-            }
-            catch (System.Security.SecurityException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({_path}), due to "
-                                               + "missing permissions.");
-                throw;
-            }
-            catch (FileNotFoundException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to find the language file ({_path}).");
-                throw;
-            }
-            catch (IOException e)
-            {
-                _logger.Log(LogLevel.Error, e, "Unable to open language file, due to an unknown I/O error "
-                                               + $"that occurred while opening the file ({_path}).");
-                throw;
-            }
-
-            //success.
-            if ("null".Equals(fileContent))
-            {
-                _logger.Log(LogLevel.Information, "File had content 'null', will be treated as empty dictionary.");
-                fileContent = "{}";
-            }
-
-            return fileContent;
         }
 
         /// <summary>
@@ -532,7 +283,8 @@ namespace Internationalization.FileProvider.JSON
         /// </returns>
         private bool UpdateDictionary(string key, IEnumerable<TextLocalization> textLocalizations)
         {
-            bool readSuccess = false;
+            var readSuccess = false;
+
             foreach (var textLocalization in textLocalizations)
             {
                 _dictOfDicts.TryGetValue(textLocalization.Language, out var langDict);
@@ -560,67 +312,6 @@ namespace Internationalization.FileProvider.JSON
             }
 
             return readSuccess;
-        }
-
-        /// <summary>
-        /// Handles Exception logging for the <see cref="File.WriteAllText(string, string)"/>
-        /// function based on <see cref="_path"/>.
-        /// It is assumes that <see cref="GetPathAndHandleProblems"/> was called prior to
-        /// this function and that no errors were thrown.
-        /// </summary>
-        /// <param name="fileContent">
-        /// The string that should be written to the file at <see cref="_path"/>
-        /// </param>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if <see cref="_path"/> is read-only, a directory, hidden, the needed permissions
-        /// are missing or the operation is not supported on the current platform.
-        /// </exception>
-        /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
-        /// </exception>
-        private void WriteAllTextWrapper(string fileContent)
-        {
-            try
-            {
-                //ArgumentException, ArgumentNullException, PathTooLongException,
-                //DirectoryNotFoundException, IOException, UnauthorizedAccessException,
-                //NotSupportedException, SecurityException
-                File.WriteAllText(_path, fileContent);
-
-                _successfullyCreatedFile = true;
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                //Documentation lists the following reasons for UnauthorizedAccessException:
-                //Path specified a file that is read-only.
-                // -or-
-                //Path specified a file that is hidden.
-                // -or-
-                //This operation is not supported on the current platform.
-                // -or-
-                //Path specified a directory.
-                // -or-
-                //The caller does not have the required permission.
-
-                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({_path}), due to "
-                                               + "missing permissions.");
-                throw;
-            }
-            catch (System.Security.SecurityException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({_path}), due to "
-                                               + "missing permissions.");
-                throw;
-            }
-            catch (IOException e)
-            {
-                _logger.Log(LogLevel.Error, e, "Unable to write to language file, due to an unknown I/O error "
-                                               + $"that occurred while opening the file ({_path}).");
-                throw;
-            }
         }
     }
 }

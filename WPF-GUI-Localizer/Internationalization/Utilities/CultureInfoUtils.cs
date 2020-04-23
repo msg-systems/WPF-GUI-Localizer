@@ -7,6 +7,7 @@ namespace Internationalization.Utilities
 {
     public static class CultureInfoUtil
     {
+        /// <summary>Returns the CultureInfo object corresponding to language code given</summary>
         /// <param name="cultureName">String representation of CultureInfo as language tag.</param>
         /// <param name="onlyBracketsAtEndOfString">
         /// Will default back to false if no matching brackets are found.
@@ -19,8 +20,34 @@ namespace Internationalization.Utilities
         {
             if (cultureName == null)
             {
+                //TODO logging
                 throw new ArgumentNullException(nameof(cultureName),
                     "Unable to generate CultureInfo object from null sting.");
+            }
+
+            var culture = TryGetCultureInfo(cultureName, onlyBracketsAtEndOfString);
+
+            if(culture == null)
+            {
+                throw new CultureNotFoundException(
+                    $"Unable to generate CultureInfo object form string ({cultureName}).");
+            }
+
+            return culture;
+        }
+
+        /// <summary>
+        /// Returns the CultureInfo object corresponding to language code given.
+        /// Defaults to null, if the culture was not found</summary>
+        /// <param name="cultureName">String representation of CultureInfo as language tag.</param>
+        /// <param name="onlyBracketsAtEndOfString">
+        /// Will default back to false if no matching brackets are found.
+        /// </param>
+        public static CultureInfo TryGetCultureInfo(string cultureName, bool onlyBracketsAtEndOfString)
+        {
+            if (cultureName == null)
+            {
+                return null;
             }
 
             var begin = cultureName.LastIndexOf(@"(", StringComparison.Ordinal) + 1;
@@ -38,8 +65,7 @@ namespace Internationalization.Utilities
             var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
             if (!allCultures.Select(c => c.Name).Contains(newCultureName) || string.IsNullOrEmpty(newCultureName))
             {
-                throw new CultureNotFoundException(
-                    $"Unable to generate CultureInfo object form string ({cultureName}).");
+                return null;
             }
 
             return new CultureInfo(newCultureName);

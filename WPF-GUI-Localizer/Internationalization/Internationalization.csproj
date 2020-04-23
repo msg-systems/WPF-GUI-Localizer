@@ -127,6 +127,7 @@
     <Compile Include="Exception\FileProviderNotInitializedException.cs" />
     <Compile Include="Exception\InputLanguageNotFoundException.cs" />
     <Compile Include="FileProvider\Excel\ExcelFileProvider.cs" />
+    <Compile Include="FileProvider\FileHandler\UniversalFileHandler.cs" />
     <Compile Include="FileProvider\Interface\IFileProvider.cs" />
     <Compile Include="FileProvider\JSON\JsonFileProvider.cs" />
     <Compile Include="GlobalSettings.cs" />
