@@ -22,8 +22,10 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
         /// <summary>
         /// The path of the excel table.
-        /// It is assumed that the <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> function
-        /// was called for the value given to <see cref="Path"/> and that no exceptions were thrown.
+        /// It is not assumed that the <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> function
+        /// was called previously.
+        /// <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> will automatically be called, if
+        /// <see cref="Path"/> has to be used.
         /// </summary>
         public string Path { get; set; }
 
@@ -47,9 +49,6 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         /// </exception>
         /// <exception cref="NotSupportedException">
         /// Thrown, if <see cref="Path"/> is not set before this function is called.
-        /// Note that it is still assumed that <see cref="UniversalFileHandler.GetPathAndHandleProblems"/>
-        /// did not throw any Exceptions and that <see cref="Path"/> will not be checked for correctness,
-        /// only for having been set or not.
         /// </exception>
         public void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e)
         {
@@ -130,54 +129,60 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         /// </param>
         public void ExcelWriteActions(Dictionary<CultureInfo, Dictionary<string, string>> translationsDictionary)
         {
+            string path = GetPathAndHandleProblems(Path);
             FileCreationType fcType;
 
             if (translationsDictionary == null || translationsDictionary.Count == 0)
             {
                 fcType = FileCreationType.CreateEmptyFile;
             }
-            else if (File.Exists(System.IO.Path.GetFullPath(Path)))
+            else if (File.Exists(System.IO.Path.GetFullPath(path)))
             {
                 fcType = FileCreationType.UpdateExistingFile;
             }
-            else
+            else if (!Directory.Exists(System.IO.Path.GetFullPath(path)))
             {
                 fcType = FileCreationType.CreateNewFile;
+            }
+            else
+            {
+                fcType = FileCreationType.CreateNoFile;
             }
 
             switch (fcType)
             {
                 case FileCreationType.UpdateExistingFile:
                     _logger.Log(LogLevel.Trace,
-                        $"Existing translation file will be updated ({System.IO.Path.GetFullPath(Path)}).");
+                        $"Existing translation file will be updated ({System.IO.Path.GetFullPath(path)}).");
 
                     break;
                 case FileCreationType.CreateNewFile:
                     _logger.Log(LogLevel.Information,
-                        $"Unable to find language file ({System.IO.Path.GetFullPath(Path)}). A new one will be created.");
+                        $"Unable to find language file ({System.IO.Path.GetFullPath(path)}). A new one will be created.");
 
                     break;
                 case FileCreationType.CreateEmptyFile:
-                    _logger.Log(LogLevel.Trace, $"New empty file will be created ({System.IO.Path.GetFullPath(Path)}).");
+                    _logger.Log(LogLevel.Trace, $"New empty file will be created ({System.IO.Path.GetFullPath(path)}).");
 
                     break;
                 default:
                     _logger.Log(LogLevel.Debug,
                         $"No files will be updated for given FileCreationType #{fcType} "
-                        + $"({System.IO.Path.GetFullPath(Path)}).");
+                        + $"({System.IO.Path.GetFullPath(path)}).");
 
                     //no further processing needed.
                     return;
             }
 
-            CreateExelFileBasedOnCreationType(fcType, translationsDictionary, Path);
+            CreateExelFileBasedOnCreationType(fcType, translationsDictionary, path);
         }
 
         private void LoadExcelLanguageFileAsyncInternal(BackgroundWorker bw, DoWorkEventArgs e)
         {
             //set up everything for ReadWorksheetTranslations.
+            string path = GetPathAndHandleProblems(Path);
             var excel = new ExcelInterop.Application();
-            var workbook = excel.Workbooks.Open(System.IO.Path.GetFullPath(Path));
+            var workbook = excel.Workbooks.Open(System.IO.Path.GetFullPath(path));
             var resultDict = new Dictionary<CultureInfo, Dictionary<string, string>>();
 
             try
@@ -281,7 +286,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //FileCreationType.UpdateExistingFile
                 if (fileCreationType == FileCreationType.UpdateExistingFile)
                 {
-                    workbook = excel.Workbooks.Open(System.IO.Path.GetFullPath(Path));
+                    workbook = excel.Workbooks.Open(System.IO.Path.GetFullPath(path));
                 }
                 //FileCreationType.CreateEmptyFile or FileCreationType.CreateNewFile
                 else
@@ -289,17 +294,16 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                     workbook = excel.Workbooks.Add();
                 }
 
+                //FileCreationType.UpdateExistingFile or FileCreationType.CreateNewFile
                 if (fileCreationType != FileCreationType.CreateEmptyFile)
                 {
                     //get parameters.
                     var worksheet = (ExcelInterop.Worksheet) workbook.Worksheets[1];
                     var textLocalizations =
                         TextLocalizationsUtils.FlipLocalizationsDictionary(translationsDictionary);
-                    var numberOfKeyParts = textLocalizations.First().Key
-                        .Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys).Length;
 
                     //write to sheet.
-                    WriteTranslationsToWorksheet(worksheet, textLocalizations, numberOfKeyParts);
+                    WriteTranslationsToWorksheet(worksheet, textLocalizations);
                 }
 
                 //saving.
@@ -312,7 +316,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //FileCreationType.CreateEmptyFile or FileCreationType.CreateNewFile.
                 else
                 {
-                    workbook.SaveAs(System.IO.Path.GetFullPath(Path));
+                    workbook.SaveAs(System.IO.Path.GetFullPath(path));
                 }
             }
             //TODO no catch clause, due to missing documentation for Exceptions thrown ba excel Interop
@@ -324,12 +328,31 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         }
 
         private void WriteTranslationsToWorksheet(ExcelInterop.Worksheet worksheet,
-            Dictionary<string, List<TextLocalization>> texts, int numKeyParts)
+            Dictionary<string, List<TextLocalization>> texts)
         {
+            //assignments that always work.
             var glossaryKey = new Regex($"^{_glossaryTag}\\d*$");
             var usedRange = worksheet.UsedRange;
-            object[,] values = usedRange.get_Value();
-            var maxColumn = values.GetUpperBound(1);
+            object[,] values = usedRange.Value;
+
+            //assignments that fail, if sheet is empty or was just created.
+            int maxColumn;
+            Dictionary<CultureInfo, int> languageColumnLookup;
+            int numberOfKeyParts;
+            if (values == null)
+            {
+                numberOfKeyParts = texts.First().Key
+                    .Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys).Length;
+                languageColumnLookup = new Dictionary<CultureInfo, int>();
+                maxColumn = numberOfKeyParts;
+            }
+            else
+            {
+                numberOfKeyParts = ExcelCellToDictionaryUtils.GetNumberOfKeyParts(values);
+                languageColumnLookup =
+                    ExcelCellToDictionaryUtils.GetLanguageColumnsLookupTable(values, numberOfKeyParts);
+                maxColumn = values.GetUpperBound(1);
+            }
 
             foreach (var translation in texts)
             {
@@ -343,7 +366,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 var lastFindForDialogIndex = -1;
                 var keyParts = translation.Key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
 
-                keyParts = DictionaryToExcelCellUtils.SqueezeArrayIntoShapeIfNeeded(keyParts, numKeyParts);
+                keyParts = DictionaryToExcelCellUtils.SqueezeArrayIntoShapeIfNeeded(keyParts, numberOfKeyParts);
 
                 //find first row, matching beginning of key.
                 var currentDialogFind = usedRange.Find(keyParts[0], Type.Missing,
@@ -354,8 +377,10 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //search for match with key.
                 while (currentDialogFind != null)
                 {
-                    updatedRow = DictionaryToExcelCellUtils.TryUpdateRow(worksheet, values,
-                        currentDialogFind, translation.Value, keyParts, numKeyParts, maxColumn);
+                    //values array, usedRange, maxColumns and languagesColumnLookup may change if
+                    //Excel sheet needs to be altered.
+                    updatedRow = DictionaryToExcelCellUtils.TryUpdateRow(worksheet, ref usedRange, ref values, ref maxColumn, languageColumnLookup,
+                        currentDialogFind, translation.Value, keyParts, numberOfKeyParts);
 
                     lastFindForDialogIndex = currentDialogFind.Row;
                     currentDialogFind = usedRange.FindNext(currentDialogFind);
@@ -375,8 +400,10 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //if no row was found, a new one needs to be created.
                 _logger.Log(LogLevel.Trace, $"New Entry will be created in Excel sheet for key ({translation.Key}).");
 
-                DictionaryToExcelCellUtils.WriteNewRow(worksheet, values, lastFindForDialogIndex,
-                    translation.Value, keyParts, numKeyParts, maxColumn);
+                //values array, usedRange, maxColumns and languagesColumnLookup may change if Excel sheet
+                //needs to be altered.
+                DictionaryToExcelCellUtils.WriteNewRow(worksheet, ref usedRange, ref values, ref maxColumn,
+                    languageColumnLookup, lastFindForDialogIndex, translation.Value, keyParts, numberOfKeyParts);
             }
         }
     }

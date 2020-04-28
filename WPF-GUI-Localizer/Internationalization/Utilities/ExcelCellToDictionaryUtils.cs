@@ -8,9 +8,9 @@ namespace Internationalization.Utilities
     public static class ExcelCellToDictionaryUtils
     {
         public static void FillSubDictionaries(Dictionary<CultureInfo, Dictionary<string, string>> dictionary,
-            object[,] excelCells, int maxColumn, int numKeyParts)
+            object[,] excelCells, int maxColumn, int numberOfKeyParts)
         {
-            for (var langIndex = numKeyParts + 1; langIndex <= maxColumn; langIndex++)
+            for (var langIndex = numberOfKeyParts + 1; langIndex <= maxColumn; langIndex++)
             {
                 var lang = CultureInfoUtil.GetCultureInfo(ExcelCellToString(excelCells[1, langIndex]),
                     true);
@@ -20,6 +20,22 @@ namespace Internationalization.Utilities
                     dictionary.Add(lang, new Dictionary<string, string>());
                 }
             }
+        }
+
+        //TODO doc
+        public static Dictionary<CultureInfo, int> GetLanguageColumnsLookupTable(object[,] excelCells, int numberOfKeyParts)
+        {
+            var lookupTable = new Dictionary<CultureInfo, int>();
+            var maxColumn = excelCells.GetUpperBound(1);
+
+            for (var column = GetNumberOfKeyParts(excelCells) + 1; column <= maxColumn; column++)
+            {
+                var culture = CultureInfoUtil.GetCultureInfoOrDefault(
+                    ExcelCellToString(excelCells[1, column]), true);
+                lookupTable.Add(culture, column);
+            }
+
+            return lookupTable;
         }
 
         /// <summary>
@@ -32,10 +48,10 @@ namespace Internationalization.Utilities
         {
             var maxColumn = excelCells.GetUpperBound(1);
 
-            for (var column = 1; column < maxColumn; column++)
+            for (var column = 1; column <= maxColumn; column++)
             {
-                var culture = CultureInfoUtil.GetCultureInfoOrDefault(ExcelCellToString(excelCells[1, column]),
-                    true);
+                var culture = CultureInfoUtil.GetCultureInfoOrDefault(
+                    ExcelCellToString(excelCells[1, column]), true);
 
                 if (culture != null)
                 {
@@ -46,7 +62,7 @@ namespace Internationalization.Utilities
             return maxColumn;
         }
 
-        public static string ExcelCellToDictionaryKey(object[,] excelCells, int row, int numKeyParts,
+        public static string ExcelCellToDictionaryKey(object[,] excelCells, int row, int numberOfKeyParts,
             bool isGlossaryEntry, string glossaryTag, ref int numberOfGlossaryEntries)
         {
             string key;
@@ -58,8 +74,8 @@ namespace Internationalization.Utilities
             }
             else
             {
-                var keyColumnCells = new string[numKeyParts];
-                for (var i = 0; i < numKeyParts; i++)
+                var keyColumnCells = new string[numberOfKeyParts];
+                for (var i = 0; i < numberOfKeyParts; i++)
                 {
                     keyColumnCells[i] = ExcelCellToString(excelCells[row, i + 1]);
                 }
@@ -72,7 +88,7 @@ namespace Internationalization.Utilities
 
         public static string ExcelCellToString(object cellValue)
         {
-            return cellValue == null ? String.Empty : cellValue.ToString();
+            return cellValue == null ? string.Empty : cellValue.ToString();
         }
 
         private static string CreateGuiDictionaryKey(string[] keyParts)

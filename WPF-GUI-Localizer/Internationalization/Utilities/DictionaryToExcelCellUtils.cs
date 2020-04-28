@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Internationalization.Model;
 using Microsoft.Extensions.Logging;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
@@ -51,14 +50,16 @@ namespace Internationalization.Utilities
         }
 
         //TODO doc
-        public static bool TryUpdateRow(ExcelInterop.Worksheet worksheetGui, object[,] excelCells,
+        //languageLookup can be altered.
+        public static bool TryUpdateRow(ExcelInterop.Worksheet worksheet, ref ExcelInterop.Range usedRange,
+            ref object[,] excelCells, ref int maxColumn, Dictionary<CultureInfo, int> languageColumnLookup,
             ExcelInterop.Range currentDialogFind, IList<TextLocalization> localizedTexts, string[] keyParts,
-            int numKeyParts, int maxColumn)
+            int numberOfKeyParts)
         {
             //get rest of key from sheet.
-            ExcelInterop.Range currentRow = worksheetGui.Rows[currentDialogFind.Row];
-            var keyColumnsCells = new string[numKeyParts];
-            for (var i = 0; i < numKeyParts; i++)
+            ExcelInterop.Range currentRow = worksheet.Rows[currentDialogFind.Row];
+            var keyColumnsCells = new string[numberOfKeyParts];
+            for (var i = 0; i < numberOfKeyParts; i++)
             {
                 keyColumnsCells[i] = currentRow.Cells[i + 1].Value;
             }
@@ -66,78 +67,78 @@ namespace Internationalization.Utilities
             //check if whole key matches.
             if (keyColumnsCells.SequenceEqual(keyParts))
             {
-                //now write to cell, values array and maxColumns may change if Excel sheet needs to be altered.
-                WriteToCell(localizedTexts, ref excelCells, ref maxColumn, currentRow.Row,
-                    worksheetGui, numKeyParts);
+                WriteToCell(worksheet, localizedTexts, ref usedRange, ref excelCells, ref maxColumn,
+                    languageColumnLookup, currentRow.Row);
                 return true;
             }
 
             return false;
         }
 
-        public static void WriteNewRow(ExcelInterop.Worksheet worksheetGui, object[,] excelCells, int lastFindForDialogIndex,
-            IList<TextLocalization> localizedTexts, string[] keyParts, int numKeyParts, int maxColumn)
+        public static void WriteNewRow(ExcelInterop.Worksheet worksheet, ref ExcelInterop.Range usedRange,
+            ref object[,] excelcells, ref int maxColumn, Dictionary<CultureInfo, int> languageColumnLookup,
+            int lastFindForDialogIndex, IList<TextLocalization> localizedTexts, string[] keyParts,
+            int numberOfKeyParts)
         {
             ExcelInterop.Range newRow;
 
             //try writing new line next to others with same key beginning.
             if (lastFindForDialogIndex >= 0)
             {
-                newRow = worksheetGui.Rows[lastFindForDialogIndex + 1];
+                newRow = worksheet.Rows[lastFindForDialogIndex + 1];
                 newRow.Insert();
                 //get inserted row.
-                newRow = worksheetGui.Rows[lastFindForDialogIndex + 1];
-                Logger.Log(LogLevel.Trace, "Entry was inserted after similar keys.");
+                newRow = worksheet.Rows[lastFindForDialogIndex + 1];
+                Logger.Log(LogLevel.Trace, "Entry will be inserted after similar keys.");
             }
             //if first part (or whole key for single key fragment setups like ResourceLiteralProvider)
             //can't be found write new line at end of sheet.
             else
             {
                 var lastRow =
-                    worksheetGui.Cells.SpecialCells(ExcelInterop.XlCellType.xlCellTypeLastCell);
+                    worksheet.Cells.SpecialCells(ExcelInterop.XlCellType.xlCellTypeLastCell);
                 var indexlastRow = lastRow.Row;
-                newRow = worksheetGui.Rows[indexlastRow + 1];
-                Logger.Log(LogLevel.Trace, "Entry was added to end of excel sheet.");
+                newRow = worksheet.Rows[indexlastRow + 1];
+                Logger.Log(LogLevel.Trace, "Entry will be added to end of excel sheet.");
             }
 
             //write new key parts.
-            for (var i = 0; i < numKeyParts; i++)
+            for (var i = 0; i < numberOfKeyParts; i++)
             {
                 newRow.Cells[i + 1] = keyParts[i];
             }
 
             //write new texts, values array and maxColumns may change if Excel sheet needs to be altered.
-            WriteToCell(localizedTexts, ref excelCells, ref maxColumn, newRow.Row, worksheetGui, numKeyParts);
+            WriteToCell(worksheet, localizedTexts, ref usedRange, ref excelcells, ref maxColumn, languageColumnLookup, newRow.Row);
         }
 
-        private static void WriteToCell(IEnumerable<TextLocalization> texts, ref object[,] excelCells, ref int maxColumn,
-            int currentRow, ExcelInterop.Worksheet worksheetGui, int numKeyParts)
+        private static void WriteToCell(ExcelInterop.Worksheet worksheet, IEnumerable<TextLocalization> texts,
+            ref ExcelInterop.Range usedRange, ref object[,] excelCells, ref int maxColumn,
+            Dictionary<CultureInfo, int> languageColumnLookup, int currentRow)
         {
             foreach (var text in texts)
             {
-                //identify index for current language.
-                int langIndex;
-                for (langIndex = numKeyParts + 1; langIndex <= maxColumn; langIndex++)
-                {
-                    if (Equals(CultureInfoUtil.GetCultureInfo(ExcelCellToDictionaryUtils.ExcelCellToString(excelCells[1, langIndex]),
-                            true), text.Language))
-                    {
-                        break;
-                    }
-                }
+                languageColumnLookup.TryGetValue(text.Language, out int langIndex);
 
-                if (langIndex > maxColumn)
+                //value 0 for langIndex is impossible, if the language is in the sheet,
+                //because Excel cells start at 1.
+                if (langIndex == 0)
                 {
-                    //if language doesn't exist in sheet, write new language string in header row of new column.
-                    worksheetGui.Cells[1, langIndex].Value = $"({text.Language.Name})";
+                    //if language doesn't exist in sheet, write new language string in header row of new column
+                    //and update all variables.
                     maxColumn++;
-                    excelCells = worksheetGui.UsedRange.get_Value();
+                    langIndex = maxColumn;
+                    languageColumnLookup.Add(text.Language, langIndex);
+                    worksheet.Cells[1, langIndex].Value = $"({text.Language.Name})";
+                    usedRange = worksheet.UsedRange;
+                    excelCells = usedRange.Value;
+
                     Logger.Log(LogLevel.Information,
                         $"New language ({text.Language.EnglishName}) previously not part of excel sheet "
-                        + "detected and added to excel sheet.");
+                        + "was added to excel sheet.");
                 }
 
-                ExcelInterop.Range targetCellToUpdate = worksheetGui.Cells[currentRow, langIndex];
+                ExcelInterop.Range targetCellToUpdate = worksheet.Cells[currentRow, langIndex];
                 targetCellToUpdate.Value = text.Text;
             }
         }
