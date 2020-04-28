@@ -43,9 +43,40 @@ namespace Internationalization.Utilities
             return knownTranslations;
         }
 
-        public static string GetRecommendedText(TextLocalization selectedText,
-            ICollection<TextLocalization> localizedTexts,
-            bool preferPreferedOverInputLangauge, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        /// <summary>
+        /// Returns a placeholder text (e.g. "fr--Total amount") and evaluates, what translation
+        /// should be used as basis for the text (part after "fr--").
+        /// </summary>
+        /// <param name="targetLanguage">The language for which the placeholder needs to be generated.</param>
+        /// <param name="localizedTexts">
+        /// The collection of all known translations.
+        /// If <paramref name="preferedLanguage"/> is not contained in this collection,
+        /// <paramref name="preferPreferedOverInputLangauge"/> will be ignored and <paramref name="inputLanguage"/>
+        /// will always be used.
+        /// </param>
+        /// <param name="preferPreferedOverInputLangauge">
+        /// Determines which out of <paramref name="inputLanguage"/> and <paramref name="preferedLanguage"/>
+        /// should be used by default.
+        /// This value will be overridden, if <paramref name="targetLanguage"/> is identical to either
+        /// <paramref name="inputLanguage"/> or <paramref name="preferedLanguage"/> or
+        /// <paramref name="preferedLanguage"/> is not contained in <paramref name="localizedTexts"/>.
+        /// </param>
+        /// <param name="inputLanguage">The language in which the application was originally created in.</param>
+        /// <param name="preferedLanguage">
+        /// The language to fall back to, if <paramref name="inputLanguage"/> is the <paramref name="targetLanguage"/>
+        /// or to aid as basis for further translation (e.g application was originally french, is then translated
+        /// to english and from english to multiple others).
+        /// </param>
+        /// <returns>
+        /// The full placeholder string consisting of language code, "--" and the translation of
+        /// <paramref name="inputLanguage"/> or <paramref name="preferedLanguage"/>.
+        /// </returns>
+        /// <exception cref="InputLanguageNotFoundException">
+        /// Thrown, if <paramref name="localizedTexts"/> does not contain <paramref name="inputLanguage"/>.
+        /// </exception>
+        public static string GetRecommendedText(CultureInfo targetLanguage,
+            ICollection<TextLocalization> localizedTexts, bool preferPreferedOverInputLangauge,
+            CultureInfo inputLanguage, CultureInfo preferedLanguage)
         {
             if (localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage)) == null)
             {
@@ -55,15 +86,15 @@ namespace Internationalization.Utilities
             }
 
             var usePreferedInsted = EvaluateLanguagePreference(preferPreferedOverInputLangauge, localizedTexts,
-                selectedText.Language, preferedLanguage, inputLanguage);
+                targetLanguage, preferedLanguage, inputLanguage);
 
-            //Sould find a fitting entry, because EvaluateLanguagePreference returns false
+            //Will find a fitting entry, because EvaluateLanguagePreference returns false
             //to usePreferedInsted if list does not contain the preferedLanguage and this function
             //throws InputLanguageNotFoundException is inputLanguage is not in the list.
             var recommendedTranslation = localizedTexts.First(loc => Equals(loc.Language,
                 usePreferedInsted ? preferedLanguage : inputLanguage)).Text;
 
-            return selectedText.Language.Name + "--" + recommendedTranslation;
+            return targetLanguage.Name + "--" + recommendedTranslation;
         }
 
         /// <summary>

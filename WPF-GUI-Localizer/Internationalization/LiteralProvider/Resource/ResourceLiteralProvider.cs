@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using Internationalization.AttachedProperties;
+using Internationalization.Enum;
 using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Abstract;

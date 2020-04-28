@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using Internationalization.Enum;
 using Internationalization.Model;
 
 namespace Internationalization.FileProvider.Interface

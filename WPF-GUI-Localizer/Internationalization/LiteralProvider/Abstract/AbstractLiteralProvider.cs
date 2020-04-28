@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
+using Internationalization.Enum;
 using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Interface;
 using Internationalization.Model;
@@ -125,8 +126,8 @@ namespace Internationalization.LiteralProvider.Abstract
             {
                 if (localization != null && string.IsNullOrWhiteSpace(localization.Text))
                 {
-                    localization.Text = TextLocalizationsUtils.GetRecommendedText(localization, localizedTexts,
-                        true, inputLanguage, preferedLanguage);
+                    localization.Text = TextLocalizationsUtils.GetRecommendedText(localization.Language,
+                        localizedTexts, true, inputLanguage, preferedLanguage);
                 }
             }
         }

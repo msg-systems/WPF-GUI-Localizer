@@ -66,13 +66,15 @@ namespace Internationalization.Localizer.LocalizerEventHandler
             {
                 foreach (var element in supportedElements)
                     element.MouseRightButtonUp += LocalizerDialogHandler.LocalizerDialogHandler.OpenLocalizationDialog;
-                Logger.Log(LogLevel.Trace, "Localizer was successfully attached.");
+                Logger.Log(LogLevel.Trace, "Localizer was successfully attached to {0} elements.",
+                    supportedElements.Count);
             }
             else
             {
                 foreach (var element in supportedElements)
                     element.MouseRightButtonUp -= LocalizerDialogHandler.LocalizerDialogHandler.OpenLocalizationDialog;
-                Logger.Log(LogLevel.Trace, "Localizer was successfully detached.");
+                Logger.Log(LogLevel.Trace, "Localizer was successfully detached from {0} elements.",
+                    supportedElements.Count);
             }
         }
 

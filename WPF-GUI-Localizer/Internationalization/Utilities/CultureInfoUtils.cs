@@ -25,7 +25,7 @@ namespace Internationalization.Utilities
                     "Unable to generate CultureInfo object from null sting.");
             }
 
-            var culture = TryGetCultureInfo(cultureName, onlyBracketsAtEndOfString);
+            var culture = GetCultureInfoOrDefault(cultureName, onlyBracketsAtEndOfString);
 
             if(culture == null)
             {
@@ -43,7 +43,7 @@ namespace Internationalization.Utilities
         /// <param name="onlyBracketsAtEndOfString">
         /// Will default back to false if no matching brackets are found.
         /// </param>
-        public static CultureInfo TryGetCultureInfo(string cultureName, bool onlyBracketsAtEndOfString)
+        public static CultureInfo GetCultureInfoOrDefault(string cultureName, bool onlyBracketsAtEndOfString)
         {
             if (cultureName == null)
             {
@@ -82,14 +82,14 @@ namespace Internationalization.Utilities
         /// <param name="targetLanguage">
         /// CultureInfo with which the return dictionary has to be compatible.
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if either <see cref="baseDictionary"/> or <see cref="targetLanguage"/> are null.
-        /// </exception>
         /// <returns>
         /// Dictionary for <see cref="targetLanguage"/>, its parent (usually same as two letter name), its two
         /// letter name (e.g. en for en-US), its patents two letter version or null if no compatible dictionary
         /// can be found in <see cref="baseDictionary"/> (Dictionaries will be sreached in this order).
         /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if either <see cref="baseDictionary"/> or <see cref="targetLanguage"/> are null.
+        /// </exception>
         public static Dictionary<string, string> TryGetLanguageDict(
             Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage)
         {

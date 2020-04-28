@@ -1,4 +1,4 @@
-﻿namespace Internationalization.Model
+﻿namespace Internationalization.Enum
 {
     public enum ProviderStatus
     {

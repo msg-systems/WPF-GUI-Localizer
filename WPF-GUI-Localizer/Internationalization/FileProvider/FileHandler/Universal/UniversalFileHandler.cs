@@ -2,22 +2,28 @@
 using System.IO;
 using Microsoft.Extensions.Logging;
 
-namespace Internationalization.FileProvider.FileHandler
+namespace Internationalization.FileProvider.FileHandler.Universal
 {
     public class UniversalFileHandler
     {
-        private readonly string _fileEnding;
+        private static ILogger _logger;
 
-        private readonly ILogger _logger;
+        private readonly string _fileEnding;
 
         public UniversalFileHandler(Type typeOfUser, string fileEnding)
         {
-            //initializations.
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<UniversalFileHandler>();
             _fileEnding = fileEnding;
 
-            //logging.
-            _logger.Log(LogLevel.Trace, $"Created FileHandler for {nameof(typeOfUser)}.");
+            _logger.Log(LogLevel.Trace, $"Created FileHandler for {typeOfUser.Name}.");
+        }
+
+        protected UniversalFileHandler(string typeOfUser, string fileEnding)
+        {
+            _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<UniversalFileHandler>();
+            _fileEnding = fileEnding;
+
+            _logger.Log(LogLevel.Trace, $"Created FileHandler for {typeOfUser}.");
         }
 
         /// <summary>

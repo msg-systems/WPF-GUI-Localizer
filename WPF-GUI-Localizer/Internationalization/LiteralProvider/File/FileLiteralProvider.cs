@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Media;
 using Internationalization.AttachedProperties;
+using Internationalization.Enum;
 using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
