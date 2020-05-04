@@ -120,6 +120,10 @@ namespace Internationalization.GUITranslator
                 case CheckBox checkBox:
                     checkBox.Content = guiString;
                     break;
+                default:
+                    Logger.Log(LogLevel.Information, $"Unable to translate unkown type ({visual.GetType()}) "
+                                                     + $"with not null translation ({guiString}).");
+                    break;
             }
         }
 
