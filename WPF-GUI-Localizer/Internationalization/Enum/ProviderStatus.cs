@@ -3,6 +3,7 @@
     public enum ProviderStatus
     {
         InitializationInProgress,
+        Empty,
         Initialized,
         CancellationInProgress,
         CancellationComplete
