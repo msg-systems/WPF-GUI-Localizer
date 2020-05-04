@@ -72,9 +72,9 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Finds the dictionary for <see cref="targetLanguage"/>, its parent (usually same as two letter name), its two
+        /// Finds the dictionary for <paramref name="targetLanguage"/>, its parent (usually same as two letter name), its two
         /// letter name (e.g. en for en-US), its patents two letter version or returns null if no compatible dictionary
-        /// can be found in <see cref="baseDictionary"/>.
+        /// can be found in <paramref name="baseDictionary"/>.
         /// </summary>
         /// <param name="baseDictionary">
         /// Dictionary collection to be searched.
@@ -83,12 +83,12 @@ namespace Internationalization.Utilities
         /// CultureInfo with which the return dictionary has to be compatible.
         /// </param>
         /// <returns>
-        /// Dictionary for <see cref="targetLanguage"/>, its parent (usually same as two letter name), its two
+        /// Dictionary for <paramref name="targetLanguage"/>, its parent (usually same as two letter name), its two
         /// letter name (e.g. en for en-US), its patents two letter version or null if no compatible dictionary
-        /// can be found in <see cref="baseDictionary"/> (Dictionaries will be sreached in this order).
+        /// can be found in <paramref name="baseDictionary"/> (Dictionaries will be searched in this order).
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown if either <see cref="baseDictionary"/> or <see cref="targetLanguage"/> are null.
+        /// Thrown if either <paramref name="baseDictionary"/> or <paramref name="targetLanguage"/> are null.
         /// </exception>
         public static Dictionary<string, string> TryGetLanguageDict(
             Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage)
