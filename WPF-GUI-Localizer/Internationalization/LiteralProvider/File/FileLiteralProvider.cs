@@ -358,7 +358,10 @@ namespace Internationalization.LiteralProvider.File
                     controlId = null;
                     currentText = null;
                     controlType = null;
-                    break;
+                    _logger.Log(LogLevel.Debug, 
+                        $"GetControlProperties was called for non translatable type ({element.GetType()})");
+
+                    return;
                 }
             }
 
@@ -393,11 +396,16 @@ namespace Internationalization.LiteralProvider.File
                 {
                     case UserControl userControl:
                         parentDialogName = userControl.Name;
+                        //by setting parentDialogName, the search is aborted.
 
                         break;
                     case Window window:
                         parentDialogName = window.Name;
+                        //by setting parentDialogName, the search is aborted.
 
+                        break;
+                    default:
+                        //continue searching.
                         break;
                 }
             }

@@ -69,6 +69,9 @@ namespace Internationalization.GUITranslator
                 case Ribbon ribbon when ribbon.ApplicationMenu != null:
                     TranslateGui(ribbon.ApplicationMenu);
                     return;
+                default:
+                    //control flow can continue.
+                    break;
             }
 
             //TODO vorher checken ob element übersetzt werden kann?

@@ -96,7 +96,7 @@ namespace Internationalization.LiteralProvider.Abstract
                     _instance.Save();
                     break;
                 default:
-                    //TODO unknwn state
+                    //TODO revisit, after state was redone
                     break;
             }
         }
