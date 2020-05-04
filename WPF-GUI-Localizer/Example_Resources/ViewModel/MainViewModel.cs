@@ -27,7 +27,8 @@ namespace Example_Resources.ViewModel
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
 
-                CurrentView = new ExampleView();
+                //CurrentView = new ExampleView();
+                GuiTranslator.TranslateGui(CurrentView);
             }
         }
 

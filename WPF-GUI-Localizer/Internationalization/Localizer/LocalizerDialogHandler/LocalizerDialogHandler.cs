@@ -168,7 +168,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
                     case DataGridColumnHeader asColumnHeader:
                         try
                         {
-                            GuiTranslator.TranslateGuiElement(
+                            GuiTranslator.TranslateGui(
                                 LogicalTreeUtils.GetDataGridParent(asColumnHeader.Column));
                             Logger.Log(LogLevel.Trace, "Translation of DataGridColumn successfully updated.");
                         }
@@ -180,7 +180,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
 
                         break;
                     case FrameworkElement asFrameworkElement:
-                        GuiTranslator.TranslateGuiElement(asFrameworkElement);
+                        GuiTranslator.TranslateGui(asFrameworkElement);
                         Logger.Log(LogLevel.Trace, "Translation of element successfully updated.");
                         break;
                     default:

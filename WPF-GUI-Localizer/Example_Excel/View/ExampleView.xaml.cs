@@ -30,7 +30,7 @@ namespace Example_Excel.View
 
         private void TranslateMe(object sender, EventArgs eventArgs)
         {
-            GuiTranslator.TranslateDialog(this);
+            GuiTranslator.TranslateGui(this);
         }
     }
 }
