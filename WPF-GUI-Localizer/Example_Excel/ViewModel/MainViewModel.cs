@@ -27,7 +27,7 @@ namespace Example_Excel.ViewModel
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
 
-                GuiTranslator.TranslateDialog(CurrentView);
+                GuiTranslator.TranslateGui(CurrentView);
             }
         }
 
