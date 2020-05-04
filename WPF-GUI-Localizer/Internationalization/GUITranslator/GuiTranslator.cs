@@ -134,7 +134,7 @@ namespace Internationalization.GUITranslator
         /// Since the recursive search in <see cref="TranslateGui"/> doesn't reach deeper than the DataGrid
         /// element itself, the Columns are iterated seperately here
         /// </summary>
-        /// <param name="grid"></param>
+        /// <param name="grid">The DataGrid that should be translated</param>
         private static void HandleDataGrid(DataGrid grid)
         {
             foreach (var column in grid.Columns)

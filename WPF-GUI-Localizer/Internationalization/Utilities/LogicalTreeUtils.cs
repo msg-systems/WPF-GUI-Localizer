@@ -10,7 +10,7 @@ namespace Internationalization.Utilities
     public static class LogicalTreeUtils
     {
         /// <summary>
-        /// Collects all children of type T starting at <see cref="parent"/>. Going through the LogicalTree.
+        /// Collects all children of type T starting at <paramref name="parent"/>. Going through the LogicalTree.
         /// </summary>
         /// <typeparam name="T">
         /// The type that all children need to satisfy in order to be included in the returned list.
@@ -18,7 +18,7 @@ namespace Internationalization.Utilities
         /// <param name="parent">Root element of the recursive search.</param>
         /// <returns>
         /// List of all child elements that were found.
-        /// Will return an empty list, if the <see cref="parent"/> object is not a DependencyObject
+        /// Will return an empty list, if the <paramref name="parent"/> object is not a DependencyObject
         /// or null.
         /// </returns>
         public static IList<T> GetLogicalChildCollection<T>(object parent) where T : DependencyObject

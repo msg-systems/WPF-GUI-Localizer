@@ -126,7 +126,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
 
         /// <summary>
         /// Opens a <see cref="LocalizationInputDialog"/> Window and writes changes in
-        /// <see cref="originalLocalizations"/>. Returns false, if editing was aborted by user.
+        /// <paramref name="originalLocalizations"/>. Returns false, if editing was aborted by user.
         /// </summary>
         private static bool LetUserModifyLocalizations(
             ref ObservableCollection<TextLocalization> originalLocalizations)

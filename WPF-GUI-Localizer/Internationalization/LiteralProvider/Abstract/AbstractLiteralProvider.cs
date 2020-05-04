@@ -65,12 +65,12 @@ namespace Internationalization.LiteralProvider.Abstract
 
         /// <summary>
         /// Saves the current Literals using its FileProvider, if singleton instance is initialized
-        /// and <see cref="saveToFile"/> is true.
+        /// and <paramref name="saveToFile"/> is true.
         /// Cancels initialization without saving otherwise.
         /// </summary>
         /// <param name="saveToFile">
         /// Determines if Literals get saved or not; Literals will not be saved, if instance is not
-        /// initialized, independent of <see cref="saveToFile"/> value.
+        /// initialized, independent of <paramref name="saveToFile"/> value.
         /// </param>
         public static void Exit(bool saveToFile)
         {
