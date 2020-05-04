@@ -21,8 +21,6 @@ namespace Internationalization.LiteralProvider.File
 {
     public class FileLiteralProvider : AbstractLiteralProvider
     {
-        private static readonly int IterationsLimitWhenSearchingForParentView = 40;
-
         private static ILogger _logger;
         private ProviderStatus _status;
 
@@ -387,8 +385,7 @@ namespace Internationalization.LiteralProvider.File
 
             //move up the VisualTree, until UserControl or Window is found.
             //search limited by numbers of iterations to stop infinite loops.
-            for (var i = 0; i < IterationsLimitWhenSearchingForParentView
-                            && currentObject != null && parentDialogName == null; i++)
+            for (var i = 0; currentObject != null && parentDialogName == null; i++)
             {
                 currentObject = VisualTreeHelper.GetParent(currentObject);
 
