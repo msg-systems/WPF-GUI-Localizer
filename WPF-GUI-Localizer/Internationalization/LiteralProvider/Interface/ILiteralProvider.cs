@@ -31,6 +31,7 @@ namespace Internationalization.LiteralProvider.Interface
         ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
 
         string GetGuiTranslationOfCurrentCulture(DependencyObject element);
+
         IEnumerable<CultureInfo> GetKnownLanguages();
     }
 }
