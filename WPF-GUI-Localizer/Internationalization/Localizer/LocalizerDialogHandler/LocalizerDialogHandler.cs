@@ -39,8 +39,8 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         {
             if (!CorrectElementWasClicked(ref sender, e))
             {
-                Logger.Log(LogLevel.Trace, "Click event was ignored, because the part of the "
-                                           + "element that was clicked is not translateble.");
+                Logger.Log(LogLevel.Trace, "Click event was ignored, because the part of the " +
+                                           "element that was clicked is not translateble.");
                 return;
             }
 
@@ -185,8 +185,8 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
                         break;
                     default:
                         //no action, if GuiTranslator in unable to translate objectToBeTranslated.
-                        Logger.Log(LogLevel.Information, "Translation of element was not successfully updated, "
-                                                   + "because it is not a Framework element.");
+                        Logger.Log(LogLevel.Information, "Translation of element was not successfully updated, " +
+                                                   "because it is not a Framework element.");
                         break;
                 }
             }

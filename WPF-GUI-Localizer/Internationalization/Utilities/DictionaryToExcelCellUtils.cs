@@ -134,8 +134,8 @@ namespace Internationalization.Utilities
                     excelCells = usedRange.Value;
 
                     Logger.Log(LogLevel.Information,
-                        $"New language ({text.Language.EnglishName}) previously not part of excel sheet "
-                        + "was added to excel sheet.");
+                        $"New language ({text.Language.EnglishName}) previously not part of excel sheet " +
+                        "was added to excel sheet.");
                 }
 
                 ExcelInterop.Range targetCellToUpdate = worksheet.Cells[currentRow, langIndex];

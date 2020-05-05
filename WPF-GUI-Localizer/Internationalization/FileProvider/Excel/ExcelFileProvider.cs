@@ -161,8 +161,8 @@ namespace Internationalization.FileProvider.Excel
             {
                 //no exception has to be thrown here, because null is treated like empty list and
                 //no translations will be updated.
-                _logger.Log(LogLevel.Debug, "Unable to update dictionary for null translations. "
-                                            + "No translations were updated.");
+                _logger.Log(LogLevel.Debug, "Unable to update dictionary for null translations. " +
+                                            "No translations were updated.");
                 return;
             }
 
@@ -287,8 +287,8 @@ namespace Internationalization.FileProvider.Excel
             {
                 Status = ProviderStatus.Empty;
                 _logger.Log(LogLevel.Trace,
-                    $"Finished initialization with {e.Error.GetType()} ({e.Error.Message}). "
-                    + "ExcelFileProvider is now in State Empty.");
+                    $"Finished initialization with {e.Error.GetType()} ({e.Error.Message}). " +
+                    "ExcelFileProvider is now in State Empty.");
 
                 return;
             }
@@ -299,8 +299,8 @@ namespace Internationalization.FileProvider.Excel
             if (_dictOfDicts == null || _dictOfDicts.Count == 0)
             {
                 Status = ProviderStatus.Empty;
-                _logger.Log(LogLevel.Trace, "Was unable to collect information from file. "
-                                            + "ExcelFileProvider is now in State Empty.");
+                _logger.Log(LogLevel.Trace, "Was unable to collect information from file. " +
+                                            "ExcelFileProvider is now in State Empty.");
             }
             else
             {

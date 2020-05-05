@@ -137,8 +137,8 @@ namespace Internationalization.FileProvider.JSON
             {
                 //no exception has to be thrown here, because null is treated like empty list and
                 //no translations will be updated.
-                _logger.Log(LogLevel.Debug, "Unable to update dictionary for null translations. "
-                                            + "No translations were updated.");
+                _logger.Log(LogLevel.Debug, "Unable to update dictionary for null translations. " +
+                                            "No translations were updated.");
                 return;
             }
 
@@ -268,9 +268,8 @@ namespace Internationalization.FileProvider.JSON
                     break;
                 case ProviderStatus.InitializationInProgress when noData:
                     Status = ProviderStatus.Empty;
-                    _logger.Log(LogLevel.Trace, "Was unable to collect information from file.\n...JsonFileProvider "
-                                                + "is still in State IsInitializing and will override file content "
-                                                + "with next Update call.");
+                    _logger.Log(LogLevel.Trace, "Was unable to collect information from file. " +
+                                                "JsonFileProvider is now in State CancellationComplete.");
 
                     break;
                 case ProviderStatus.InitializationInProgress:

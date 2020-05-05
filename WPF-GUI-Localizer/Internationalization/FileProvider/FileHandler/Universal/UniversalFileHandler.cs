@@ -81,8 +81,8 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             {
                 var fntException = new FileNotFoundException(
                     "Given path is directory instead of file.", path);
-                _logger.Log(LogLevel.Error, fntException, "Unable to find file, because directory "
-                                                          + "with same name exists.");
+                _logger.Log(LogLevel.Error, fntException, "Unable to find file, because directory " +
+                                                          "with same name exists.");
                 throw fntException;
             }
 
@@ -126,12 +126,12 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             }
             catch (ArgumentException e)
             {
-                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given "
-                                               + $"path ({path}).\n"
-                                               + "... It may be empty, contain only white space, include "
-                                               + "unsupported characters or the system may have "
-                                               + "failed to get the fully qualified "
-                                               + "location for given path.");
+                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given " +
+                                               $"path ({path}).\n" +
+                                               "... It may be empty, contain only white space, include " +
+                                               "unsupported characters or the system may have " +
+                                               "failed to get the fully qualified " +
+                                               "location for given path.");
                 throw;
             }
             catch (System.Security.SecurityException e)
@@ -141,9 +141,9 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             }
             catch (NotSupportedException e)
             {
-                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given "
-                                               + $"path ({path}). It contains a colon in an invalid "
-                                               + "position.");
+                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given "+
+                                               $"path ({path}). It contains a colon in an invalid "+
+                                               "position.");
                 throw;
             }
             catch (PathTooLongException e)
@@ -189,8 +189,8 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             }
             else if (string.IsNullOrWhiteSpace(directory))
             {
-                _logger.Log(LogLevel.Trace, "Given path does not contain directory information. "
-                                            + "No directory will be created.");
+                _logger.Log(LogLevel.Trace, "Given path does not contain directory information. " +
+                                            "No directory will be created.");
             }
             else
             {
@@ -205,22 +205,22 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed "
-                                                   + $"for path ({fullPath}), due to missing permissions.");
+                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
+                                                   $"for path ({fullPath}), due to missing permissions.");
                     throw;
                 }
                 catch (DirectoryNotFoundException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed "
-                                                   + $"for path ({fullPath}). The directory was not found. "
-                                                   + "(It may lie on an unmapped device)");
+                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
+                                                   $"for path ({fullPath}). The directory was not found. " +
+                                                   "(It may lie on an unmapped device)");
                     throw;
                 }
                 catch (IOException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed "
-                                                   + $"for path ({fullPath}). The directory has conflicts with "
-                                                   + "names of existing files.");
+                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
+                                                   $"for path ({fullPath}). The directory has conflicts with " +
+                                                   "names of existing files.");
                     throw;
                 }
 
@@ -271,14 +271,14 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 //-or-  Path specified a directory.
                 //-or-  The caller does not have the required permission.
 
-                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to "
-                                               + "missing permissions.");
+                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to " +
+                                               "missing permissions.");
                 throw;
             }
             catch (System.Security.SecurityException e)
             {
-                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to "
-                                               + "missing permissions.");
+                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to " +
+                                               "missing permissions.");
                 throw;
             }
             catch (FileNotFoundException e)
@@ -288,15 +288,15 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             }
             catch (DirectoryNotFoundException e)
             {
-                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to "
-                                               + "the directory was not being found. "
-                                               + "(It may lie on an unmapped device)");
+                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to " +
+                                               "the directory was not being found. " +
+                                               "(It may lie on an unmapped device)");
                 throw;
             }
             catch (IOException e)
             {
-                _logger.Log(LogLevel.Error, e, "Unable to open language file, due to an unknown I/O error "
-                                               + $"that occurred while opening the file ({path}).");
+                _logger.Log(LogLevel.Error, e, "Unable to open language file, due to an unknown I/O error " +
+                                               $"that occurred while opening the file ({path}).");
                 throw;
             }
 
@@ -345,27 +345,27 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 //-or-  Path specified a directory.
                 //-or-  The caller does not have the required permission.
 
-                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to "
-                                               + "missing permissions.");
+                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to " +
+                                               "missing permissions.");
                 throw;
             }
             catch (System.Security.SecurityException e)
             {
-                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to "
-                                               + "missing permissions.");
+                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to " +
+                                               "missing permissions.");
                 throw;
             }
             catch (DirectoryNotFoundException e)
             {
-                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to "
-                                               + "the directory was not being found. "
-                                               + "(It may lie on an unmapped device)");
+                _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to " +
+                                               "the directory was not being found. " +
+                                               "(It may lie on an unmapped device)");
                 throw;
             }
             catch (IOException e)
             {
-                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to an "
-                                               + "unknown I/O error.");
+                _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to an " +
+                                               "unknown I/O error.");
                 throw;
             }
         }
@@ -397,27 +397,27 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 }
                 catch (UnauthorizedAccessException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to backup language file ({fromPath}), due to "
-                                                   + "missing permissions.");
+                    _logger.Log(LogLevel.Error, e, $"Unable to backup language file ({fromPath}), due to " +
+                                                   "missing permissions.");
                     throw;
                 }
                 catch (DirectoryNotFoundException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({fromPath}), due to "
-                                                   + "the directory was not being found. "
-                                                   + "(It may lie on an unmapped device)");
+                    _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({fromPath}), due to " +
+                                                   "the directory was not being found. " +
+                                                   "(It may lie on an unmapped device)");
                     throw;
                 }
                 catch (FileNotFoundException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to backup language file ({fromPath}), due to "
-                                                   + "the file not being found.");
+                    _logger.Log(LogLevel.Error, e, $"Unable to backup language file ({fromPath}), due to " +
+                                                   "the file not being found.");
                     throw;
                 }
                 catch (IOException e)
                 {
-                    _logger.Log(LogLevel.Error, e, $"Unable to backup language file ({fromPath}), due an "
-                                                   + "unknown I/O error.");
+                    _logger.Log(LogLevel.Error, e, $"Unable to backup language file ({fromPath}), due an " +
+                                                   "unknown I/O error.");
                     throw;
                 }
             }
