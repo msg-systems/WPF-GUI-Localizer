@@ -115,16 +115,26 @@ namespace Internationalization.FileProvider.Excel
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
-            if (Status != ProviderStatus.Initialized)
+            if (Status == ProviderStatus.Empty)
             {
-                var e = new FileProviderNotInitializedException(
-                    "Dictionary was accessed, without ExcelFileProvider being initialized.");
-                _logger.Log(LogLevel.Error, e,
-                    "Dictionary was accessed, without ExcelFileProvider being initialized.");
-                throw e;
+                var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
+                {
+                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                };
+
+                return minimalDict;
+            }
+            else if (Status == ProviderStatus.Initialized)
+            {
+                return _dictOfDicts;
             }
 
-            return _dictOfDicts;
+            //ExcelFileProvider is still initializing, cancelling or cancelled.
+            var e = new FileProviderNotInitializedException(
+                "Dictionary was accessed, without ExcelFileProvider being initialized.");
+            _logger.Log(LogLevel.Error, e,
+                "Dictionary was accessed, without ExcelFileProvider being initialized.");
+            throw e;
         }
 
         /// <summary>
@@ -170,7 +180,7 @@ namespace Internationalization.FileProvider.Excel
 
             //create file based on first entry,
             //if dictionary was updated and the file was created by JsonFileProvider itself.
-            if (Status == ProviderStatus.InitializationInProgress && _isInitializing == 0)
+            if (Status == ProviderStatus.Empty)
             {
                 _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
                 _numKeyParts = key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys).Length;
@@ -190,7 +200,10 @@ namespace Internationalization.FileProvider.Excel
         public void SaveDictionary()
         {
             _logger.Log(LogLevel.Trace, "SaveDictionary was called.");
+
             _fileHandler.ExcelWriteActions(_dictOfDicts);
+
+            _logger.Log(LogLevel.Trace, "Dictionary was saved without errors.");
         }
 
         public void CancelInitialization()
@@ -261,38 +274,42 @@ namespace Internationalization.FileProvider.Excel
         {
             Interlocked.Exchange(ref _isInitializing, 0);
 
-            switch (Status)
+            if (Status == ProviderStatus.CancellationInProgress)
             {
-                case ProviderStatus.CancellationInProgress:
+                Status = ProviderStatus.CancellationComplete;
+                _logger.Log(LogLevel.Trace,
+                    "Finished cancellation. ExcelFileProvider is now in State CancellationComplete.");
 
-                    Status = ProviderStatus.CancellationComplete;
-                    _logger.Log(LogLevel.Trace,
-                        "Finished cancellation. ExcelFileProvider is now in State CancellationComplete.");
-
-                    break;
-                case ProviderStatus.InitializationInProgress:
-
-                    _dictOfDicts = e.Result as Dictionary<CultureInfo, Dictionary<string, string>>;
-                    if (_dictOfDicts == null || _dictOfDicts.Count == 0)
-                    {
-                        _logger.Log(LogLevel.Trace, "Was unable to collect information from file.\nExcelFileProvider "
-                                                    + "is still in State IsInitializing and will override file content "
-                                                    + "with next Update call.");
-                    }
-                    else
-                    {
-                        Status = ProviderStatus.Initialized;
-                        _logger.Log(LogLevel.Trace,
-                            "Finished initialization. ExcelFileProvider is now in State Initialized.");
-                    }
-
-                    break;
-                default:
-
-                    _logger.Log(LogLevel.Debug, $"Initialization finished in State #{Status}.");
-
-                    break;
+                return;
             }
+
+            if (e.Error != null)
+            {
+                Status = ProviderStatus.Empty;
+                _logger.Log(LogLevel.Trace,
+                    $"Finished initialization with {e.Error.GetType()} ({e.Error.Message}). "
+                    + "ExcelFileProvider is now in State Empty.");
+
+                return;
+            }
+
+            //Result is read here, because it is only now guarenteed to exist.
+            _dictOfDicts = e.Result as Dictionary<CultureInfo, Dictionary<string, string>>;
+
+            if (_dictOfDicts == null || _dictOfDicts.Count == 0)
+            {
+                Status = ProviderStatus.Empty;
+                _logger.Log(LogLevel.Trace, "Was unable to collect information from file. "
+                                            + "ExcelFileProvider is now in State Empty.");
+            }
+            else
+            {
+                Status = ProviderStatus.Initialized;
+                _logger.Log(LogLevel.Trace,
+                    "Finished initialization. ExcelFileProvider is now in State Initialized.");
+            }
+
+            _logger.Log(LogLevel.Debug, $"Initialization finished in State #{Status}.");
         }
 
         private void Initialize()
@@ -315,16 +332,7 @@ namespace Internationalization.FileProvider.Excel
                 Interlocked.Exchange(ref _isInitializing, 1) == 0)
             {
 
-                if (!File.Exists(_path))
-                {
-                    _logger.Log(LogLevel.Debug,
-                        $"Unable to find language file ({Path.GetFullPath(_path)}).");
-
-                    _fileHandler.ExcelWriteActions(null);
-
-                    _logger.Log(LogLevel.Trace, "Ended new excel file creation.");
-                }
-                else
+                if (File.Exists(_path))
                 {
                     _backgroundWorker = new BackgroundWorker();
                     _backgroundWorker.DoWork += _fileHandler.LoadExcelLanguageFileAsync;
@@ -334,6 +342,16 @@ namespace Internationalization.FileProvider.Excel
 
                     _logger.Log(LogLevel.Trace, "Starting BackgroundWorker.");
                     _backgroundWorker.RunWorkerAsync();
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Debug,
+                        $"Unable to find language file ({Path.GetFullPath(_path)}).");
+
+                    _fileHandler.ExcelWriteActions(null);
+
+                    Status = ProviderStatus.Empty;
+                    _logger.Log(LogLevel.Trace, "Ended new excel file creation.");
                 }
             }
             else

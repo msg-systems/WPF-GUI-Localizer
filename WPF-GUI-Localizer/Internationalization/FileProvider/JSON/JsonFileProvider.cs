@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Internationalization.Enum;
 using Internationalization.FileProvider.FileHandler.Universal;
 
@@ -24,7 +25,6 @@ namespace Internationalization.FileProvider.JSON
         private readonly string _path;
         private readonly UniversalFileHandler _fileHandler;
 
-        private bool _successfullyCreatedFile;
         private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
@@ -108,15 +108,6 @@ namespace Internationalization.FileProvider.JSON
         {
             _logger.Log(LogLevel.Trace, "SaveDictionary was called.");
 
-            if (Status != ProviderStatus.Initialized)
-            {
-                var e = new FileProviderNotInitializedException(
-                    "SaveDictionary was called, without JsonFileProvider being initialized.");
-                _logger.Log(LogLevel.Error, e,
-                    "SaveDictionary was called, without JsonFileProvider being initialized.");
-                throw e;
-            }
-
             _fileHandler.WriteAllTextWrapper(JsonConvert.SerializeObject(_dictOfDicts), _path);
 
             _logger.Log(LogLevel.Trace, "Dictionary was saved without errors.");
@@ -165,7 +156,7 @@ namespace Internationalization.FileProvider.JSON
 
             //create file based on first entry,
             //if dictionary was updated and the file was created by JsonFileProvider itself.
-            if (Status == ProviderStatus.InitializationInProgress && _successfullyCreatedFile)
+            if (Status == ProviderStatus.Empty)
             {
                 _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
                 SaveDictionary();
@@ -193,16 +184,26 @@ namespace Internationalization.FileProvider.JSON
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
-            if (Status != ProviderStatus.Initialized)
+            if (Status == ProviderStatus.Empty)
             {
-                var e = new FileProviderNotInitializedException(
-                    "Dictionary was accessed, without JsonFileProvider being initialized.");
-                _logger.Log(LogLevel.Error, e,
-                    "Dictionary was accessed, without JsonFileProvider being initialized.");
-                throw e;
+                var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
+                {
+                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                };
+
+                return minimalDict;
+            }
+            else if (Status == ProviderStatus.Initialized)
+            {
+                return _dictOfDicts;
             }
 
-            return _dictOfDicts;
+            //JsonFileProvider is still initializing, cancelling or cancelled.
+            var e = new FileProviderNotInitializedException(
+                "Dictionary was accessed, without JsonFileProvider being initialized.");
+            _logger.Log(LogLevel.Error, e,
+                "Dictionary was accessed, without JsonFileProvider being initialized.");
+            throw e;
         }
 
         /// <summary>
@@ -247,22 +248,40 @@ namespace Internationalization.FileProvider.JSON
 
                 //identical to "JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())".
                 fileContent = "{}";
-                _fileHandler.WriteAllTextWrapper(fileContent, _path);
 
-                _successfullyCreatedFile = true;
+                _fileHandler.WriteAllTextWrapper(fileContent, _path);
             }
 
             _dictOfDicts =
                 JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
 
-            //cancelation identical to Initialization.
-            switch (Status) //TODO revisit after adding more states to Status
+            bool noData = _dictOfDicts == null || _dictOfDicts.Count > 0;
+
+            switch (Status)
             {
                 case ProviderStatus.CancellationInProgress:
+                    //cancelation identical to Initialization.
                     Status = ProviderStatus.CancellationComplete;
+                    _logger.Log(LogLevel.Trace,
+                        "Finished cancellation. JsonFileProvider is now in State CancellationComplete.");
+
+                    break;
+                case ProviderStatus.InitializationInProgress when noData:
+                    Status = ProviderStatus.Empty;
+                    _logger.Log(LogLevel.Trace, "Was unable to collect information from file.\n...JsonFileProvider "
+                                                + "is still in State IsInitializing and will override file content "
+                                                + "with next Update call.");
+
                     break;
                 case ProviderStatus.InitializationInProgress:
                     Status = ProviderStatus.Initialized;
+                    _logger.Log(LogLevel.Trace, 
+                        "Finished initialization. ExcelFileProvider is now in State Initialized.");
+
+                    break;
+                default:
+                    _logger.Log(LogLevel.Debug, $"Initialization finished in State #{Status}.");
+
                     break;
             }
         }

@@ -179,9 +179,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Resource\Language_File.xlsx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="Resource\Language_File.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

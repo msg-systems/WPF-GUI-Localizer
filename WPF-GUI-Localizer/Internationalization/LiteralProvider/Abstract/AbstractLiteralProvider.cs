@@ -43,7 +43,7 @@ namespace Internationalization.LiteralProvider.Abstract
                 }
 
                 //to avoid slowing down the UI.
-                while (_instance.Status != ProviderStatus.Initialized)
+                while (_instance.Status != ProviderStatus.Initialized && _instance.Status != ProviderStatus.Empty)
                 {
                     DoEventsDispatcher();
                 }
@@ -79,25 +79,18 @@ namespace Internationalization.LiteralProvider.Abstract
                 return;
             }
 
-            switch (_instance.Status)
+            if (_instance.Status == ProviderStatus.InitializationInProgress)
             {
-                case ProviderStatus.InitializationInProgress:
+                _instance.CancelInitialization();
+
+                while (_instance.Status == ProviderStatus.CancellationInProgress)
                 {
-                    _instance.CancelInitialization();
-
-                    while (_instance.Status == ProviderStatus.CancellationInProgress)
-                    {
-                        DoEventsDispatcher();
-                    }
-
-                    break;
+                    DoEventsDispatcher();
                 }
-                case ProviderStatus.Initialized when saveToFile:
-                    _instance.Save();
-                    break;
-                default:
-                    //TODO revisit, after state was redone
-                    break;
+            }
+            else if (_instance.Status == ProviderStatus.Initialized && saveToFile)
+            {
+                _instance.Save();
             }
         }
 
