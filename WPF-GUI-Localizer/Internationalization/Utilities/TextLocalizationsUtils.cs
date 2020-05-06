@@ -3,26 +3,94 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Internationalization.Exception;
 using Internationalization.Model;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
 {
     public static class TextLocalizationsUtils
     {
-        public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
-            Dictionary<CultureInfo, Dictionary<string, string>> allTranslations, CultureInfo inputLanguage)
+        private static readonly ILogger Logger;
+
+        static TextLocalizationsUtils()
         {
-            ICollection<string> knownTranslations = new Collection<string>();
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(TextLocalizationsUtils));
+        }
+
+        /// <summary>
+        /// Collectes translations of <paramref name="text"/> for <paramref name="targetLanguage"/>
+        /// that share the same translation in <paramref name="inputLanguage"/>.
+        /// </summary>
+        /// <param name="text">The text in <paramref name="inputLanguage"/>.</param>
+        /// <param name="targetLanguage">The language for which translations should be collected.</param>
+        /// <param name="inputLanguage">The language of <paramref name="text"/>.</param>
+        /// <param name="allTranslations">
+        /// The collection of all translation to pull the needed translations from.
+        /// </param>
+        /// <returns>
+        /// All possible translations of <paramref name="text"/> into <paramref name="targetLanguage"/>
+        /// based on which keys inside the inner Dictionary of <paramref name="allTranslations"/> share
+        /// the same translations in <paramref name="inputLanguage"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown, if <paramref name="targetLanguage"/>, <paramref name="inputLanguage"/> or
+        /// <paramref name="allTranslations"/> is null.
+        /// </exception>
+        /// <exception cref="InputLanguageNotFoundException">
+        /// Thrown, if <paramref name="allTranslations"/> does not contain <paramref name="inputLanguage"/>.
+        /// </exception>
+        public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
+            CultureInfo inputLanguage, Dictionary<CultureInfo, Dictionary<string, string>> allTranslations)
+        {
+            //null checks.
+            if (targetLanguage == null)
+            {
+                var e = new ArgumentNullException(nameof(targetLanguage),
+                    "Unable to extract known translation for null target language.");
+                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations recived null Parameter.");
+
+                throw e;
+            }
+            if (inputLanguage == null)
+            {
+                var e = new ArgumentNullException(nameof(inputLanguage),
+                    "Unable to extract known translation for null input language.");
+                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations recived null Parameter.");
+
+                throw e;
+            }
+            if (allTranslations == null)
+            {
+                var e = new ArgumentNullException(nameof(allTranslations),
+                    "Unable to extract known translation for translations dictionary being null.");
+                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations recived null Parameter.");
+
+                throw e;
+            }
 
             allTranslations.TryGetValue(inputLanguage, out var sourceDictionary);
 
-            if (string.IsNullOrWhiteSpace(text) || Equals(targetLanguage, inputLanguage) || sourceDictionary == null)
+            //argument checks.
+            if (sourceDictionary == null)
             {
+                //the list of TextLocalizations has to contain at least the InputLanguage.
+                var e = new InputLanguageNotFoundException("InputLanguage is not part of languages collection.");
+                Logger.Log(LogLevel.Error, "Unable to generate translation recommendations for Localizaions " +
+                                           "without InputLanguage.");
+                throw e;
+            }
+
+            ICollection<string> knownTranslations = new Collection<string>();
+
+            if (string.IsNullOrWhiteSpace(text) || Equals(targetLanguage, inputLanguage))
+            {
+                //no Exceptions should be thrown here.
                 return knownTranslations;
             }
 
-            //get all keys out of sourceDictionary, where value matches given text
+            //get all entries out of sourceDictionary, where value matches given text
             var fittingDictionaryEntries =
                 sourceDictionary.Where(x => text.Equals(x.Value));
 
@@ -80,9 +148,11 @@ namespace Internationalization.Utilities
         {
             if (localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage)) == null)
             {
-                //the list of TextLocalizations has to contain at least the InputLanguage
-                throw new InputLanguageNotFoundException(
-                    "Unable to generate translation recommendations for Localizaions without InputLanguage.");
+                //the list of TextLocalizations has to contain at least the InputLanguage.
+                var e = new InputLanguageNotFoundException("InputLanguage is not part of languages collection.");
+                Logger.Log(LogLevel.Error, "Unable to generate translation recommendations for Localizaions " +
+                                           "without InputLanguage.");
+                throw e;
             }
 
             var usePreferedInsted = EvaluateLanguagePreference(preferPreferedOverInputLangauge, localizedTexts,
@@ -123,31 +193,32 @@ namespace Internationalization.Utilities
             return returnDict;
         }
 
-        private static bool EvaluateLanguagePreference(bool usePreferedInsted,
-            ICollection<TextLocalization> localizedTexts, CultureInfo languageOfText, CultureInfo preferedLanguage,
+        private static bool EvaluateLanguagePreference(bool usePreferredInstead,
+            ICollection<TextLocalization> localizedTexts, CultureInfo languageOfText, CultureInfo preferredLanguage,
             CultureInfo inputLanguage)
         {
-            var testingprefered = localizedTexts.FirstOrDefault(loc => Equals(loc.Language, preferedLanguage))?.Text;
+            var testingpreferred =
+                localizedTexts.FirstOrDefault(loc => Equals(loc.Language, preferredLanguage))?.Text;
 
             //if prefered does not exist or is itself a recommendation fallback to inputlang.
-            if (testingprefered == null ||
-                testingprefered.StartsWith(preferedLanguage.Name + "--", StringComparison.Ordinal))
+            if (testingpreferred == null ||
+                testingpreferred.StartsWith(preferredLanguage.Name + "--", StringComparison.Ordinal))
             {
                 return false;
             }
 
             //the following code can *probably* not be simplified.
-            if (usePreferedInsted && Equals(languageOfText, preferedLanguage))
+            if (usePreferredInstead && Equals(languageOfText, preferredLanguage))
             {
                 return false;
             }
 
-            if (!usePreferedInsted && Equals(languageOfText, inputLanguage))
+            if (!usePreferredInstead && Equals(languageOfText, inputLanguage))
             {
                 return true;
             }
 
-            return usePreferedInsted;
+            return usePreferredInstead;
         }
 
         private static List<TextLocalization> GetOrCreate(ref Dictionary<string,
