@@ -6,6 +6,8 @@
 
 This library offers the functionality to add or optimize localization in WPF applications at runtime. By applying a right-click event to every localizable element (Label, Button etc.), it opens a dialog in which the translations for any language can be edited.
 
+![Dialog Popup Window](Docs/dialog.PNG)
+
 It comes along with the ability to localize WPF applications using either human-readable Excel files or traditional Resources (.resx) files.
 
 ## Install
