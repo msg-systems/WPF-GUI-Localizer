@@ -12,13 +12,13 @@ It comes along with the ability to localize WPF applications using either human-
 
 The WPF-GUI-Localizer library is available through NuGet (once it is finished, that is).
 
-You can run an example application with this library already integrated here (again, not jet).
+You can run an example application with this library already integrated here (again, not yet).
 
-Read more about how to get set up with your own application [here](Doc/documentation.md#setup).
+Read more about how to get set up with your own application [here](Docs/documentation.md#setup).
 
 ## Documentation
 
-The full documentation can be found [here](Doc/documentation.md)
+The full documentation can be found [here](Docs/documentation.md)
 
 ## License
 
