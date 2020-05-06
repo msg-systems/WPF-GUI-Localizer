@@ -416,7 +416,7 @@ If ```ExcelFileProvider``` was given a value for ```oldTranslationFilePath```, i
 
 If keys given to ```ExcelFileProvider``` contain ```|```s, they will be split up into individual columns. ```FileLiteralProvider``` will always give its FileProvider a key that is made up of name of View/Window + "|" + type of element + "|" + name of element.
 
-If ```ExcelFileProvider``` recives a key with a number of ```|``` that does not align with the number of columns it recognized in the Excel sheet, it will either not use up all columns (this can cause problems with the comment recognition) or write all aditional key parts into the last column including the ```|```s.
+If ```ExcelFileProvider``` receives a key with a number of ```|``` that does not align with the number of columns it recognized in the Excel sheet, it will either not use up all columns (this can cause problems with the comment recognition) or write all aditional key parts into the last column including the ```|```s.
 
 <a id="jsonfp"></a>
 #### Saving translations to .json (JsonFileProvider)
@@ -555,8 +555,8 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
            internat:DataGridProperties.Name="dgcQuantity" />
        <DataGridTextColumn Header="Item Name" Binding="{Binding Name}"
            internat:DataGridProperties.Name="dgcName" />
-       <DataGridCheckBoxColumn Header="Received" Binding="{Binding Recived}"
-           internat:DataGridProperties.Name="dgcRecived" />
+       <DataGridCheckBoxColumn Header="Received" Binding="{Binding Received}"
+           internat:DataGridProperties.Name="dgcReceived" />
        <DataGridHyperlinkColumn Header="Supplier Website" Binding="{Binding Website}"
            internat:DataGridProperties.Name="dgcWebsite" />
      </DataGrid.Columns>
@@ -678,7 +678,7 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
        internat:ResourcesProperties.ResourceKey="ItemListQuantity" />
    ```
    
-5. The following expression is assigned to the Property that recives the translated text for all elements intended for translation e.g. Content for Buttons, Header for DataGridColumns or Text for TextBlocks:
+5. The following expression is assigned to the Property that receives the translated text for all elements intended for translation e.g. Content for Buttons, Header for DataGridColumns or Text for TextBlocks:
 
    ```
    {Binding RelativeSource={RelativeSource Self}, Path=(internat:ResourcesProperties.ResourceKey),

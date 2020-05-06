@@ -46,7 +46,7 @@
                                         internat:DataGridProperties.Name="dgcQuantity" />
                     <DataGridTextColumn Header="Item Name" Binding="{Binding Name}"
                                         internat:DataGridProperties.Name="dgcName" />
-                    <DataGridCheckBoxColumn Header="Received" Binding="{Binding Recived}"
+                    <DataGridCheckBoxColumn Header="Received" Binding="{Binding Received}"
                                             internat:DataGridProperties.Name="dgcReceived" />
                     <DataGridHyperlinkColumn Header="Supplier Website" Binding="{Binding Website}"
                                              internat:DataGridProperties.Name="dgcWebsite" />

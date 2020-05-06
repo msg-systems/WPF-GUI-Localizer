@@ -30,7 +30,7 @@ namespace Internationalization.GUITranslator
             if (rootElement == null)
             {
                 var e = new ArgumentNullException(nameof(rootElement), "Unable to translate null UserControl / Window.");
-                Logger.Log(LogLevel.Error, e, "TranslateGui recived null as root element for translation.");
+                Logger.Log(LogLevel.Error, e, "TranslateGui received null as root element for translation.");
                 throw e;
             }
 

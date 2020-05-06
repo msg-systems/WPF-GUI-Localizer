@@ -6,18 +6,18 @@ namespace Example_Excel.Model
     {
         private string _quantity;
         private string _name;
-        private bool _recived;
+        private bool _received;
         private string _website;
 
         public Item()
         {
         }
 
-        public Item(string quantity, string name, bool recived, string website)
+        public Item(string quantity, string name, bool received, string website)
         {
             _quantity = quantity;
             _name = name;
-            _recived = recived;
+            _received = received;
             _website = website;
         }
 
@@ -33,10 +33,10 @@ namespace Example_Excel.Model
             set { Set<string>(() => Name, ref _name, value); }
         }
 
-        public bool Recived
+        public bool Received
         {
-            get => _recived;
-            set { Set<bool>(() => Recived, ref _recived, value); }
+            get => _received;
+            set { Set<bool>(() => Received, ref _received, value); }
         }
 
         public string Website

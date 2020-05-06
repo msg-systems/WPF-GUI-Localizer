@@ -94,7 +94,7 @@ namespace Internationalization.FileProvider.Excel
             {
                 var e = new ArgumentNullException(nameof(translationFilePath), "Unable to open null path.");
                 _logger.Log(LogLevel.Error, e,
-                    $"ExcelFileProvider recived null parameter in constructor for {nameof(translationFilePath)}.");
+                    $"ExcelFileProvider received null parameter in constructor for {nameof(translationFilePath)}.");
                 throw e;
             }
 
@@ -153,7 +153,7 @@ namespace Internationalization.FileProvider.Excel
             //null checks.
             if (key == null)
             {
-                var e = new ArgumentNullException(nameof(key), "Key recived in Update call is null.");
+                var e = new ArgumentNullException(nameof(key), @"Key received in Update call is null.");
                 _logger.Log(LogLevel.Warning, e, "Unable to update dictionary for null key.");
                 throw e;
             }

@@ -78,7 +78,7 @@ namespace Internationalization.FileProvider.JSON
             if (translationFilePath == null)
             {
                 var e = new ArgumentNullException(nameof(translationFilePath), "Unable to open null path.");
-                _logger.Log(LogLevel.Error, e, "JsonFileProvider recived null parameter in constructor.");
+                _logger.Log(LogLevel.Error, e, "JsonFileProvider received null parameter in constructor.");
                 throw e;
             }
 
@@ -129,7 +129,7 @@ namespace Internationalization.FileProvider.JSON
             //null checks.
             if (key == null)
             {
-                var e = new ArgumentNullException(nameof(key), "Key recived in Update call is null.");
+                var e = new ArgumentNullException(nameof(key), "Key received in Update call is null.");
                 _logger.Log(LogLevel.Warning, e, "Unable to update dictionary for null key.");
                 throw e;
             }

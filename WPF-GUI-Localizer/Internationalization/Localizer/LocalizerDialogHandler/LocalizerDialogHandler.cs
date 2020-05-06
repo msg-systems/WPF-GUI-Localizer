@@ -84,7 +84,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         /// The object that triggered the MouseEvent.
         /// If it is a DataGrid it will be exchanged for the DataGridHeader that was clicked.
         /// </param>
-        /// <param name="eventArgs">EventArgs recived by event handler.</param>
+        /// <param name="eventArgs">EventArgs received by event handler.</param>
         /// <returns>
         /// True if correct element was clicked. False, if this event is not meant to be handled.
         /// </returns>

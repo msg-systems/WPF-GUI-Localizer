@@ -57,7 +57,7 @@
                                         Header="{Binding RelativeSource={RelativeSource Self}, Path=(internat:ResourcesProperties.ResourceKey),
                                         Converter={StaticResource ResourcesTextConverter}}" />
                     <DataGridCheckBoxColumn internat:ResourcesProperties.ResourceKey="ItemListReceived"
-                                            Binding="{Binding Recived}"
+                                            Binding="{Binding Received}"
                                             Header="{Binding RelativeSource={RelativeSource Self}, Path=(internat:ResourcesProperties.ResourceKey),
                                         Converter={StaticResource ResourcesTextConverter}}" />
                     <DataGridHyperlinkColumn internat:ResourcesProperties.ResourceKey="ItemListWebsite"

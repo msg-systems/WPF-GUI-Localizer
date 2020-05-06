@@ -73,7 +73,7 @@ namespace Internationalization.LiteralProvider.Resource
             {
                 try
                 {
-                    //tryParents is false and will be handled in CultureInfoUtils insted to avoid registering
+                    //tryParents is false and will be handled in CultureInfoUtils insted, to avoid registering
                     //same dict multiple times.
                     var resourceSet = rm.GetResourceSet(lang, true, false);
                     if (resourceSet == null) continue;
@@ -91,9 +91,12 @@ namespace Internationalization.LiteralProvider.Resource
                 }
                 catch (CultureNotFoundException)
                 {
+                    //all non-existent languages will be ignored.
                 }
             }
 
+            //if Inputlanguage is not present, use invariant as replacement instead, bacause
+            //InputLanguage is expected to always exist.
             if (!_dictOfDicts.ContainsKey(InputLanguage))
             {
                 _dictOfDicts.Add(InputLanguage, invariantFallback);
