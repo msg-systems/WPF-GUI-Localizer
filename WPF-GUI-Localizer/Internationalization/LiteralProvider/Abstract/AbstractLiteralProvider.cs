@@ -39,7 +39,7 @@ namespace Internationalization.LiteralProvider.Abstract
             {
                 if (_instance == null)
                 {
-                    return null;
+                    return null;//TODO exception
                 }
 
                 //to avoid slowing down the UI.

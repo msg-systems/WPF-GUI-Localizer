@@ -187,6 +187,8 @@ namespace Internationalization.FileProvider.Excel
                 _fileHandler.ExcelWriteActions(_dictOfDicts);
 
                 Status = ProviderStatus.Initialized;
+                _logger.Log(LogLevel.Trace, "Finished updating dictionary. " +
+                                            "ExcelFileProvider is now in State Initialized.");
             }
             else
             {

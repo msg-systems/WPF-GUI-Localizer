@@ -127,8 +127,8 @@ namespace Internationalization.LiteralProvider.File
                 if (sourceLocalization != null)
                 {
                     localization.KnownTranslations = TextLocalizationsUtils
-                        .ExtractKnownTranslations(sourceLocalization.Text, localization.Language, dictOfDicts,
-                            InputLanguage);
+                        .ExtractKnownTranslations(sourceLocalization.Text, localization.Language,
+                            InputLanguage, dictOfDicts);
                 }
 
                 observableLocalizations.Add(localization);

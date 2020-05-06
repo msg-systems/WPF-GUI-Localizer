@@ -157,8 +157,8 @@ namespace Internationalization.LiteralProvider.Resource
                 if (sourceLocalization != null)
                 {
                     localization.KnownTranslations = TextLocalizationsUtils
-                        .ExtractKnownTranslations(sourceLocalization.Text, localization.Language, _dictOfDicts,
-                            InputLanguage);
+                        .ExtractKnownTranslations(sourceLocalization.Text, localization.Language,
+                            InputLanguage, _dictOfDicts);
                 }
 
                 observableLocalizations.Add(localization);
