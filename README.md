@@ -555,8 +555,8 @@ For information about how to add the ```ResourcesTextConverter``` to an applicat
            internat:DataGridProperties.Name="dgcQuantity" />
        <DataGridTextColumn Header="Item Name" Binding="{Binding Name}"
            internat:DataGridProperties.Name="dgcName" />
-       <DataGridCheckBoxColumn Header="Received" Binding="{Binding Received}"
-           internat:DataGridProperties.Name="dgcReceived" />
+       <DataGridCheckBoxColumn Header="Recived" Binding="{Binding Recived}"
+           internat:DataGridProperties.Name="dgcRecived" />
        <DataGridHyperlinkColumn Header="Supplier Website" Binding="{Binding Website}"
            internat:DataGridProperties.Name="dgcWebsite" />
      </DataGrid.Columns>
