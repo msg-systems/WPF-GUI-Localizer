@@ -47,13 +47,13 @@ Many applications have this problem: translations are done by external service c
 ### Idea
 The idea behind this library is to translate applications within its live context, inside the application itself. In order to do so, a click event is added to the given application that opens a dialog whenever a translatable object (e.g. Label) is clicked.
 
-![Dialog Popup Window](Docs/dialog.PNG)
+![Dialog Popup Window](dialog.PNG)
 
 In the given dialog, the translations for all desired languages can be edited and saved, in order to load them into the live application when the work has been finished.
 
 Since this dialog has the full knowledge of the existing translations, it can offer the user translations based on previously translated texts. With this feature, the process of translation can be sped up the more texts have been translated. Repeating words can be translated coherently.
 
-![Dialog Translation Recommendations](Docs/recommendations.PNG)
+![Dialog Translation Recommendations](recommendations.PNG)
 
 Currently supported ways of localization:
 
@@ -306,7 +306,7 @@ Since the act of doing so after the View / Window was loaded does not translate 
 
 This is a simplified class diagram of all key classes
 
-![Architecture Class Diagram](Docs/architecture.png)
+![Architecture Class Diagram](architecture.png)
 
 1. FileProvider - is used in order to read and write the existing translation dictionary of the target application from / to a given file.
 1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are two implementations for the LiteralProvider:
