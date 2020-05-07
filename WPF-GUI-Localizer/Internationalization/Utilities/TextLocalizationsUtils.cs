@@ -118,16 +118,13 @@ namespace Internationalization.Utilities
         /// <param name="targetLanguage">The language for which the placeholder needs to be generated.</param>
         /// <param name="localizedTexts">
         /// The collection of all known translations.
-        /// If <paramref name="preferedLanguage"/> is not contained in this collection,
-        /// <paramref name="preferPreferedOverInputLangauge"/> will be ignored and <paramref name="inputLanguage"/>
-        /// will always be used.
         /// </param>
         /// <param name="preferPreferedOverInputLangauge">
         /// Determines which out of <paramref name="inputLanguage"/> and <paramref name="preferedLanguage"/>
         /// should be used by default.
-        /// This value will be overridden, if <paramref name="targetLanguage"/> is identical to either
-        /// <paramref name="inputLanguage"/> or <paramref name="preferedLanguage"/> or
-        /// <paramref name="preferedLanguage"/> is not contained in <paramref name="localizedTexts"/>.
+        /// This value will be ignored, if there are conflicts with the preference (e.g.
+        /// <paramref name="targetLanguage"/> being identical to <paramref name="preferedLanguage"/> or
+        /// <paramref name="inputLanguage"/>).
         /// </param>
         /// <param name="inputLanguage">The language in which the application was originally created in.</param>
         /// <param name="preferedLanguage">
