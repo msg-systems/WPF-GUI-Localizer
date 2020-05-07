@@ -25,7 +25,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         /// It is not assumed that the <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> function
         /// was called previously.
         /// <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> will automatically be called, if
-        /// <see cref="Path"/> has to be used.
+        /// <see cref="Path"/> is used.
         /// </summary>
         public string Path { get; set; }
 

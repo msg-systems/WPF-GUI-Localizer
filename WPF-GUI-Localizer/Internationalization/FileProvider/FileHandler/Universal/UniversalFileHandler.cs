@@ -250,7 +250,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// Thrown, if <paramref name="path"/> does not exist or cannot be found.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
+        /// Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         public string ReadAllTextWrapper(string path)
         {
@@ -324,7 +324,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
+        /// Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         public void WriteAllTextWrapper(string fileContent, string path)
         {

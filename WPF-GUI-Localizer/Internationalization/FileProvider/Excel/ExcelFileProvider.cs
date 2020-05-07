@@ -16,10 +16,10 @@ namespace Internationalization.FileProvider.Excel
 {
     /// <summary>
     /// Saves its files using an Excel Application.
-    /// This Excel Application will under normal circumstances always be closed,
+    /// This Excel Application will always be closed under normal circumstances,
     /// if however the execution is aborted (because of an exception or the stop
-    /// debugging button) while an Excel process is still running,
-    /// it will stick around and will need to be terminated using the Task Manager.
+    /// debugging button) while an Excel process stays idle,
+    /// it will stick around and may need to be terminated using the Task Manager.
     /// </summary>
     public class ExcelFileProvider : IFileProvider
     {
@@ -39,13 +39,16 @@ namespace Internationalization.FileProvider.Excel
 
         public ProviderStatus Status { get; private set; }
 
-        /// <summary>Saves file as Excel, a backup will be created before the file is edited.</summary>
-        /// <param name="translationFilePath">File that will be worked on being worked on.</param>
+        /// <summary>
+        /// Creates the instance of the ExcelFileProvider, which reads and persists all translations as Excel-files.
+        /// A backup Excel-file will be created for all edits.
+        /// </summary>
+        /// <param name="translationFilePath">Path to the file containing the translations.</param>
         /// <param name="glossaryTag">
-        /// Entries in the Excel table that start with this tag will be interpreted as part of the glossary.
+        /// (Optional) Entries in the Excel table that start with this tag will be interpreted as part of the glossary.
         /// </param>
         /// <param name="oldTranslationFilePath">
-        /// A copy of the original sheet will be put here if no copy exists jet.
+        /// (Optional) The path to where the original translation file will be copied as a backup.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// Thrown, if <paramref name="translationFilePath"/> is null.
@@ -64,7 +67,7 @@ namespace Internationalization.FileProvider.Excel
         /// does not exist or cannot be found.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
+        /// Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         /// <exception cref="NotSupportedException">
         /// Thrown, if <paramref name="translationFilePath"/> / <paramref name="oldTranslationFilePath"/>
@@ -108,7 +111,7 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Returns the internal dictionary.
+        /// Returns the internal dictionary of translations.
         /// </summary>
         /// <exception cref="FileProviderNotInitializedException">
         /// Will be thrown if the object has not found a language file to pull translations from.
@@ -124,21 +127,21 @@ namespace Internationalization.FileProvider.Excel
 
                 return minimalDict;
             }
-            else if (Status == ProviderStatus.Initialized)
+            if (Status == ProviderStatus.Initialized)
             {
                 return _dictOfDicts;
             }
 
             //ExcelFileProvider is still initializing, cancelling or cancelled.
             var e = new FileProviderNotInitializedException(
-                "Dictionary was accessed, without ExcelFileProvider being initialized.");
+                "Translation Dictionary was accessed, without ExcelFileProvider being initialized.");
             _logger.Log(LogLevel.Error, e,
-                "Dictionary was accessed, without ExcelFileProvider being initialized.");
+                "Translation Dictionary was accessed, without ExcelFileProvider being initialized.");
             throw e;
         }
 
         /// <summary>
-        /// Updates internal dictionary at <paramref name="key"/> with the given dictionary.
+        /// Updates the internal dictionary of translations at <paramref name="key"/> with the given dictionary.
         /// Only languages contained in <paramref name="texts"/> will be updated.
         /// Will automatically write to file, if this is the first Update call
         /// and no file existed upon creation of this object.
@@ -197,7 +200,7 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Makes the current dictionary persistent, by writing it to an excel file (.xlsx).
+        /// Persists the current dictionary of translations, by writing it to the given excel file.
         /// </summary>
         public void SaveDictionary()
         {
@@ -208,6 +211,10 @@ namespace Internationalization.FileProvider.Excel
             _logger.Log(LogLevel.Trace, "Dictionary was saved without errors.");
         }
 
+
+        /// <summary>
+        /// Interrupts the Initialization (e.g. when shutting down the application during initialization)
+        /// </summary>
         public void CancelInitialization()
         {
             if (_backgroundWorker == null) return;
@@ -222,7 +229,7 @@ namespace Internationalization.FileProvider.Excel
 
 
         /// <summary>
-        /// Updates <see cref="_dictOfDicts"/> using the given values and returns true, if any updates were made.
+        /// Updates the internal dictionary of translations using the given values and returns true, if any updates were made.
         /// </summary>
         /// <param name="key">
         /// The entry for which translations should be updated.

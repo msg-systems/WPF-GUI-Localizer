@@ -25,7 +25,7 @@ namespace Internationalization.LiteralProvider.Abstract
         /// <summary>
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </summary>
-        public CultureInfo PreferedLanguage { get; protected set; }
+        public CultureInfo PreferredLanguage { get; protected set; }
 
         /// <summary>
         /// Will return null, if singleton instance is null.
@@ -108,7 +108,7 @@ namespace Internationalization.LiteralProvider.Abstract
 
 
         protected static void GetTranslationDummyText(ICollection<TextLocalization> localizedTexts,
-            CultureInfo inputLanguage, CultureInfo preferedLanguage)
+            CultureInfo inputLanguage, CultureInfo preferredLanguage)
         {
             if (localizedTexts == null)
             {
@@ -120,7 +120,7 @@ namespace Internationalization.LiteralProvider.Abstract
                 if (localization != null && string.IsNullOrWhiteSpace(localization.Text))
                 {
                     localization.Text = TextLocalizationsUtils.GetRecommendedText(localization.Language,
-                        localizedTexts, true, inputLanguage, preferedLanguage);
+                        localizedTexts, true, inputLanguage, preferredLanguage);
                 }
             }
         }

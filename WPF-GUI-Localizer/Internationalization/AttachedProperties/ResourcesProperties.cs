@@ -3,7 +3,7 @@
 namespace Internationalization.AttachedProperties
 {
     /// <summary>
-    /// Workaround to both use Resources files and get access to the key, which is inaccessable if static bindings are used
+    /// A property to declare Resources keys as readable Property from UI-Elements (used for the Resources translator to read corresponding Resources at runtime).
     /// </summary>
     public class ResourcesProperties : DependencyObject
     {

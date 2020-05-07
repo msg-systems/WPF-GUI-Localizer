@@ -21,12 +21,12 @@ namespace Internationalization.FileProvider.Interface
         void CancelInitialization();
 
         /// <summary>
-        /// Returns saved dictionary.
+        /// Returns the internal dictionary of translations.
         /// </summary>
         Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary();
 
         /// <summary>
-        /// Updates a key-value-pair in the dictionary.
+        /// Updates a key-value-pair in the dictionary of translations.
         /// </summary>
         void Update(string key, IEnumerable<TextLocalization> texts);
 

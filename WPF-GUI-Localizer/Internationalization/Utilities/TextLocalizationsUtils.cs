@@ -118,33 +118,33 @@ namespace Internationalization.Utilities
         /// <param name="targetLanguage">The language for which the placeholder needs to be generated.</param>
         /// <param name="localizedTexts">
         /// The collection of all known translations.
-        /// If <paramref name="preferedLanguage"/> is not contained in this collection,
-        /// <paramref name="preferPreferedOverInputLangauge"/> will be ignored and <paramref name="inputLanguage"/>
+        /// If <paramref name="preferredLanguage"/> is not contained in this collection,
+        /// <paramref name="preferPreferredOverInputLangauge"/> will be ignored and <paramref name="inputLanguage"/>
         /// will always be used.
         /// </param>
-        /// <param name="preferPreferedOverInputLangauge">
-        /// Determines which out of <paramref name="inputLanguage"/> and <paramref name="preferedLanguage"/>
+        /// <param name="preferPreferredOverInputLangauge">
+        /// Determines which out of <paramref name="inputLanguage"/> and <paramref name="preferredLanguage"/>
         /// should be used by default.
         /// This value will be overridden, if <paramref name="targetLanguage"/> is identical to either
-        /// <paramref name="inputLanguage"/> or <paramref name="preferedLanguage"/> or
-        /// <paramref name="preferedLanguage"/> is not contained in <paramref name="localizedTexts"/>.
+        /// <paramref name="inputLanguage"/> or <paramref name="preferredLanguage"/> or
+        /// <paramref name="preferredLanguage"/> is not contained in <paramref name="localizedTexts"/>.
         /// </param>
         /// <param name="inputLanguage">The language in which the application was originally created in.</param>
-        /// <param name="preferedLanguage">
+        /// <param name="preferredLanguage">
         /// The language to fall back to, if <paramref name="inputLanguage"/> is the <paramref name="targetLanguage"/>
         /// or to aid as basis for further translation (e.g application was originally french, is then translated
         /// to english and from english to multiple others).
         /// </param>
         /// <returns>
         /// The full placeholder string consisting of language code, "--" and the translation of
-        /// <paramref name="inputLanguage"/> or <paramref name="preferedLanguage"/>.
+        /// <paramref name="inputLanguage"/> or <paramref name="preferredLanguage"/>.
         /// </returns>
         /// <exception cref="InputLanguageNotFoundException">
         /// Thrown, if <paramref name="localizedTexts"/> does not contain <paramref name="inputLanguage"/>.
         /// </exception>
         public static string GetRecommendedText(CultureInfo targetLanguage,
-            ICollection<TextLocalization> localizedTexts, bool preferPreferedOverInputLangauge,
-            CultureInfo inputLanguage, CultureInfo preferedLanguage)
+            ICollection<TextLocalization> localizedTexts, bool preferPreferredOverInputLangauge,
+            CultureInfo inputLanguage, CultureInfo preferredLanguage)
         {
             if (localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage)) == null)
             {
@@ -155,14 +155,14 @@ namespace Internationalization.Utilities
                 throw e;
             }
 
-            var usePreferedInsted = EvaluateLanguagePreference(preferPreferedOverInputLangauge, localizedTexts,
-                targetLanguage, preferedLanguage, inputLanguage);
+            var usePreferredInsted = EvaluateLanguagePreference(preferPreferredOverInputLangauge, localizedTexts,
+                targetLanguage, preferredLanguage, inputLanguage);
 
             //Will find a fitting entry, because EvaluateLanguagePreference returns false
-            //to usePreferedInsted if list does not contain the preferedLanguage and this function
+            //to usePreferredInsted if list does not contain the preferredLanguage and this function
             //throws InputLanguageNotFoundException is inputLanguage is not in the list.
             var recommendedTranslation = localizedTexts.First(loc => Equals(loc.Language,
-                usePreferedInsted ? preferedLanguage : inputLanguage)).Text;
+                usePreferredInsted ? preferredLanguage : inputLanguage)).Text;
 
             return targetLanguage.Name + "--" + recommendedTranslation;
         }
@@ -200,7 +200,7 @@ namespace Internationalization.Utilities
             var testingpreferred =
                 localizedTexts.FirstOrDefault(loc => Equals(loc.Language, preferredLanguage))?.Text;
 
-            //if prefered does not exist or is itself a recommendation fallback to inputlang.
+            //if preferred does not exist or is itself a recommendation fallback to inputlang.
             if (testingpreferred == null ||
                 testingpreferred.StartsWith(preferredLanguage.Name + "--", StringComparison.Ordinal))
             {

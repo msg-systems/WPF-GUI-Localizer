@@ -31,7 +31,7 @@ namespace Internationalization.FileProvider.JSON
         public ProviderStatus Status { get; private set; }
 
         /// <summary>
-        /// Saves its files using the Json.NET library.
+        /// Creates the instance of the JsonFileProvider, which reads and persists all translations from Json-files.
         /// </summary>
         /// <param name="translationFilePath">The path under which the dictionary will be saved.</param>
         /// <exception cref="ArgumentNullException">
@@ -51,7 +51,7 @@ namespace Internationalization.FileProvider.JSON
         /// For example because it is a direcory.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
+        /// Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         /// <exception cref="NotSupportedException">
         /// Thrown, if <paramref name="translationFilePath"/> contains a colon anywhere other than as part of a
@@ -88,8 +88,7 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Makes the current dictionary persistent, by writing its serialized form to the
-        /// specified file.
+        /// Persists the current dictionary of translations, by writing it to the given json file.
         /// </summary>
         /// <exception cref="FileProviderNotInitializedException">
         /// Thrown, if the object has not found a language file to pull translations from.
@@ -102,7 +101,7 @@ namespace Internationalization.FileProvider.JSON
         /// Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
+        /// Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         public void SaveDictionary()
         {
@@ -114,7 +113,7 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Updates internal dictionary at <paramref name="key"/> with the given dictionary.
+        /// Updates internal dictionary of translations at <paramref name="key"/> with the given dictionary.
         /// Only languages contained in <paramref name="texts"/> will be updated.
         /// Will automatically write to file, if this is the first Update call
         /// and no file existed upon creation of this object.
@@ -177,7 +176,7 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Returns the internal dictionary.
+        /// Returns the internal dictionary of translations.
         /// </summary>
         /// <exception cref="FileProviderNotInitializedException">
         /// Thrown, if the object has not found a language file to pull translations from.
@@ -193,7 +192,7 @@ namespace Internationalization.FileProvider.JSON
 
                 return minimalDict;
             }
-            else if (Status == ProviderStatus.Initialized)
+            if (Status == ProviderStatus.Initialized)
             {
                 return _dictOfDicts;
             }
@@ -207,7 +206,7 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Coordinates the initialization of <see cref="_dictOfDicts"/>.
+        /// Coordinates the initialization of the internal dictionary of translations.
         /// </summary>
         /// <exception cref="UnauthorizedAccessException">
         /// Thrown, if <see cref="_path"/> is write-only, read-only, a directory, hidden, the needed
@@ -221,7 +220,7 @@ namespace Internationalization.FileProvider.JSON
         /// Thrown, if <see cref="_path"/> does not exist or cannot be found.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurres.
+        /// Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         private void Initialize()
         {
@@ -244,7 +243,7 @@ namespace Internationalization.FileProvider.JSON
             }
             else
             {
-                _logger.Log(LogLevel.Trace, $"No langauge file present ({Path.GetFullPath(_path)}).");
+                _logger.Log(LogLevel.Trace, $"No language file present ({Path.GetFullPath(_path)}).");
 
                 //identical to "JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())".
                 fileContent = "{}";
@@ -286,7 +285,7 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Updates <see cref="_dictOfDicts"/> using the given values and returns true, if any updates were made.
+        /// Updates the internal dictionary of translations using the given values and returns true, if any updates were made.
         /// </summary>
         /// <param name="key">
         /// The entry for which translations should be updated.

@@ -15,7 +15,7 @@ namespace Internationalization.AttachedProperties
 
         public static string GetIsActive(DependencyObject d)
         {
-            //only fails, if other property with same name is also attached.
+            //only fails, if other property with the same name is also attached.
             return (string) d.GetValue(IsActiveProperty);
         }
 
@@ -26,6 +26,7 @@ namespace Internationalization.AttachedProperties
 
         /// <summary>
         /// Load the Localizer, when "isActive" Property is set in a View / Window.
+        /// Deactivate, when it has been deactivated.
         /// </summary>
         /// <param name="d">The element (typically: View or Window), which the Localizer is attached to.</param>
         /// <param name="e">Event Parameter / Info (used for access to new value).</param>

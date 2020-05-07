@@ -40,7 +40,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
             if (!CorrectElementWasClicked(ref sender, e))
             {
                 Logger.Log(LogLevel.Trace, "Click event was ignored, because the part of the " +
-                                           "element that was clicked is not translateble.");
+                                           "element that was clicked is not translateable.");
                 return;
             }
 
@@ -161,34 +161,31 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         /// </summary>
         private static void RunTranslator(object objectToBeTranslated)
         {
-            if (GlobalSettings.UseGuiTranslatorForLocalizationUtils)
+            if (!GlobalSettings.UseGuiTranslatorForLocalizationUtils) return;
+            switch (objectToBeTranslated)
             {
-                switch (objectToBeTranslated)
-                {
-                    case DataGridColumnHeader asColumnHeader:
-                        try
-                        {
-                            GuiTranslator.TranslateGui(
-                                LogicalTreeUtils.GetDataGridParent(asColumnHeader.Column));
-                            Logger.Log(LogLevel.Trace, "Translation of DataGridColumn successfully updated.");
-                        }
-                        catch
-                        {
-                            Logger.Log(LogLevel.Information,
-                                "Unable to update new translation for DataGrid in GUI.");
-                        }
-
-                        break;
-                    case FrameworkElement asFrameworkElement:
-                        GuiTranslator.TranslateGui(asFrameworkElement);
-                        Logger.Log(LogLevel.Trace, "Translation of element successfully updated.");
-                        break;
-                    default:
-                        //no action, if GuiTranslator in unable to translate objectToBeTranslated.
-                        Logger.Log(LogLevel.Information, "Translation of element was not successfully updated, " +
-                                                   "because it is not a Framework element.");
-                        break;
-                }
+                case DataGridColumnHeader asColumnHeader:
+                    try
+                    {
+                        GuiTranslator.TranslateGui(
+                            LogicalTreeUtils.GetDataGridParent(asColumnHeader.Column));
+                        Logger.Log(LogLevel.Trace, "Translation of DataGridColumn successfully updated.");
+                    }
+                    catch
+                    {
+                        Logger.Log(LogLevel.Information,
+                            "Unable to update new translation for DataGrid in GUI.");
+                    }
+                    break;
+                case FrameworkElement asFrameworkElement:
+                    GuiTranslator.TranslateGui(asFrameworkElement);
+                    Logger.Log(LogLevel.Trace, "Translation of element successfully updated.");
+                    break;
+                default:
+                    //no action, if GuiTranslator in unable to translate objectToBeTranslated.
+                    Logger.Log(LogLevel.Information, "Translation of element was not successfully updated, " +
+                                                     "because it is not a Framework element.");
+                    break;
             }
         }
     }
