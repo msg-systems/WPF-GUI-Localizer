@@ -44,11 +44,11 @@ namespace Internationalization.LiteralProvider.Resource
         }
 
         private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
-            CultureInfo preferedLanguage)
+            CultureInfo preferredLanguage)
         {
             FileProviderInstance = fileProvider;
             InputLanguage = inputLanguage;
-            PreferedLanguage = preferedLanguage;
+            PreferredLanguage = preferredLanguage;
 
             ReadDicts();
         }
@@ -126,15 +126,15 @@ namespace Internationalization.LiteralProvider.Resource
         /// <param name="inputLanguage">
         /// The language originally used in the application, which is ment to be internationalized.
         /// </param>
-        /// <param name="preferedLanguage">
+        /// <param name="preferredLanguage">
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
-            CultureInfo preferedLanguage)
+            CultureInfo preferredLanguage)
         {
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ResourceLiteralProvider>();
 
-            Instance = new ResourceLiteralProvider(fileProvider, inputLanguage, preferedLanguage);
+            Instance = new ResourceLiteralProvider(fileProvider, inputLanguage, preferredLanguage);
         }
 
         public override ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element)
@@ -148,7 +148,7 @@ namespace Internationalization.LiteralProvider.Resource
             }
 
             //fill translations without Text.
-            GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
+            GetTranslationDummyText(localizations, InputLanguage, PreferredLanguage);
 
             //fill known translations and convert to ObservableCollection.
             var sourceLocalization = localizations.FirstOrDefault(loc =>

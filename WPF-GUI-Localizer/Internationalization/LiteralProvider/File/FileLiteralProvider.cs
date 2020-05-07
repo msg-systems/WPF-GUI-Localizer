@@ -46,12 +46,12 @@ namespace Internationalization.LiteralProvider.File
             }
         }
 
-        private FileLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        private FileLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferredLanguage)
         {
             FileProviderInstance = fileProvider;
             _status = ProviderStatus.Initialized;
             InputLanguage = inputLanguage;
-            PreferedLanguage = preferedLanguage;
+            PreferredLanguage = preferredLanguage;
         }
 
         /// <summary>
@@ -75,15 +75,15 @@ namespace Internationalization.LiteralProvider.File
         /// <param name="inputLanguage">
         /// The language originally used in the application, which is ment to be internationalized.
         /// </param>
-        /// <param name="preferedLanguage">
+        /// <param name="preferredLanguage">
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
-            CultureInfo preferedLanguage)
+            CultureInfo preferredLanguage)
         {
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<FileLiteralProvider>();
 
-            Instance = new FileLiteralProvider(fileProvider, inputLanguage, preferedLanguage);
+            Instance = new FileLiteralProvider(fileProvider, inputLanguage, preferredLanguage);
         }
 
         public override void Save()
@@ -115,7 +115,7 @@ namespace Internationalization.LiteralProvider.File
                 localizations.First(localization => Equals(localization.Language, InputLanguage)).Text = currentText;
             }
 
-            GetTranslationDummyText(localizations, InputLanguage, PreferedLanguage);
+            GetTranslationDummyText(localizations, InputLanguage, PreferredLanguage);
 
             //fill known translations and convert to ObservableCollection.
             var sourceLocalization = localizations.FirstOrDefault(loc =>

@@ -16,7 +16,7 @@ namespace Internationalization.LiteralProvider.Interface
         /// <summary>
         /// Used if InputLanguage is not english, to have recommendations be in english regardless
         /// </summary>
-        CultureInfo PreferedLanguage { get; }
+        CultureInfo PreferredLanguage { get; }
 
         /// <summary>
         /// Saves the current Literals using its FileProvider

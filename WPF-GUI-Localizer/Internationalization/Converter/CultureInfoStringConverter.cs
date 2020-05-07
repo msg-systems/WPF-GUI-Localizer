@@ -6,8 +6,7 @@ using Internationalization.Utilities;
 namespace Internationalization.Converter
 {
     /// <summary>
-    /// Converter for string &lt;-&gt; CultureInfo;
-    /// main direction is string to CultureInfo
+    /// Converter between string and CultureInfo.
     /// </summary>
     public class CultureInfoStringConverter : IValueConverter
     {

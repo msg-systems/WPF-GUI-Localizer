@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace Internationalization
 {
     /// <summary>
-    /// Conteins Settings used by multiple Classes of the library. Should be set before any objects
+    /// Contains Settings used by multiple Classes of the library. Should be set before any objects
     /// are created / used.
     /// </summary>
     public static class GlobalSettings

@@ -9,9 +9,9 @@ namespace Internationalization.Converter
     public class ResourcesTextConverter : IValueConverter
     {
         /// <summary>
-        /// Converter for AttachedProperty ResourceKey -&gt; Resources entry for current Culture;
-        /// uses AbstractLiteralProvider.Instance for accesss to Resources files.
-        /// only works if AbstractLiteralProvider.Instance is of type ResourceLiteralProvider.
+        /// Converter between AttachedProperty ResourceKey and the corresponding Resources entry for the current culture;
+        /// uses AbstractLiteralProvider.Instance to accesss the Resources files.
+        /// Only works if AbstractLiteralProvider.Instance is of type ResourceLiteralProvider.
         /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

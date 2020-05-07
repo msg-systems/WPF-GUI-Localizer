@@ -7,8 +7,7 @@ using Internationalization.Utilities;
 namespace Internationalization.Converter
 {
     /// <summary>
-    /// Converter for ICollection&lt;string&gt; &lt;-&gt; ICollection&lt;CultureInfo&gt;;
-    /// main direction is string to CultureInfo
+    /// Converter between ICollection of strings and ICollection of CultureInfo.
     /// </summary>
     public class CultureInfoCollectionStringConverter : IValueConverter
     {

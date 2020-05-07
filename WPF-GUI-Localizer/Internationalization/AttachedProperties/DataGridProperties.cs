@@ -3,7 +3,7 @@
 namespace Internationalization.AttachedProperties
 {
     /// <summary>
-    /// This is a workaround to give DataGridColumns a Name Property
+    /// This property enables DataGridColumns to be given a Name Property.
     /// </summary>
     public class DataGridProperties
     {
