@@ -95,9 +95,13 @@ namespace Internationalization.LiteralProvider.Resource
                 }
             }
 
+            if (_dictOfDicts.ContainsKey(InputLanguage))
+            {
+                _dictOfDicts.Add(CultureInfo.InvariantCulture, invariantFallback);
+            }
             //if Inputlanguage is not present, use invariant as replacement instead, bacause
             //InputLanguage is expected to always exist.
-            if (!_dictOfDicts.ContainsKey(InputLanguage))
+            else
             {
                 _dictOfDicts.Add(InputLanguage, invariantFallback);
             }
@@ -227,12 +231,13 @@ namespace Internationalization.LiteralProvider.Resource
                 _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
             }
 
-            string translation = CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey);
+            string translation =
+                CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey, InputLanguage);
 
             if (translation != null) return translation;
 
             //if needed use translations from Resources.
-            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey);
+            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey, InputLanguage);
         }
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()

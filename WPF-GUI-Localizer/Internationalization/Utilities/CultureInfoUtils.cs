@@ -84,24 +84,21 @@ namespace Internationalization.Utilities
 
         /// <summary>
         /// Finds the translation entry out of <paramref name="baseDictionary"/> for <paramref name="targetLanguage"/>
-        /// and <paramref name="key"/>, if no entry is found for <paramref name="targetLanguage"/>, its parent
-        /// (usually same as two letter name), its two letter name (e.g. en for en-US) and its patents two letter
-        /// version are searched for <paramref name="key"/>. Returns default value (null) if no entry for
-        /// <paramref name="key"/> can be found in dictionarys campatible with <paramref name="targetLanguage"/>.
+        /// and <paramref name="key"/>, if no entry is found in <paramref name="targetLanguage"/>, dictionaries of
+        /// compatible languages are searched. Returns default value (null) if no entry for
+        /// <paramref name="key"/> can be found in dictionaries campatible with <paramref name="targetLanguage"/>.
         /// </summary>
-        /// <param name="baseDictionary">
-        /// Dictionary collection to be searched.
-        /// </param>
-        /// <param name="targetLanguage">
-        /// CultureInfo with which the used dictionary has to be compatible.
-        /// </param>
-        /// <param name="key">
-        /// Key to search for in available dictionarys.
+        /// <param name="baseDictionary">Dictionary collection to be searched.</param>
+        /// <param name="targetLanguage">CultureInfo with which the used dictionary has to be compatible.</param>
+        /// <param name="key">Key to search for in available dictionarys.</param>
+        /// <param name="inputlanguage">
+        /// The language the application was originally designed in. Used as a fallback.
         /// </param>
         /// <returns>
-        /// Translation for <paramref name="key"/> out of dictionary for <paramref name="targetLanguage"/>, its
+        /// Value for <paramref name="key"/> out of dictionary for <paramref name="targetLanguage"/>, its
         /// parent (usually same as two letter name), its two letter name (e.g. en for en-US), its patents two
-        /// letter version or null if no compatible dictionary can be found in <paramref name="baseDictionary"/>
+        /// letter name, <see cref="CultureInfo.InvariantCulture"/>, the <paramref name="inputlanguage"/> or
+        /// null if no compatible dictionary can be found in <paramref name="baseDictionary"/>
         /// (Dictionaries will be searched in this order).
         /// </returns>
         /// <exception cref="ArgumentNullException">
@@ -109,8 +106,10 @@ namespace Internationalization.Utilities
         /// <paramref name="key"/> is null.
         /// </exception>
         public static string GetLanguageDictValueOrDefault(
-            Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage, string key)
+            Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage, string key,
+            CultureInfo inputlanguage)
         {
+            //null checks.
             if (baseDictionary == null)
             {
                 var e = new ArgumentNullException(nameof(baseDictionary),
@@ -135,6 +134,7 @@ namespace Internationalization.Utilities
                 throw e;
             }
 
+            //searching baseDictionary.
             if (baseDictionary.ContainsKey(targetLanguage) && baseDictionary[targetLanguage].ContainsKey(key))
             {
                 return baseDictionary[targetLanguage][key];
@@ -158,6 +158,18 @@ namespace Internationalization.Utilities
                 return baseDictionary[twoLetterParent][key];
             }
 
+            if (baseDictionary.ContainsKey(CultureInfo.InvariantCulture) &&
+                baseDictionary[CultureInfo.InvariantCulture].ContainsKey(key))
+            {
+                return baseDictionary[CultureInfo.InvariantCulture][key];
+            }
+
+            if (baseDictionary.ContainsKey(inputlanguage) && baseDictionary[inputlanguage].ContainsKey(key))
+            {
+                return baseDictionary[inputlanguage][key];
+            }
+
+            //default.
             return null;
         }
     }

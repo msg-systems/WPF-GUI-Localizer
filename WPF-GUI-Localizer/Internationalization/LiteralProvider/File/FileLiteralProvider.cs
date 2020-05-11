@@ -196,7 +196,7 @@ namespace Internationalization.LiteralProvider.File
 
             var dictOfDicts = FileProviderInstance.GetDictionary();
 
-            var result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key);
+            var result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key, InputLanguage);
 
             if (result == null)
             {
