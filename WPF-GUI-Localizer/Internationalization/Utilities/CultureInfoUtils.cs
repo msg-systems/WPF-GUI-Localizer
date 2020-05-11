@@ -83,26 +83,33 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Finds the dictionary for <paramref name="targetLanguage"/>, its parent (usually same as two letter name), its two
-        /// letter name (e.g. en for en-US), its patents two letter version or returns null if no compatible dictionary
-        /// can be found in <paramref name="baseDictionary"/>.
+        /// Finds the translation entry out of <paramref name="baseDictionary"/> for <paramref name="targetLanguage"/>
+        /// and <paramref name="key"/>, if no entry is found for <paramref name="targetLanguage"/>, its parent
+        /// (usually same as two letter name), its two letter name (e.g. en for en-US) and its patents two letter
+        /// version are searched for <paramref name="key"/>. Returns default value (null) if no entry for
+        /// <paramref name="key"/> can be found in dictionarys campatible with <paramref name="targetLanguage"/>.
         /// </summary>
         /// <param name="baseDictionary">
         /// Dictionary collection to be searched.
         /// </param>
         /// <param name="targetLanguage">
-        /// CultureInfo with which the return dictionary has to be compatible.
+        /// CultureInfo with which the used dictionary has to be compatible.
+        /// </param>
+        /// <param name="key">
+        /// Key to search for in available dictionarys.
         /// </param>
         /// <returns>
-        /// Dictionary for <paramref name="targetLanguage"/>, its parent (usually same as two letter name), its two
-        /// letter name (e.g. en for en-US), its patents two letter version or null if no compatible dictionary
-        /// can be found in <paramref name="baseDictionary"/> (Dictionaries will be searched in this order).
+        /// Translation for <paramref name="key"/> out of dictionary for <paramref name="targetLanguage"/>, its
+        /// parent (usually same as two letter name), its two letter name (e.g. en for en-US), its patents two
+        /// letter version or null if no compatible dictionary can be found in <paramref name="baseDictionary"/>
+        /// (Dictionaries will be searched in this order).
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown if either <paramref name="baseDictionary"/> or <paramref name="targetLanguage"/> are null.
+        /// Thrown if either <paramref name="baseDictionary"/>, <paramref name="targetLanguage"/> or
+        /// <paramref name="key"/> is null.
         /// </exception>
-        public static Dictionary<string, string> TryGetLanguageDict(
-            Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage)
+        public static string GetLanguageDictValueOrDefault(
+            Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage, string key)
         {
             if (baseDictionary == null)
             {
@@ -120,27 +127,35 @@ namespace Internationalization.Utilities
                 throw e;
             }
 
-            if (baseDictionary.ContainsKey(targetLanguage))
+            if (key == null)
             {
-                return baseDictionary[targetLanguage];
+                var e = new ArgumentNullException(nameof(key),
+                    "Unable to pick translation for null key.");
+                Logger.Log(LogLevel.Error, e, "TryGetLanguageDict received null parameter.");
+                throw e;
+            }
+
+            if (baseDictionary.ContainsKey(targetLanguage) && baseDictionary[targetLanguage].ContainsKey(key))
+            {
+                return baseDictionary[targetLanguage][key];
             }
 
             var parentCultureInfo = targetLanguage.Parent;
-            if (baseDictionary.ContainsKey(parentCultureInfo))
+            if (baseDictionary.ContainsKey(parentCultureInfo) && baseDictionary[targetLanguage].ContainsKey(key))
             {
-                return baseDictionary[parentCultureInfo];
+                return baseDictionary[parentCultureInfo][key];
             }
 
             var twoLetterTarget = new CultureInfo(targetLanguage.TwoLetterISOLanguageName);
-            if (baseDictionary.ContainsKey(twoLetterTarget))
+            if (baseDictionary.ContainsKey(twoLetterTarget) && baseDictionary[targetLanguage].ContainsKey(key))
             {
-                return baseDictionary[twoLetterTarget];
+                return baseDictionary[twoLetterTarget][key];
             }
 
             var twoLetterParent = new CultureInfo(parentCultureInfo.TwoLetterISOLanguageName);
-            if (baseDictionary.ContainsKey(twoLetterParent))
+            if (baseDictionary.ContainsKey(twoLetterParent) && baseDictionary[targetLanguage].ContainsKey(key))
             {
-                return baseDictionary[twoLetterParent];
+                return baseDictionary[twoLetterParent][key];
             }
 
             return null;

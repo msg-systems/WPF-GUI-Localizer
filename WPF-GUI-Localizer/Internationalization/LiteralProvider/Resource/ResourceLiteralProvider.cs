@@ -227,17 +227,12 @@ namespace Internationalization.LiteralProvider.Resource
                 _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
             }
 
-            string translation = null;
-
-            CultureInfoUtil.TryGetLanguageDict(changes, language)?.TryGetValue(resourceKey, out translation);
+            string translation = CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey);
 
             if (translation != null) return translation;
 
             //if needed use translations from Resources.
-            var langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
-            langDict.TryGetValue(resourceKey, out translation);
-
-            return translation;
+            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey);
         }
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()

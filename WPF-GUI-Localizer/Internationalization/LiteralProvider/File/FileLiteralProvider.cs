@@ -192,19 +192,17 @@ namespace Internationalization.LiteralProvider.File
 
         private TextLocalization GetLiteral(CultureInfo language, string dialogName, string type, string elementName)
         {
-            string result = null;
             var key = CreateGuiDictionaryKey(dialogName, type, elementName);
 
             var dictOfDicts = FileProviderInstance.GetDictionary();
 
-            var langDict = CultureInfoUtil.TryGetLanguageDict(dictOfDicts, language);
-            langDict?.TryGetValue(key, out result);
+            var result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key);
 
             if (result == null)
             {
                 _logger.Log(LogLevel.Debug,
-                    "Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}' ({4} not found)",
-                    dialogName, type, elementName, language, langDict == null ? "language" : "key");
+                    "Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}'.",
+                    dialogName, type, elementName, language);
             }
             else
             {
