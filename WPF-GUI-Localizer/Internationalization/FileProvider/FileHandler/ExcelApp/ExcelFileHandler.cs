@@ -99,8 +99,11 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
         /// <summary>
         /// Clean up after BackgroundWorker finished.
-        /// Currently only logging.
+        /// Throws Exceptions, but cannot interupt main thread.
         /// </summary>
+        /// <exception cref="FileFormatException">
+        /// Thrown, if file at <see cref="Path"/> is not a valid Excel sheet.
+        /// </exception>
         public void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Cancelled)
@@ -109,7 +112,19 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             }
             else if (e.Error != null)
             {
-                _logger.Log(LogLevel.Error, e.Error, "Unknown error occurred during language file loading");
+                if (e.Error.HResult == -2146827284)
+                {
+                    var ex = new FileFormatException(new Uri(Path),
+                        "Expected Excel file format.", e.Error);
+                    _logger.Log(LogLevel.Error, ex,
+                        "File at given path may be corrupted or not have correct format. " +
+                        "Expected Excel sheet (.xlsx, .xls, ...).");
+                    throw ex;
+                }
+                else
+                {
+                    _logger.Log(LogLevel.Error, e.Error, "Unknown error occurred during language file loading.");
+                }
             }
             else
             {
