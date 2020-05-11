@@ -8,20 +8,16 @@ namespace Internationalization.FileProvider.FileHandler.Universal
     {
         private static ILogger _logger;
 
-        private readonly string _fileEnding;
-
-        public UniversalFileHandler(Type typeOfUser, string fileEnding)
+        public UniversalFileHandler(Type typeOfUser)
         {
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<UniversalFileHandler>();
-            _fileEnding = fileEnding;
 
             _logger.Log(LogLevel.Trace, $"Created FileHandler for {typeOfUser.Name}.");
         }
 
-        protected UniversalFileHandler(string typeOfUser, string fileEnding)
+        protected UniversalFileHandler(string typeOfUser)
         {
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<UniversalFileHandler>();
-            _fileEnding = fileEnding;
 
             _logger.Log(LogLevel.Trace, $"Created FileHandler for {typeOfUser}.");
         }
@@ -214,7 +210,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 }
 
                 //success.
-                _logger.Log(LogLevel.Information, $"Created directory for {_fileEnding} file ({fullPath}).");
+                _logger.Log(LogLevel.Information, $"Created directory for file ({fullPath}).");
             }
         }
 

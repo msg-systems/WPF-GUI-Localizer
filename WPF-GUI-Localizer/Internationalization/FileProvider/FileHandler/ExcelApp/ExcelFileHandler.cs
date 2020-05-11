@@ -30,7 +30,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         public string Path { get; set; }
 
         public ExcelFileHandler(Type typeOfUser, string glossaryTag)
-            : base($"({nameof(ExcelFileHandler)} for {typeOfUser.Name})", ".xlsx")
+            : base($"({nameof(ExcelFileHandler)} for {typeOfUser.Name})")
         {
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ExcelFileHandler>();
             _glossaryTag = glossaryTag;
