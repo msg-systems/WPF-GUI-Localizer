@@ -103,10 +103,13 @@ namespace Internationalization.FileProvider.Excel
 
             //start proper initialization.
             if(oldTranslationFilePath != null) {
-                _backupPath = _fileHandler.GetPathAndHandleProblems(oldTranslationFilePath);
+                _fileHandler.VerifyPath(oldTranslationFilePath);
+                _backupPath = oldTranslationFilePath;
             }
-            _path = _fileHandler.GetPathAndHandleProblems(translationFilePath);
+            _fileHandler.VerifyPath(translationFilePath);
+            _path = translationFilePath;
             _fileHandler.Path = _path;
+
             Initialize();
         }
 

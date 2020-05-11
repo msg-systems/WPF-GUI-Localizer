@@ -83,7 +83,8 @@ namespace Internationalization.FileProvider.JSON
             }
 
             //start proper initialization.
-            _path = _fileHandler.GetPathAndHandleProblems(translationFilePath);
+            _fileHandler.VerifyPath(translationFilePath);
+            _path = translationFilePath;
             Initialize();
         }
 

@@ -31,9 +31,6 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// Returns the given <paramref name="path"/> with the appropriate ending, if it was not present.
         /// </summary>
         /// <param name="path">The path that should </param>
-        /// <returns>
-        /// The given <paramref name="path"/> with the appropriate ending, if it was not present.
-        /// </returns>
         /// <exception cref="ArgumentException">
         /// Thrown, if <paramref name="path"/> contains only white space, includes
         /// unsupported characters or if the system fails to get the fully qualified
@@ -62,19 +59,13 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// <exception cref="FileNotFoundException">
         /// Thrown, if <paramref name="path"/> is a dictionary.
         /// </exception>
-        public string GetPathAndHandleProblems(string path)
+        public void VerifyPath(string path)
         {
-            if (!path.EndsWith(_fileEnding))
-            {
-                _logger.Log(LogLevel.Debug, $"Added '{_fileEnding}' to path ({path}).");
-                path += _fileEnding;
-            }
-
             var fullPath = GetFullPathWrapper(path);
 
             if (File.Exists(fullPath))
             {
-                return fullPath;
+                return;
             }
 
             if (Directory.Exists(fullPath))
@@ -87,8 +78,6 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             }
 
             CreateDirectoryWrapper(fullPath);
-
-            return path;
         }
 
         /// <summary>
@@ -232,7 +221,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// <summary>
         /// Handles Exception logging for the <see cref="File.ReadAllText(string)"/>
         /// function based on <paramref name="path"/>.
-        /// It is assumed that <see cref="GetPathAndHandleProblems"/> was called prior to
+        /// It is assumed that <see cref="VerifyPath"/> was called prior to
         /// this function and that no errors were thrown.
         /// </summary>
         /// <param name="path">
@@ -260,7 +249,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 fileContent = File.ReadAllText(path);
                 //uncaught Exceptions:
                 //ArgumentException, ArgumentNullException, PathTooLongException
-                //and NotSupportedException are not caught, because GetPathAndHandleProblems
+                //and NotSupportedException are not caught, because VerifyPath
                 //ran without errors and they can therefore not occur here.
             }
             catch (UnauthorizedAccessException e)
@@ -306,7 +295,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// <summary>
         /// Handles Exception logging for the <see cref="File.WriteAllText(string, string)"/>
         /// function based on <paramref name="path"/>.
-        /// It is assumed that <see cref="GetPathAndHandleProblems"/> was called prior to
+        /// It is assumed that <see cref="VerifyPath"/> was called prior to
         /// this function for the same value of <paramref name="path"/> and that no exceptions were thrown.
         /// </summary>
         /// <param name="fileContent">
@@ -333,7 +322,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 File.WriteAllText(path, fileContent);
                 //uncaught Exceptions:
                 //ArgumentException, ArgumentNullException, PathTooLongException
-                //and NotSupportedException are not caught, because GetPathAndHandleProblems
+                //and NotSupportedException are not caught, because VerifyPath
                 //ran without errors and they can therefore not occur here.
             }
             catch (UnauthorizedAccessException e)
@@ -375,7 +364,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// function based on the given parameters.
         /// <see cref="File.Copy(string, string, bool)"/> is only invoked, if no file is present
         /// at <paramref name="toPath"/>.
-        /// It is assumed that <see cref="GetPathAndHandleProblems"/> was called prior to
+        /// It is assumed that <see cref="VerifyPath"/> was called prior to
         /// this function for the value of <paramref name="fromPath"/> and <paramref name="toPath"/>
         /// and that no exceptions were thrown.
         /// </summary>
@@ -392,7 +381,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                     File.Copy(fromFullPath, toFullPath);
                     //uncaught Exceptions:
                     //ArgumentException, ArgumentNullException, PathTooLongException
-                    //and NotSupportedException because GetPathAndHandleProblems
+                    //and NotSupportedException because VerifyPath
                     //ran without errors and they can therefore not occur here.
                 }
                 catch (UnauthorizedAccessException e)

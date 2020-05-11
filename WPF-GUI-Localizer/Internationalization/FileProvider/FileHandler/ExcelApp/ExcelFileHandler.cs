@@ -22,9 +22,9 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
         /// <summary>
         /// The path of the excel table.
-        /// It is not assumed that the <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> function
+        /// It is not assumed that the <see cref="UniversalFileHandler.VerifyPath"/> function
         /// was called previously.
-        /// <see cref="UniversalFileHandler.GetPathAndHandleProblems"/> will automatically be called, if
+        /// <see cref="UniversalFileHandler.VerifyPath"/> will automatically be called, if
         /// <see cref="Path"/> is used.
         /// </summary>
         public string Path { get; set; }
@@ -94,7 +94,8 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
             _logger.Log(LogLevel.Trace, "LoadExcelLanguageFileAsync functions was called by BackgroundWorker.");
 
-            LoadExcelLanguageFileAsyncInternal(bw, e);
+            VerifyPath(Path);
+            LoadExcelLanguageFileAsyncInternal(bw, e, Path);
         }
 
         /// <summary>
@@ -144,18 +145,17 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         /// </param>
         public void ExcelWriteActions(Dictionary<CultureInfo, Dictionary<string, string>> translationsDictionary)
         {
-            string path = GetPathAndHandleProblems(Path);
             FileCreationType fcType;
 
             if (translationsDictionary == null || translationsDictionary.Count == 0)
             {
                 fcType = FileCreationType.CreateEmptyFile;
             }
-            else if (File.Exists(System.IO.Path.GetFullPath(path)))
+            else if (File.Exists(System.IO.Path.GetFullPath(Path)))
             {
                 fcType = FileCreationType.UpdateExistingFile;
             }
-            else if (!Directory.Exists(System.IO.Path.GetFullPath(path)))
+            else if (!Directory.Exists(System.IO.Path.GetFullPath(Path)))
             {
                 fcType = FileCreationType.CreateNewFile;
             }
@@ -168,34 +168,34 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             {
                 case FileCreationType.UpdateExistingFile:
                     _logger.Log(LogLevel.Trace,
-                        $"Existing translation file will be updated ({System.IO.Path.GetFullPath(path)}).");
+                        $"Existing translation file will be updated ({System.IO.Path.GetFullPath(Path)}).");
 
                     break;
                 case FileCreationType.CreateNewFile:
                     _logger.Log(LogLevel.Information,
-                        $"Unable to find language file ({System.IO.Path.GetFullPath(path)}). A new one will be created.");
+                        $"Unable to find language file ({System.IO.Path.GetFullPath(Path)}). A new one will be created.");
 
                     break;
                 case FileCreationType.CreateEmptyFile:
-                    _logger.Log(LogLevel.Trace, $"New empty file will be created ({System.IO.Path.GetFullPath(path)}).");
+                    _logger.Log(LogLevel.Trace, $"New empty file will be created ({System.IO.Path.GetFullPath(Path)}).");
 
                     break;
                 default:
                     _logger.Log(LogLevel.Debug,
                         $"No files will be updated for given FileCreationType #{fcType} "
-                        + $"({System.IO.Path.GetFullPath(path)}).");
+                        + $"({System.IO.Path.GetFullPath(Path)}).");
 
                     //no further processing needed.
                     return;
             }
 
-            CreateExelFileBasedOnCreationType(fcType, translationsDictionary, path);
+            VerifyPath(Path);
+            CreateExelFileBasedOnCreationType(fcType, translationsDictionary, Path);
         }
 
-        private void LoadExcelLanguageFileAsyncInternal(BackgroundWorker bw, DoWorkEventArgs e)
+        private void LoadExcelLanguageFileAsyncInternal(BackgroundWorker bw, DoWorkEventArgs e, string path)
         {
             //set up everything for ReadWorksheetTranslations.
-            string path = GetPathAndHandleProblems(Path);
             var excel = new ExcelInterop.Application();
             var workbook = excel.Workbooks.Open(System.IO.Path.GetFullPath(path));
             var resultDict = new Dictionary<CultureInfo, Dictionary<string, string>>();
