@@ -31,9 +31,7 @@ namespace Internationalization.FileProvider.Excel
 
         //0: initialization is not yet started or completed.
         //1: initialization is already started and running.
-        private int _isInitializing;
         private BackgroundWorker _backgroundWorker;
-        private int _numKeyParts;
         private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
@@ -189,7 +187,6 @@ namespace Internationalization.FileProvider.Excel
             if (Status == ProviderStatus.Empty)
             {
                 _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
-                _numKeyParts = key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys).Length;
                 _fileHandler.ExcelWriteActions(_dictOfDicts);
 
                 Status = ProviderStatus.Initialized;
@@ -284,8 +281,6 @@ namespace Internationalization.FileProvider.Excel
         /// </summary>
         private void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            Interlocked.Exchange(ref _isInitializing, 0);
-
             if (Status == ProviderStatus.CancellationInProgress)
             {
                 Status = ProviderStatus.CancellationComplete;
@@ -340,8 +335,7 @@ namespace Internationalization.FileProvider.Excel
             }
 
             //setting up BackgroundWorker.
-            if (Status == ProviderStatus.InitializationInProgress &&
-                Interlocked.Exchange(ref _isInitializing, 1) == 0)
+            if (Status == ProviderStatus.InitializationInProgress)
             {
 
                 if (File.Exists(_path))

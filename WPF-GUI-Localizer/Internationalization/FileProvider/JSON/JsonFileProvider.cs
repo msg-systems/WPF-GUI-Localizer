@@ -72,7 +72,7 @@ namespace Internationalization.FileProvider.JSON
             //easy initializations.
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<JsonFileProvider>();
             _logger.Log(LogLevel.Trace, "Initializing JsonFileProvider.");
-            _fileHandler = new UniversalFileHandler(typeof(JsonFileProvider), ".json");
+            _fileHandler = new UniversalFileHandler(typeof(JsonFileProvider));
 
             //null check.
             if (translationFilePath == null)
