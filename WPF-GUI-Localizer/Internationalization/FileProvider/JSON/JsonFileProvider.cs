@@ -172,7 +172,7 @@ namespace Internationalization.FileProvider.JSON
                 //cancelation identical to Initialization.
                 Status = ProviderStatus.CancellationInProgress;
                 _logger.Log(LogLevel.Trace,
-                    "JsonFileProvider is now in the process of cancelling its initialization");
+                    "JsonFileProvider is now in the process of cancelling its initialization.");
             }
         }
 
@@ -184,26 +184,27 @@ namespace Internationalization.FileProvider.JSON
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
-            if (Status == ProviderStatus.Empty)
+            switch (Status)
             {
-                var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
+                case ProviderStatus.Empty:
                 {
-                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
-                };
+                    var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
+                    {
+                        { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                    };
 
-                return minimalDict;
+                    return minimalDict;
+                }
+                case ProviderStatus.Initialized:
+                    return _dictOfDicts;
+                default:
+                    //JsonFileProvider is still initializing, cancelling or cancelled.
+                    var e = new FileProviderNotInitializedException(
+                        "Dictionary was accessed, without JsonFileProvider being initialized.");
+                    _logger.Log(LogLevel.Error, e,
+                        "Dictionary was accessed, without JsonFileProvider being initialized.");
+                    throw e;
             }
-            if (Status == ProviderStatus.Initialized)
-            {
-                return _dictOfDicts;
-            }
-
-            //JsonFileProvider is still initializing, cancelling or cancelled.
-            var e = new FileProviderNotInitializedException(
-                "Dictionary was accessed, without JsonFileProvider being initialized.");
-            _logger.Log(LogLevel.Error, e,
-                "Dictionary was accessed, without JsonFileProvider being initialized.");
-            throw e;
         }
 
         /// <summary>

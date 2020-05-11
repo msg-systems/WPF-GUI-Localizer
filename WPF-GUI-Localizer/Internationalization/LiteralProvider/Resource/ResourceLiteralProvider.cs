@@ -188,7 +188,7 @@ namespace Internationalization.LiteralProvider.Resource
         {
             var translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
 
-            return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
+            return translation ?? "<<empty>>";
         }
 
         protected override void CancelInitialization()
@@ -237,7 +237,7 @@ namespace Internationalization.LiteralProvider.Resource
             var langDict = CultureInfoUtil.TryGetLanguageDict(_dictOfDicts, language);
             langDict.TryGetValue(resourceKey, out translation);
 
-            return translation ?? string.Empty;
+            return translation;
         }
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()
