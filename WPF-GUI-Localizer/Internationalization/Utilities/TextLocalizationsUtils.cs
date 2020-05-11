@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using Internationalization.Exception;
 using Internationalization.Model;
 using Microsoft.Extensions.Logging;
@@ -77,7 +76,7 @@ namespace Internationalization.Utilities
             {
                 //the list of TextLocalizations has to contain at least the InputLanguage.
                 var e = new InputLanguageNotFoundException("InputLanguage is not part of languages collection.");
-                Logger.Log(LogLevel.Error, "Unable to generate translation recommendations for Localizaions " +
+                Logger.Log(LogLevel.Error, e, "Unable to generate translation recommendations for Localizaions " +
                                            "without InputLanguage.");
                 throw e;
             }
@@ -147,7 +146,7 @@ namespace Internationalization.Utilities
             {
                 //the list of TextLocalizations has to contain at least the InputLanguage.
                 var e = new InputLanguageNotFoundException("InputLanguage is not part of languages collection.");
-                Logger.Log(LogLevel.Error, "Unable to generate translation recommendations for Localizaions " +
+                Logger.Log(LogLevel.Error, e, "Unable to generate translation recommendations for Localizaions " +
                                            "without InputLanguage.");
                 throw e;
             }

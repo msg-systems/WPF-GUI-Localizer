@@ -39,7 +39,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         {
             if (!CorrectElementWasClicked(ref sender, e))
             {
-                Logger.Log(LogLevel.Trace, "Click event was ignored, because the part of the " +
+                Logger.Log(LogLevel.Debug, "Click event was ignored, because the part of the " +
                                            "element that was clicked is not translateable.");
                 return;
             }
@@ -49,7 +49,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
                 AbstractLiteralProvider.Instance.GetGuiTranslation((FrameworkElement) sender);
             if (localizedTexts == null)
             {
-                Logger.Log(LogLevel.Trace, "Click event was ignored, because no translations were found.");
+                Logger.Log(LogLevel.Debug, "Click event was ignored, because no translations were found.");
                 return;
             }
 
@@ -58,15 +58,15 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
             //event from being handled further (to other elements the sender element was
             //nested inside of).
             e.Handled = true;
-            Logger.Log(LogLevel.Trace, "Click event activated. Will be handled.");
+            Logger.Log(LogLevel.Debug, "Click event activated. Will be handled.");
 
             if (!LetUserModifyLocalizations(ref localizedTexts))
             {
-                Logger.Log(LogLevel.Trace, "Editing of localized Texts aborted by user.");
+                Logger.Log(LogLevel.Debug, "Editing of localized Texts aborted by user.");
                 return;
             }
             AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement) sender, localizedTexts);
-            Logger.Log(LogLevel.Trace, "Edited localized texts saved in LiteralProvider.");
+            Logger.Log(LogLevel.Debug, "Edited localized texts saved in LiteralProvider.");
 
             //activate GuiTranslator, depending on GlobalSettings.
             RunTranslator(sender);
@@ -169,21 +169,21 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
                     {
                         GuiTranslator.TranslateGui(
                             LogicalTreeUtils.GetDataGridParent(asColumnHeader.Column));
-                        Logger.Log(LogLevel.Trace, "Translation of DataGridColumn successfully updated.");
+                        Logger.Log(LogLevel.Debug, "Translation of DataGridColumn successfully updated.");
                     }
                     catch
                     {
-                        Logger.Log(LogLevel.Information,
+                        Logger.Log(LogLevel.Debug,
                             "Unable to update new translation for DataGrid in GUI.");
                     }
                     break;
                 case FrameworkElement asFrameworkElement:
                     GuiTranslator.TranslateGui(asFrameworkElement);
-                    Logger.Log(LogLevel.Trace, "Translation of element successfully updated.");
+                    Logger.Log(LogLevel.Debug, "Translation of element successfully updated.");
                     break;
                 default:
                     //no action, if GuiTranslator in unable to translate objectToBeTranslated.
-                    Logger.Log(LogLevel.Information, "Translation of element was not successfully updated, " +
+                    Logger.Log(LogLevel.Debug, "Translation of element was not successfully updated, " +
                                                      "because it is not a Framework element.");
                     break;
             }

@@ -110,7 +110,7 @@ namespace Internationalization.FileProvider.JSON
 
             _fileHandler.WriteAllTextWrapper(JsonConvert.SerializeObject(_dictOfDicts), _path);
 
-            _logger.Log(LogLevel.Trace, "Dictionary was saved without errors.");
+            _logger.Log(LogLevel.Debug, "Dictionary was saved without errors.");
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Internationalization.FileProvider.JSON
             if (key == null)
             {
                 var e = new ArgumentNullException(nameof(key), "Key received in Update call is null.");
-                _logger.Log(LogLevel.Warning, e, "Unable to update dictionary for null key.");
+                _logger.Log(LogLevel.Error, e, "Unable to update dictionary for null key.");
                 throw e;
             }
             if (texts == null)
@@ -162,16 +162,20 @@ namespace Internationalization.FileProvider.JSON
                 SaveDictionary();
 
                 Status = ProviderStatus.Initialized;
+                _logger.Log(LogLevel.Information,
+                    "Finished Updating. ExcelFileProvider is now in State Initialized.");
             }
         }
 
         public void CancelInitialization()
         {
+            _logger.Log(LogLevel.Trace,
+                "CancelInitialization function was called.");
             if (Status == ProviderStatus.InitializationInProgress)
             {
                 //cancelation identical to Initialization.
                 Status = ProviderStatus.CancellationInProgress;
-                _logger.Log(LogLevel.Trace,
+                _logger.Log(LogLevel.Debug,
                     "JsonFileProvider is now in the process of cancelling its initialization.");
             }
         }
@@ -232,20 +236,20 @@ namespace Internationalization.FileProvider.JSON
 
             if (File.Exists(_path))
             {
-                _logger.Log(LogLevel.Trace, $"Langauge file is present ({Path.GetFullPath(_path)}).");
+                _logger.Log(LogLevel.Debug, $"Langauge file is present ({Path.GetFullPath(_path)}).");
 
                 fileContent = _fileHandler.ReadAllTextWrapper(_path);
 
                 if ("null".Equals(fileContent))
                 {
-                    _logger.Log(LogLevel.Information,
+                    _logger.Log(LogLevel.Debug,
                         "File had content 'null', will be treated as empty dictionary.");
                     fileContent = "{}";
                 }
             }
             else
             {
-                _logger.Log(LogLevel.Trace, $"No language file present ({Path.GetFullPath(_path)}).");
+                _logger.Log(LogLevel.Debug, $"No language file present ({Path.GetFullPath(_path)}).");
 
                 //identical to "JsonConvert.SerializeObject(new Dictionary<CultureInfo, Dictionary<string, string>>())".
                 fileContent = "{}";
@@ -263,24 +267,24 @@ namespace Internationalization.FileProvider.JSON
                 case ProviderStatus.CancellationInProgress:
                     //cancelation identical to Initialization.
                     Status = ProviderStatus.CancellationComplete;
-                    _logger.Log(LogLevel.Trace,
+                    _logger.Log(LogLevel.Information,
                         "Finished cancellation. JsonFileProvider is now in State CancellationComplete.");
 
                     break;
                 case ProviderStatus.InitializationInProgress when noData:
                     Status = ProviderStatus.Empty;
-                    _logger.Log(LogLevel.Trace, "Was unable to collect information from file. " +
-                                                "JsonFileProvider is now in State CancellationComplete.");
+                    _logger.Log(LogLevel.Information, "Was unable to collect information from file. " +
+                                                "JsonFileProvider is now in State Empty.");
 
                     break;
                 case ProviderStatus.InitializationInProgress:
                     Status = ProviderStatus.Initialized;
-                    _logger.Log(LogLevel.Trace, 
+                    _logger.Log(LogLevel.Information, 
                         "Finished initialization. ExcelFileProvider is now in State Initialized.");
 
                     break;
                 default:
-                    _logger.Log(LogLevel.Debug, $"Initialization finished in State #{Status}.");
+                    _logger.Log(LogLevel.Information, $"Initialization finished in State #{Status}.");
 
                     break;
             }
@@ -312,18 +316,18 @@ namespace Internationalization.FileProvider.JSON
                 {
                     langDict = new Dictionary<string, string>();
                     _dictOfDicts.Add(textLocalization.Language, langDict);
-                    _logger.Log(LogLevel.Trace,
+                    _logger.Log(LogLevel.Information,
                         $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
                 }
 
                 if (langDict.ContainsKey(key))
                 {
                     langDict.Remove(key);
-                    _logger.Log(LogLevel.Trace, "Updated existing entry for given value.");
+                    _logger.Log(LogLevel.Debug, "Updated existing entry for given value.");
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Trace, "Created new entry for given value.");
+                    _logger.Log(LogLevel.Debug, "Created new entry for given value.");
                 }
 
                 langDict.Add(key, textLocalization.Text);

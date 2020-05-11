@@ -170,11 +170,11 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             if (directory == null)
             {
                 //directory can only be null, if directry is a root directory.
-                _logger.Log(LogLevel.Trace, "Given path is a root directory. No directory will be created.");
+                _logger.Log(LogLevel.Debug, "Given path is a root directory. No directory will be created.");
             }
             else if (string.IsNullOrWhiteSpace(directory))
             {
-                _logger.Log(LogLevel.Trace, "Given path does not contain directory information. " +
+                _logger.Log(LogLevel.Debug, "Given path does not contain directory information. " +
                                             "No directory will be created.");
             }
             else
@@ -210,7 +210,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 }
 
                 //success.
-                _logger.Log(LogLevel.Information, $"Created directory for file ({fullPath}).");
+                _logger.Log(LogLevel.Debug, $"Created directory for file ({fullPath}).");
             }
         }
 
@@ -408,7 +408,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             }
             else
             {
-                _logger.Log(LogLevel.Trace, "Backup file already created, No new backup was made.");
+                _logger.Log(LogLevel.Debug, "Backup file already created, No new backup was made.");
             }
         }
     }

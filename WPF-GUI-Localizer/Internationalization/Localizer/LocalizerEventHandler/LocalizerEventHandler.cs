@@ -30,19 +30,19 @@ namespace Internationalization.Localizer.LocalizerEventHandler
         /// </param>
         private static void ManageLocalizationEvents(DependencyObject parent, bool isActive, bool calledByLoaded)
         {
-            Logger.Log(LogLevel.Trace, "Localizer will be {0} to View (of type {1})",
-                isActive ? "attached" : "detached", parent.DependencyObjectType.Name);
+            Logger.Log(LogLevel.Debug, "Localizer will be {0} View (of type {1})",
+                isActive ? "attached to" : "detached from", parent.DependencyObjectType.Name);
 
             //make sure views don't get initialized multiple times.
             if (calledByLoaded)
             {
                 var parentFrameworkElement = (FrameworkElement) parent;
                 parentFrameworkElement.Loaded -= ElementInitialized;
-                Logger.Log(LogLevel.Trace, "Event handler was removed from Loaded-Event.");
+                Logger.Log(LogLevel.Debug, "Event handler was removed from Loaded-Event.");
             }
             else
             {
-                Logger.Log(LogLevel.Trace, "Event handler was not removed from Loaded-Event.");
+                Logger.Log(LogLevel.Debug, "Event handler was not removed from Loaded-Event.");
             }
 
             var supportedElements = new List<FrameworkElement>();
@@ -66,14 +66,14 @@ namespace Internationalization.Localizer.LocalizerEventHandler
             {
                 foreach (var element in supportedElements)
                     element.MouseRightButtonUp += LocalizerDialogHandler.LocalizerDialogHandler.OpenLocalizationDialog;
-                Logger.Log(LogLevel.Trace, "Localizer was successfully attached to {0} elements.",
+                Logger.Log(LogLevel.Debug, "Localizer was successfully attached to {0} elements.",
                     supportedElements.Count);
             }
             else
             {
                 foreach (var element in supportedElements)
                     element.MouseRightButtonUp -= LocalizerDialogHandler.LocalizerDialogHandler.OpenLocalizationDialog;
-                Logger.Log(LogLevel.Trace, "Localizer was successfully detached from {0} elements.",
+                Logger.Log(LogLevel.Debug, "Localizer was successfully detached from {0} elements.",
                     supportedElements.Count);
             }
         }

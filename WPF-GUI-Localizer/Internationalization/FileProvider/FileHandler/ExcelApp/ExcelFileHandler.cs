@@ -109,7 +109,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         {
             if (e.Cancelled)
             {
-                _logger.Log(LogLevel.Trace, "Loading of the language file was stoped.");
+                _logger.Log(LogLevel.Debug, "Loading of the language file was stoped.");
             }
             else if (e.Error != null)
             {
@@ -129,7 +129,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             }
             else
             {
-                _logger.Log(LogLevel.Trace, "BackgroundWorker successfully finished loading the language file.");
+                _logger.Log(LogLevel.Debug, "BackgroundWorker successfully finished loading the language file.");
             }
         }
 
@@ -167,7 +167,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             switch (fcType)
             {
                 case FileCreationType.UpdateExistingFile:
-                    _logger.Log(LogLevel.Trace,
+                    _logger.Log(LogLevel.Debug,
                         $"Existing translation file will be updated ({System.IO.Path.GetFullPath(Path)}).");
 
                     break;
@@ -177,7 +177,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
                     break;
                 case FileCreationType.CreateEmptyFile:
-                    _logger.Log(LogLevel.Trace, $"New empty file will be created ({System.IO.Path.GetFullPath(Path)}).");
+                    _logger.Log(LogLevel.Debug, $"New empty file will be created ({System.IO.Path.GetFullPath(Path)}).");
 
                     break;
                 default:
@@ -204,13 +204,13 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             {
                 if (!bw.CancellationPending)
                 {
-                    _logger.Log(LogLevel.Trace, "Reading excel file not aborted.");
+                    _logger.Log(LogLevel.Debug, "Reading excel file not aborted.");
                     var worksheet = (ExcelInterop.Worksheet) workbook.Worksheets[1];
                     resultDict = ReadWorksheetTranslations(worksheet);
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Information, "Reading excel file was aborted.");
+                    _logger.Log(LogLevel.Debug, "Reading excel file was aborted.");
                 }
             }
             finally
@@ -241,7 +241,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             //logging.
             _logger.Log(LogLevel.Debug,
                 $"Found {numKeyParts} columns for key parts and {maxColumn - numKeyParts} language columns.");
-            _logger.Log(LogLevel.Trace, "Now reading rows from excel sheet.");
+            _logger.Log(LogLevel.Debug, "Now reading rows from excel sheet.");
 
             //reading rows.
             while (row <= maxRow && values[row, 1] != null)

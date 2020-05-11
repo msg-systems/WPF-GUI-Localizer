@@ -158,7 +158,7 @@ namespace Internationalization.FileProvider.Excel
             if (key == null)
             {
                 var e = new ArgumentNullException(nameof(key), @"Key received in Update call is null.");
-                _logger.Log(LogLevel.Warning, e, "Unable to update dictionary for null key.");
+                _logger.Log(LogLevel.Error, e, "Unable to update dictionary for null key.");
                 throw e;
             }
             if (texts == null)
@@ -190,12 +190,12 @@ namespace Internationalization.FileProvider.Excel
                 _fileHandler.ExcelWriteActions(_dictOfDicts);
 
                 Status = ProviderStatus.Initialized;
-                _logger.Log(LogLevel.Trace, "Finished updating dictionary. " +
+                _logger.Log(LogLevel.Information, "Finished updating dictionary. " +
                                             "ExcelFileProvider is now in State Initialized.");
             }
             else
             {
-                _logger.Log(LogLevel.Trace, "Finished updating dictionary.");
+                _logger.Log(LogLevel.Debug, "Finished updating dictionary.");
             }
         }
 
@@ -208,7 +208,7 @@ namespace Internationalization.FileProvider.Excel
 
             _fileHandler.ExcelWriteActions(_dictOfDicts);
 
-            _logger.Log(LogLevel.Trace, "Dictionary was saved without errors.");
+            _logger.Log(LogLevel.Debug, "Dictionary was saved without errors.");
         }
 
 
@@ -222,7 +222,7 @@ namespace Internationalization.FileProvider.Excel
             if (_backgroundWorker.IsBusy)
             {
                 Status = ProviderStatus.CancellationInProgress;
-                _logger.Log(LogLevel.Trace, "Cancellation started.");
+                _logger.Log(LogLevel.Debug, "Cancellation started.");
                 _backgroundWorker.CancelAsync();
             }
         }
@@ -254,18 +254,18 @@ namespace Internationalization.FileProvider.Excel
                 {
                     langDict = new Dictionary<string, string>();
                     _dictOfDicts.Add(textLocalization.Language, langDict);
-                    _logger.Log(LogLevel.Trace,
+                    _logger.Log(LogLevel.Information,
                         $"New language dictionary was created for {textLocalization.Language.EnglishName}.");
                 }
 
                 if (langDict.ContainsKey(key))
                 {
                     langDict.Remove(key);
-                    _logger.Log(LogLevel.Trace, "Updated existing entry for given value.");
+                    _logger.Log(LogLevel.Debug, "Updated existing entry for given value.");
                 }
                 else
                 {
-                    _logger.Log(LogLevel.Trace, "Created new entry for given value.");
+                    _logger.Log(LogLevel.Debug, "Created new entry for given value.");
                 }
 
                 langDict.Add(key, textLocalization.Text);
@@ -284,7 +284,7 @@ namespace Internationalization.FileProvider.Excel
             if (Status == ProviderStatus.CancellationInProgress)
             {
                 Status = ProviderStatus.CancellationComplete;
-                _logger.Log(LogLevel.Trace,
+                _logger.Log(LogLevel.Information,
                     "Finished cancellation. ExcelFileProvider is now in State CancellationComplete.");
 
                 return;
@@ -293,7 +293,7 @@ namespace Internationalization.FileProvider.Excel
             if (e.Error != null)
             {
                 Status = ProviderStatus.Empty;
-                _logger.Log(LogLevel.Trace,
+                _logger.Log(LogLevel.Information,
                     $"Finished initialization with {e.Error.GetType()} ({e.Error.Message}). " +
                     "ExcelFileProvider is now in State Empty.");
 
@@ -306,17 +306,17 @@ namespace Internationalization.FileProvider.Excel
             if (_dictOfDicts == null || _dictOfDicts.Count == 0)
             {
                 Status = ProviderStatus.Empty;
-                _logger.Log(LogLevel.Trace, "Was unable to collect information from file. " +
+                _logger.Log(LogLevel.Information, "Was unable to collect information from file. " +
                                             "ExcelFileProvider is now in State Empty.");
             }
             else
             {
                 Status = ProviderStatus.Initialized;
-                _logger.Log(LogLevel.Trace,
+                _logger.Log(LogLevel.Information,
                     "Finished initialization. ExcelFileProvider is now in State Initialized.");
             }
 
-            _logger.Log(LogLevel.Debug, $"Initialization finished in State #{Status}.");
+            _logger.Log(LogLevel.Information, $"Initialization finished in State #{Status}.");
         }
 
         private void Initialize()
@@ -327,7 +327,7 @@ namespace Internationalization.FileProvider.Excel
             //creating backup.
             if (_backupPath == null)
             {
-                _logger.Log(LogLevel.Trace, "No backup file will be created.");
+                _logger.Log(LogLevel.Debug, "No backup file will be created.");
             }
             else
             {
@@ -335,34 +335,26 @@ namespace Internationalization.FileProvider.Excel
             }
 
             //setting up BackgroundWorker.
-            if (Status == ProviderStatus.InitializationInProgress)
+            if (File.Exists(_path))
             {
+                _backgroundWorker = new BackgroundWorker();
+                _backgroundWorker.DoWork += _fileHandler.LoadExcelLanguageFileAsync;
+                _backgroundWorker.RunWorkerCompleted += _fileHandler.LoadExcelLanguageFileAsyncCompleted;
+                _backgroundWorker.RunWorkerCompleted += LoadExcelLanguageFileAsyncCompleted;
+                _backgroundWorker.WorkerSupportsCancellation = true;
 
-                if (File.Exists(_path))
-                {
-                    _backgroundWorker = new BackgroundWorker();
-                    _backgroundWorker.DoWork += _fileHandler.LoadExcelLanguageFileAsync;
-                    _backgroundWorker.RunWorkerCompleted += _fileHandler.LoadExcelLanguageFileAsyncCompleted;
-                    _backgroundWorker.RunWorkerCompleted += LoadExcelLanguageFileAsyncCompleted;
-                    _backgroundWorker.WorkerSupportsCancellation = true;
-
-                    _logger.Log(LogLevel.Trace, "Starting BackgroundWorker.");
-                    _backgroundWorker.RunWorkerAsync();
-                }
-                else
-                {
-                    _logger.Log(LogLevel.Debug,
-                        $"Unable to find language file ({Path.GetFullPath(_path)}).");
-
-                    _fileHandler.ExcelWriteActions(null);
-
-                    Status = ProviderStatus.Empty;
-                    _logger.Log(LogLevel.Trace, "Ended new excel file creation.");
-                }
+                _logger.Log(LogLevel.Debug, "Starting BackgroundWorker.");
+                _backgroundWorker.RunWorkerAsync();
             }
             else
             {
-                _logger.Log(LogLevel.Information, "Initialize function was called again before finishing.");
+                _logger.Log(LogLevel.Debug,
+                    $"Unable to find language file ({Path.GetFullPath(_path)}).");
+
+                _fileHandler.ExcelWriteActions(null);
+
+                Status = ProviderStatus.Empty;
+                _logger.Log(LogLevel.Debug, "Ended new excel file creation.");
             }
         }
     }

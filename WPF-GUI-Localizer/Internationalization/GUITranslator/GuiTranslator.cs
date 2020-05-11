@@ -124,7 +124,7 @@ namespace Internationalization.GUITranslator
                     checkBox.Content = guiString;
                     break;
                 default:
-                    Logger.Log(LogLevel.Information, $"Unable to translate unkown type ({visual.GetType()}) "
+                    Logger.Log(LogLevel.Debug, $"Unable to translate unkown type ({visual.GetType()}) "
                                                      + $"with not null translation ({guiString}).");
                     break;
             }
