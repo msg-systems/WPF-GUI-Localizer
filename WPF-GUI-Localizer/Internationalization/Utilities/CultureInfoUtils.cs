@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
 {
     public static class CultureInfoUtil
     {
+        private static readonly ILogger Logger;
+
+        static CultureInfoUtil()
+        {
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(CultureInfoUtil));
+        }
+
         /// <summary>Returns the CultureInfo object corresponding to language code given</summary>
         /// <param name="cultureName">String representation of CultureInfo as language tag.</param>
         /// <param name="onlyBracketsAtEndOfString">
@@ -20,17 +28,20 @@ namespace Internationalization.Utilities
         {
             if (cultureName == null)
             {
-                //TODO logging
-                throw new ArgumentNullException(nameof(cultureName),
+                var e = new ArgumentNullException(nameof(cultureName),
                     "Unable to generate CultureInfo object from null sting.");
+                Logger.Log(LogLevel.Error, e, "GetCultureInfo received null parameter.");
+                throw e;
             }
 
             var culture = GetCultureInfoOrDefault(cultureName, onlyBracketsAtEndOfString);
 
-            if(culture == null)
+            if (culture == null)
             {
-                throw new CultureNotFoundException(
+                var e = new CultureNotFoundException(
                     $"Unable to generate CultureInfo object form string ({cultureName}).");
+                Logger.Log(LogLevel.Error, e, "GetCultureInfo received null parameter.");
+                throw e;
             }
 
             return culture;
@@ -95,12 +106,18 @@ namespace Internationalization.Utilities
         {
             if (baseDictionary == null)
             {
-                throw new ArgumentNullException(nameof(baseDictionary), "Unable to pick dictionary out of null dictionary.");
+                var e = new ArgumentNullException(nameof(baseDictionary),
+                    "Unable to pick dictionary out of null dictionary.");
+                Logger.Log(LogLevel.Error, e, "TryGetLanguageDict received null parameter.");
+                throw e;
             }
 
             if (targetLanguage == null)
             {
-                throw new ArgumentNullException(nameof(baseDictionary), "Unable to pick dictionary for null culture.");
+                var e = new ArgumentNullException(nameof(baseDictionary),
+                    "Unable to pick dictionary for null culture.");
+                Logger.Log(LogLevel.Error, e, "TryGetLanguageDict received null parameter.");
+                throw e;
             }
 
             if (baseDictionary.ContainsKey(targetLanguage))

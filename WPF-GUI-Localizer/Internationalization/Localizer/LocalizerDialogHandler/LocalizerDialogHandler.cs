@@ -32,7 +32,7 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         /// </summary>
         /// <param name="sender">GUI-element, whose translations are ment to be updated.</param>
         /// <param name="e">
-        /// Event Parameter / Info (used for edge cases and to prevent this function from
+        /// Event parameter / info (used for edge cases and to prevent this function from
         /// being called multiple times from nested GUI-Elements).
         /// </param>
         public static void OpenLocalizationDialog(object sender, MouseButtonEventArgs e)

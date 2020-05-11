@@ -29,7 +29,7 @@ namespace Internationalization.AttachedProperties
         /// Deactivate, when it has been deactivated.
         /// </summary>
         /// <param name="d">The element (typically: View or Window), which the Localizer is attached to.</param>
-        /// <param name="e">Event Parameter / Info (used for access to new value).</param>
+        /// <param name="e">Event parameter / info (used for access to new value).</param>
         private static void IsActiveChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             //isActive will also be false if Property is anything other than true, false.

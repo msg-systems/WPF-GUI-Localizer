@@ -49,7 +49,7 @@ namespace Internationalization.Utilities
             {
                 var e = new ArgumentNullException(nameof(targetLanguage),
                     "Unable to extract known translation for null target language.");
-                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null Parameter.");
+                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null parameter.");
 
                 throw e;
             }
@@ -57,7 +57,7 @@ namespace Internationalization.Utilities
             {
                 var e = new ArgumentNullException(nameof(inputLanguage),
                     "Unable to extract known translation for null input language.");
-                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null Parameter.");
+                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null parameter.");
 
                 throw e;
             }
@@ -65,7 +65,7 @@ namespace Internationalization.Utilities
             {
                 var e = new ArgumentNullException(nameof(allTranslations),
                     "Unable to extract known translation for translations dictionary being null.");
-                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null Parameter.");
+                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null parameter.");
 
                 throw e;
             }
