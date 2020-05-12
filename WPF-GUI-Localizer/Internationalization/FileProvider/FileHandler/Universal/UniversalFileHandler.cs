@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Internationalization.FileProvider.FileHandler.Universal
@@ -64,14 +65,9 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                 return;
             }
 
-            if (Directory.Exists(fullPath))
-            {
-                var fntException = new FileNotFoundException(
-                    "Given path is directory instead of file.", path);
-                _logger.Log(LogLevel.Error, fntException, "Unable to find file, because directory " +
-                                                          "with same name exists.");
-                throw fntException;
-            }
+            ExceptionLoggingUtils.ThrowIf(Directory.Exists(fullPath), _logger, new FileNotFoundException(
+                    "Unable to find file, because directory with same name exists.", path),
+                "Given path is directory instead of file.");
 
             CreateDirectoryWrapper(fullPath);
         }

@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
 {
     public static class VisualTreeUtils
     {
+        private static readonly ILogger Logger;
+
+        static VisualTreeUtils()
+        {
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(VisualTreeUtils));
+        }
+
         /// <summary>
         /// Collects all children of type T starting at <paramref name="parent"/>. Going through the VisualTree.
         /// </summary>
@@ -53,12 +61,9 @@ namespace Internationalization.Utilities
         /// <exception cref="ArgumentNullException">Thrown, if <paramref name="child"/> is null.</exception>
         public static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
         {
-            if (child == null)
-            {
-                //can only be thrown on initial call, not during recursive calls.
-                throw new ArgumentNullException(nameof(child), "Unable to find visual parent of null.");
-            }
-
+            ExceptionLoggingUtils.ThrowIfNull(Logger, nameof(FindVisualParent), child,
+                nameof(child), "Unable to find visual parent of null.");
+            
             var parentObject = VisualTreeHelper.GetParent(child);
 
             //end of the tree, nothing found.

@@ -43,43 +43,18 @@ namespace Internationalization.Utilities
         public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
             CultureInfo inputLanguage, Dictionary<CultureInfo, Dictionary<string, string>> allTranslations)
         {
-            //null checks.
-            if (targetLanguage == null)
-            {
-                var e = new ArgumentNullException(nameof(targetLanguage),
-                    "Unable to extract known translation for null target language.");
-                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null parameter.");
+            //null and argument checks.
+            ExceptionLoggingUtils.VerifyMultiple(targetLanguage, nameof(targetLanguage))
+                .AlsoVerify(inputLanguage, nameof(inputLanguage))
+                .AlsoVerify(allTranslations, nameof(allTranslations))
+                .ThrowIfNull(Logger, nameof(ExtractKnownTranslations),
+                    "Unable to extract known translation for null parameter.");
 
-                throw e;
-            }
-            if (inputLanguage == null)
-            {
-                var e = new ArgumentNullException(nameof(inputLanguage),
-                    "Unable to extract known translation for null input language.");
-                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null parameter.");
-
-                throw e;
-            }
-            if (allTranslations == null)
-            {
-                var e = new ArgumentNullException(nameof(allTranslations),
-                    "Unable to extract known translation for translations dictionary being null.");
-                Logger.Log(LogLevel.Error, e, "ExtractKnownTranslations received null parameter.");
-
-                throw e;
-            }
+            ExceptionLoggingUtils.ThrowIfInputLanguageMissing(Logger, allTranslations.Keys.ToList(), inputLanguage,
+                "InputLanguage is not part of languages collection.",
+                "Unable to generate translation recommendations for Localizaions without InputLanguage.");
 
             allTranslations.TryGetValue(inputLanguage, out var sourceDictionary);
-
-            //argument checks.
-            if (sourceDictionary == null)
-            {
-                //the list of TextLocalizations has to contain at least the InputLanguage.
-                var e = new InputLanguageNotFoundException("InputLanguage is not part of languages collection.");
-                Logger.Log(LogLevel.Error, e, "Unable to generate translation recommendations for Localizaions " +
-                                           "without InputLanguage.");
-                throw e;
-            }
 
             ICollection<string> knownTranslations = new Collection<string>();
 
@@ -142,14 +117,10 @@ namespace Internationalization.Utilities
             ICollection<TextLocalization> localizedTexts, bool preferPreferredOverInputLangauge,
             CultureInfo inputLanguage, CultureInfo preferredLanguage)
         {
-            if (localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage)) == null)
-            {
-                //the list of TextLocalizations has to contain at least the InputLanguage.
-                var e = new InputLanguageNotFoundException("InputLanguage is not part of languages collection.");
-                Logger.Log(LogLevel.Error, e, "Unable to generate translation recommendations for Localizaions " +
-                                           "without InputLanguage.");
-                throw e;
-            }
+            ExceptionLoggingUtils.ThrowIfInputLanguageMissing(Logger,
+                localizedTexts.Select(loc => loc.Language), inputLanguage,
+                "InputLanguage is not part of languages collection.",
+                "Unable to generate translation recommendations for Localizaions without InputLanguage.");
 
             var usePreferredInsted = EvaluateLanguagePreference(preferPreferredOverInputLangauge, localizedTexts,
                 targetLanguage, preferredLanguage, inputLanguage);

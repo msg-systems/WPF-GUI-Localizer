@@ -10,6 +10,7 @@ using Internationalization.Exception;
 using Internationalization.FileProvider.FileHandler.ExcelApp;
 using Internationalization.FileProvider.Interface;
 using Internationalization.Model;
+using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Internationalization.FileProvider.Excel
@@ -91,14 +92,9 @@ namespace Internationalization.FileProvider.Excel
             _fileHandler = new ExcelFileHandler(typeof(ExcelFileProvider), glossaryTag);
 
             //null check.
-            if (translationFilePath == null)
-            {
-                var e = new ArgumentNullException(nameof(translationFilePath), "Unable to open null path.");
-                _logger.Log(LogLevel.Error, e,
-                    $"ExcelFileProvider received null parameter in constructor for {nameof(translationFilePath)}.");
-                throw e;
-            }
-
+            ExceptionLoggingUtils.ThrowIfNull(_logger, (object) translationFilePath, nameof(translationFilePath),
+                "Unable to open null path.", "ExcelFileProvider received null parameter in constructor.");
+            
             //start proper initialization.
             if(oldTranslationFilePath != null) {
                 _fileHandler.VerifyPath(oldTranslationFilePath);
@@ -119,26 +115,31 @@ namespace Internationalization.FileProvider.Excel
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
-            if (Status == ProviderStatus.Empty)
+            switch (Status)
             {
-                var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
+                case ProviderStatus.Empty:
                 {
-                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
-                };
+                    var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
+                    {
+                        { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                    };
 
-                return minimalDict;
-            }
-            if (Status == ProviderStatus.Initialized)
-            {
-                return _dictOfDicts;
-            }
+                    return minimalDict;
+                }
+                case ProviderStatus.Initialized:
+                {
+                    return _dictOfDicts;
+                }
+                default:
+                {
+                    //ExcelFileProvider is still initializing, cancelling or cancelled.
+                    ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
+                        "Dictionary was accessed, without ExcelFileProvider being initialized.");
 
-            //ExcelFileProvider is still initializing, cancelling or cancelled.
-            var e = new FileProviderNotInitializedException(
-                "Translation Dictionary was accessed, without ExcelFileProvider being initialized.");
-            _logger.Log(LogLevel.Error, e,
-                "Translation Dictionary was accessed, without ExcelFileProvider being initialized.");
-            throw e;
+                    //TODO er sollte nie hier hin kommen, aber meckert trotzdem
+                    throw new NotSupportedException("unreachable code.");
+                }
+            }
         }
 
         /// <summary>
@@ -155,12 +156,8 @@ namespace Internationalization.FileProvider.Excel
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
             //null checks.
-            if (key == null)
-            {
-                var e = new ArgumentNullException(nameof(key), @"Key received in Update call is null.");
-                _logger.Log(LogLevel.Error, e, "Unable to update dictionary for null key.");
-                throw e;
-            }
+            ExceptionLoggingUtils.ThrowIfNull(_logger, nameof(Update), (object) key, nameof(key),
+                "Unable to update dictionary for null key.");
             if (texts == null)
             {
                 //no exception has to be thrown here, because null is treated like empty list and

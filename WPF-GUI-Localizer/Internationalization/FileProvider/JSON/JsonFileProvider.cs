@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using Internationalization.Enum;
 using Internationalization.FileProvider.FileHandler.Universal;
+using Internationalization.Utilities;
 
 namespace Internationalization.FileProvider.JSON
 {
@@ -75,13 +76,9 @@ namespace Internationalization.FileProvider.JSON
             _fileHandler = new UniversalFileHandler(typeof(JsonFileProvider));
 
             //null check.
-            if (translationFilePath == null)
-            {
-                var e = new ArgumentNullException(nameof(translationFilePath), "Unable to open null path.");
-                _logger.Log(LogLevel.Error, e, "JsonFileProvider received null parameter in constructor.");
-                throw e;
-            }
-
+            ExceptionLoggingUtils.ThrowIfNull(_logger, (object) translationFilePath, nameof(translationFilePath),
+                "Unable to open null path.", "JsonFileProvider received null parameter in constructor.");
+            
             //start proper initialization.
             _fileHandler.VerifyPath(translationFilePath);
             _path = translationFilePath;
@@ -127,12 +124,9 @@ namespace Internationalization.FileProvider.JSON
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
             //null checks.
-            if (key == null)
-            {
-                var e = new ArgumentNullException(nameof(key), "Key received in Update call is null.");
-                _logger.Log(LogLevel.Error, e, "Unable to update dictionary for null key.");
-                throw e;
-            }
+            ExceptionLoggingUtils.ThrowIfNull(_logger, (object) key, nameof(key),
+                "Unable to update dictionary for null key.",
+                "Key received in Update call is null.");
             if (texts == null)
             {
                 //no exception has to be thrown here, because null is treated like empty list and
@@ -200,14 +194,18 @@ namespace Internationalization.FileProvider.JSON
                     return minimalDict;
                 }
                 case ProviderStatus.Initialized:
+                {
                     return _dictOfDicts;
+                }
                 default:
+                {
                     //JsonFileProvider is still initializing, cancelling or cancelled.
-                    var e = new FileProviderNotInitializedException(
-                        "Dictionary was accessed, without JsonFileProvider being initialized.");
-                    _logger.Log(LogLevel.Error, e,
-                        "Dictionary was accessed, without JsonFileProvider being initialized.");
-                    throw e;
+                    ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
+                            "Dictionary was accessed, without JsonFileProvider being initialized.");
+
+                    //TODO er sollte nie hier hin kommen, aber meckert trotzdem
+                    throw new NotSupportedException("unreachable code.");
+                }
             }
         }
 

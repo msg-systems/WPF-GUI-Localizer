@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Internationalization.Enum;
+using Internationalization.Exception;
 using Internationalization.FileProvider.FileHandler.Universal;
 using Internationalization.Model;
 using Internationalization.Utilities;
@@ -55,43 +56,17 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             var bw = sender as BackgroundWorker;
 
             //null and argument checks.
-            if (e == null)
-            {
-                var ex = new ArgumentNullException(
-                    "DoWorkEventArgs for DoWork event handler is null.", nameof(e));
-                _logger.Log(LogLevel.Error, ex,
-                    "LoadExcelLanguageFileAsync functions was called without DoWorkEventArgs.");
-                throw ex;
-            }
-
-            if (bw == null)
-            {
-                if (sender == null)
-                {
-                    var ex = new ArgumentNullException(
-                        "Sender for DoWork event handler is null.", nameof(sender));
-                    _logger.Log(LogLevel.Error, ex,
-                        "LoadExcelLanguageFileAsync functions was called without BackgroundWorker.");
-                    throw ex;
-                }
-                else
-                {
-                    var ex = new ArgumentException(
-                        "Sender for DoWork event handler is not of type BackgroundWorker.", nameof(sender));
-                    _logger.Log(LogLevel.Error, ex,
-                        "LoadExcelLanguageFileAsync functions was called without BackgroundWorker.");
-                    throw ex;
-                }
-            }
-
-            if (Path == null)
-            {
-                var ex = new NotSupportedException("Path property for DoWork event handler was not set.");
-                _logger.Log(LogLevel.Error, ex,
-                    "LoadExcelLanguageFileAsync functions was called without Path property being set beforehand.");
-                throw ex;
-            }
-
+            ExceptionLoggingUtils.VerifyMultiple(e, nameof(e))
+                .AlsoVerify(sender, nameof(sender))
+                .ThrowIfNull(_logger, nameof(LoadExcelLanguageFileAsync),
+                    "Parameter for DoWork event handler cannot be null.");
+            ExceptionLoggingUtils.ThrowIf(bw == null, _logger, new ArgumentException(
+                "Sender for DoWork event handler is not of type BackgroundWorker.", nameof(sender)),
+                "LoadExcelLanguageFileAsync functions was called without BackgroundWorker.");
+            ExceptionLoggingUtils.ThrowIf(Path == null, _logger,
+                new NotSupportedException("Path property for DoWork event handler was not set."),
+                "LoadExcelLanguageFileAsync functions was called without Path property being set beforehand.");
+            
             _logger.Log(LogLevel.Trace, "LoadExcelLanguageFileAsync functions was called by BackgroundWorker.");
 
             VerifyPath(Path);
@@ -115,12 +90,10 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             {
                 if (e.Error.HResult == -2146827284)
                 {
-                    var ex = new FileFormatException(new Uri(Path),
-                        "Expected Excel file format.", e.Error);
-                    _logger.Log(LogLevel.Error, ex,
+                    ExceptionLoggingUtils.Throw(_logger, new FileFormatException(new Uri(Path),
+                        "Expected Excel file format.", e.Error),
                         "File at given path may be corrupted or not have correct format. " +
                         "Expected Excel sheet (.xlsx, .xls, ...).");
-                    throw ex;
                 }
                 else
                 {

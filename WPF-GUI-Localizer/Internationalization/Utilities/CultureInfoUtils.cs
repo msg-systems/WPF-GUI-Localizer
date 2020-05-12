@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Internationalization.Exception;
 using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
@@ -26,23 +27,14 @@ namespace Internationalization.Utilities
         /// <exception cref="ArgumentNullException">Thrown if culture string given is null.</exception>
         public static CultureInfo GetCultureInfo(string cultureName, bool onlyBracketsAtEndOfString)
         {
-            if (cultureName == null)
-            {
-                var e = new ArgumentNullException(nameof(cultureName),
-                    "Unable to generate CultureInfo object from null sting.");
-                Logger.Log(LogLevel.Error, e, "GetCultureInfo received null parameter.");
-                throw e;
-            }
-
+            ExceptionLoggingUtils.ThrowIfNull(Logger, nameof(GetCultureInfo), (object) cultureName,
+                nameof(cultureName), "Unable to generate CultureInfo object from null sting.");
+            
             var culture = GetCultureInfoOrDefault(cultureName, onlyBracketsAtEndOfString);
 
-            if (culture == null)
-            {
-                var e = new CultureNotFoundException(
-                    $"Unable to generate CultureInfo object form string ({cultureName}).");
-                Logger.Log(LogLevel.Error, e, "GetCultureInfo received null parameter.");
-                throw e;
-            }
+            ExceptionLoggingUtils.ThrowIf(culture == null, Logger,
+                new CultureNotFoundException($"Unable to generate CultureInfo object from string ({cultureName})."),
+                "GetCultureInfo received invalid culture name.");
 
             return culture;
         }
@@ -110,29 +102,11 @@ namespace Internationalization.Utilities
             CultureInfo inputlanguage)
         {
             //null checks.
-            if (baseDictionary == null)
-            {
-                var e = new ArgumentNullException(nameof(baseDictionary),
-                    "Unable to pick dictionary out of null dictionary.");
-                Logger.Log(LogLevel.Error, e, "TryGetLanguageDict received null parameter.");
-                throw e;
-            }
-
-            if (targetLanguage == null)
-            {
-                var e = new ArgumentNullException(nameof(baseDictionary),
-                    "Unable to pick dictionary for null culture.");
-                Logger.Log(LogLevel.Error, e, "TryGetLanguageDict received null parameter.");
-                throw e;
-            }
-
-            if (key == null)
-            {
-                var e = new ArgumentNullException(nameof(key),
-                    "Unable to pick translation for null key.");
-                Logger.Log(LogLevel.Error, e, "TryGetLanguageDict received null parameter.");
-                throw e;
-            }
+            ExceptionLoggingUtils.VerifyMultiple(baseDictionary, nameof(baseDictionary))
+                .AlsoVerify(targetLanguage, nameof(targetLanguage))
+                .AlsoVerify(key, nameof(key))
+                .ThrowIfNull(Logger, nameof(GetLanguageDictValueOrDefault),
+                    "Unable to pick dictionary with null parameter.");
 
             //searching baseDictionary.
             if (baseDictionary.ContainsKey(targetLanguage) && baseDictionary[targetLanguage].ContainsKey(key))

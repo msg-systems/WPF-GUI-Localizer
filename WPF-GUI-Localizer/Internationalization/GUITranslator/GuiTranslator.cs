@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using Internationalization.LiteralProvider.Abstract;
+using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Internationalization.GUITranslator
@@ -26,13 +27,10 @@ namespace Internationalization.GUITranslator
         /// </param>
         public static void TranslateGui(FrameworkElement rootElement)
         {
-            //null checks.
-            if (rootElement == null)
-            {
-                var e = new ArgumentNullException(nameof(rootElement), "Unable to translate null UserControl / Window.");
-                Logger.Log(LogLevel.Error, e, "TranslateGui received null as root element for translation.");
-                throw e;
-            }
+            //null check.
+            ExceptionLoggingUtils.ThrowIfNull(Logger, rootElement, nameof(rootElement),
+                "Unable to translate null UserControl / Window.",
+                "TranslateGui received null as root element for translation.");
 
             //TranslateGuiElement will do nothing if visual is a non translatable like Grid.
             TranslateGuiElement(rootElement);
