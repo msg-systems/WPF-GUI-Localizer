@@ -152,7 +152,9 @@ namespace Internationalization.LiteralProvider.File
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()
         {
-            return FileProviderInstance.GetDictionary().Keys.ToList();
+            IList<CultureInfo> langList = FileProviderInstance.GetDictionary().Keys.ToList();
+            langList.Remove(CultureInfo.InvariantCulture);
+            return langList;
         }
 
         public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)

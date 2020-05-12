@@ -115,19 +115,19 @@ namespace Internationalization.Utilities
             }
 
             var parentCultureInfo = targetLanguage.Parent;
-            if (baseDictionary.ContainsKey(parentCultureInfo) && baseDictionary[targetLanguage].ContainsKey(key))
+            if (baseDictionary.ContainsKey(parentCultureInfo) && baseDictionary[parentCultureInfo].ContainsKey(key))
             {
                 return baseDictionary[parentCultureInfo][key];
             }
 
             var twoLetterTarget = new CultureInfo(targetLanguage.TwoLetterISOLanguageName);
-            if (baseDictionary.ContainsKey(twoLetterTarget) && baseDictionary[targetLanguage].ContainsKey(key))
+            if (baseDictionary.ContainsKey(twoLetterTarget) && baseDictionary[twoLetterTarget].ContainsKey(key))
             {
                 return baseDictionary[twoLetterTarget][key];
             }
 
             var twoLetterParent = new CultureInfo(parentCultureInfo.TwoLetterISOLanguageName);
-            if (baseDictionary.ContainsKey(twoLetterParent) && baseDictionary[targetLanguage].ContainsKey(key))
+            if (baseDictionary.ContainsKey(twoLetterParent) && baseDictionary[twoLetterParent].ContainsKey(key))
             {
                 return baseDictionary[twoLetterParent][key];
             }

@@ -242,7 +242,9 @@ namespace Internationalization.LiteralProvider.Resource
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()
         {
-            return _dictOfDicts.Keys.ToList();
+            IList<CultureInfo> langList = _dictOfDicts.Keys.ToList();
+            langList.Remove(CultureInfo.InvariantCulture);
+            return langList;
         }
 
         public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)
