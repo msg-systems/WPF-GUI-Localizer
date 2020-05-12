@@ -60,6 +60,11 @@ namespace Internationalization.Utilities
             {
                 newCultureName = cultureName.Substring(begin, length);
             }
+            //invariant culutre has empty name (output by converter: "Invariant Language (Invariant Country) ()")
+            else if (onlyBracketsAtEndOfString && begin > 0 && length == 0)
+            {
+                return CultureInfo.InvariantCulture;
+            }
             else
             {
                 newCultureName = cultureName;
