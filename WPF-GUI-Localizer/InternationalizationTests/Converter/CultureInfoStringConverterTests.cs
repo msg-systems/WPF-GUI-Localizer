@@ -1,10 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Internationalization.Converter;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 
 namespace Internationalization.Converter.Tests
@@ -12,190 +7,174 @@ namespace Internationalization.Converter.Tests
     [TestClass()]
     public class CultureInfoStringConverterTests
     {
-
-        private CultureInfoStringConverter _converter;
-
-        [TestInitialize]
-        public void Initialize()
+        [TestMethod()]
+        public void Convert_NullCultureInfo_ReturnsEmptyString()
         {
-            _converter = new CultureInfoStringConverter();
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            CultureInfo language = null;
+
+            //Act
+            object converted = converter.Convert(
+                language, typeof(string), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as string;
+
+            //Assert
+            Assert.IsInstanceOfType(converted, typeof(string));
+            Assert.AreEqual(string.Empty, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void Convert_NullList_ReturnsEmpty()
+        public void Convert_InappropriateType_ReturnsEmptyString()
         {
-            IEnumerable<CultureInfo> languages = null;
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            string language = "I am a CultureInfo object";
 
-            object converted = _converter.Convert(
-                languages, typeof(IEnumerable<string>), null, CultureInfo.InvariantCulture);
-            var convertedAsTargetType = converted as IEnumerable<string>;
+            //Act
+            object converted = converter.Convert(
+                language, typeof(string), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as string;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<string>));
-            Assert.AreEqual(convertedAsTargetType?.Count(), 0);
+            //Assert
+            Assert.IsInstanceOfType(converted, typeof(string));
+            Assert.AreEqual(string.Empty, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void Convert_EmptyList_ReturnsEmpty()
+        public void Convert_NormalCultureInfo_ReturnsCorrespondingString()
         {
-            IEnumerable<CultureInfo> languages = new List<CultureInfo>();
-
-            object converted = _converter.Convert(
-                languages, typeof(IEnumerable<string>), null, CultureInfo.InvariantCulture);
-            var convertedAsTargetType = converted as IEnumerable<string>;
-
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<string>));
-            Assert.AreEqual(convertedAsTargetType?.Count(), 0);
-        }
-
-        [TestMethod()]
-        public void Convert_OneElement_ReturnsCorrectList()
-        {
+            //Arrange
+            var converter = new CultureInfoStringConverter();
             var language = new CultureInfo("en-US");
             string expectedConverted = language.DisplayName + " (" + language.Name + ")";
-            IEnumerable<CultureInfo> languages = new List<CultureInfo> { language };
 
-            object converted = _converter.Convert(
-                languages, typeof(IEnumerable<string>), null, CultureInfo.InvariantCulture);
-            IList<string> convertedAsTargetType = (converted as IEnumerable<string>)?.ToList();
+            //Act
+            object converted = converter.Convert(
+                language, typeof(string), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as string;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<string>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 1);
-            Assert.AreEqual(convertedAsTargetType?.First(), expectedConverted);
+            //Assert
+            Assert.IsInstanceOfType(converted, typeof(string));
+            Assert.AreEqual(expectedConverted, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void Convert_TwoElements_ReturnsCorrectList()
+        public void Convert_InvariantCultureInfo_ReturnsCorrespondingString()
         {
-            var language1 = new CultureInfo("it");
-            string expectedConverted1 = language1.DisplayName + " (" + language1.Name + ")";
-            var language2 = new CultureInfo("zh-Hans");
-            string expectedConverted2 = language2.DisplayName + " (" + language2.Name + ")";
-            IEnumerable<CultureInfo> languages = new List<CultureInfo> { language1, language2 };
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            var language = CultureInfo.InvariantCulture;
+            string expectedConverted = language.DisplayName + " (" + language.Name + ")";
 
-            object converted = _converter.Convert(
-                languages, typeof(IEnumerable<string>), null, CultureInfo.InvariantCulture);
-            IList<string> convertedAsTargetType = (converted as IEnumerable<string>)?.ToList();
+            //Act
+            object converted = converter.Convert(
+                language, typeof(string), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as string;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<string>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 2);
-            Assert.AreEqual(convertedAsTargetType?[0], expectedConverted1);
-            Assert.AreEqual(convertedAsTargetType?[1], expectedConverted2);
+            //Assert
+            Assert.IsInstanceOfType(converted, typeof(string));
+            Assert.AreEqual(expectedConverted, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void Convert_ListIncludesInvariant_ReturnsCorrectList()
+        public void ConvertBack_NullString_ReturnsNullCultureInfo()
         {
-            var language1 = new CultureInfo("eo-001");
-            string expectedConverted1 = language1.DisplayName + " (" + language1.Name + ")";
-            var language2 = CultureInfo.InvariantCulture;
-            string expectedConverted2 = language2.DisplayName + " (" + language2.Name + ")";
-            IEnumerable<CultureInfo> languages = new List<CultureInfo> { language1, language2 };
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            string language = null;
 
-            object converted = _converter.Convert(
-                languages, typeof(IEnumerable<string>), null, CultureInfo.InvariantCulture);
-            IList<string> convertedAsTargetType = (converted as IEnumerable<string>)?.ToList();
+            //Act
+            object converted = converter.ConvertBack(
+                language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as CultureInfo;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<string>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 2);
-            Assert.AreEqual(convertedAsTargetType?[0], expectedConverted1);
-            Assert.AreEqual(convertedAsTargetType?[1], expectedConverted2);
+            //Assert
+            Assert.AreEqual(null, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void ConvertBack_NullList_ReturnsEmpty()
+        public void ConvertBack_ValidString_ReturnsCorrespondingCultureInfo()
         {
-            IEnumerable<string> languages = null;
-
-            object converted = _converter.ConvertBack(
-                languages, typeof(IEnumerable<CultureInfo>), null, CultureInfo.InvariantCulture);
-            var convertedAsTargetType = converted as IEnumerable<CultureInfo>;
-
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<CultureInfo>));
-            Assert.AreEqual(convertedAsTargetType?.Count(), 0);
-        }
-
-        [TestMethod()]
-        public void ConvertBack_EmptyList_ReturnsEmpty()
-        {
-            IEnumerable<string> languages = new List<string>();
-
-            object converted = _converter.ConvertBack(
-                languages, typeof(IEnumerable<CultureInfo>), null, CultureInfo.InvariantCulture);
-            var convertedAsTargetType = converted as IEnumerable<CultureInfo>;
-
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<CultureInfo>));
-            Assert.AreEqual(convertedAsTargetType?.Count(), 0);
-        }
-
-        [TestMethod()]
-        public void ConvertBack_OneElement_ReturnsCorrectList()
-        {
+            //Arrange
+            var converter = new CultureInfoStringConverter();
             var languageOriginal = new CultureInfo("en-US");
             string language = languageOriginal.DisplayName + " (" + languageOriginal.Name + ")";
-            IEnumerable<string> languages = new List<string> { language };
 
-            object converted = _converter.ConvertBack(
-                languages, typeof(IEnumerable<CultureInfo>), null, CultureInfo.InvariantCulture);
-            IList<CultureInfo> convertedAsTargetType = (converted as IEnumerable<CultureInfo>)?.ToList();
+            //Act
+            object converted = converter.ConvertBack(
+                language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as CultureInfo;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<CultureInfo>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 1);
-            Assert.AreEqual(convertedAsTargetType?.First(), languageOriginal);
+            //Assert
+            Assert.IsInstanceOfType(converted, typeof(CultureInfo));
+            Assert.AreEqual(languageOriginal, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void ConvertBack_TwoElements_ReturnsCorrectList()
+        public void ConvertBack_EmptyString_ReturnsNullCultureInfo()
         {
-            var languageOriginal1 = new CultureInfo("it");
-            string language1 = languageOriginal1.DisplayName + " (" + languageOriginal1.Name + ")";
-            var languageOriginal2 = new CultureInfo("zh-Hans");
-            string language2 = languageOriginal2.DisplayName + " (" + languageOriginal2.Name + ")";
-            IEnumerable<string> languages = new List<string> { language1, language2 };
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            string language = string.Empty;
 
-            object converted = _converter.ConvertBack(
-                languages, typeof(IEnumerable<CultureInfo>), null, CultureInfo.InvariantCulture);
-            IList<CultureInfo> convertedAsTargetType = (converted as IEnumerable<CultureInfo>)?.ToList();
+            //Act
+            object converted = converter.ConvertBack(
+                language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as CultureInfo;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<CultureInfo>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 2);
-            Assert.AreEqual(convertedAsTargetType?[0], languageOriginal1);
-            Assert.AreEqual(convertedAsTargetType?[1], languageOriginal2);
+            //Assert
+            Assert.AreEqual(null, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void ConvertBack_ListIncludesInvariant_ReturnsCorrectList()
+        public void ConvertBack_InappropriateType_ReturnsNullCultureInfo()
         {
-            var languageOriginal1 = new CultureInfo("eo-001");
-            string language1 = languageOriginal1.DisplayName + " (" + languageOriginal1.Name + ")";
-            var languageOriginal2 = CultureInfo.InvariantCulture;
-            string language2 = languageOriginal2.DisplayName + " (" + languageOriginal2.Name + ")";
-            IEnumerable<string> languages = new List<string> { language1, language2 };
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            var language = new List<string>{ "I am a string object" };
 
-            object converted = _converter.ConvertBack(
-                languages, typeof(IEnumerable<CultureInfo>), null, CultureInfo.InvariantCulture);
-            IList<CultureInfo> convertedAsTargetType = (converted as IEnumerable<CultureInfo>)?.ToList();
+            //Act
+            object converted = converter.ConvertBack(
+                language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as CultureInfo;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<CultureInfo>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 2);
-            Assert.AreEqual(convertedAsTargetType?[0], languageOriginal1);
-            Assert.AreEqual(convertedAsTargetType?[1], languageOriginal2);
+            //Assert
+            Assert.AreEqual(null, convertedAsTargetType);
         }
 
         [TestMethod()]
-        public void ConvertBack_ListIncludesInvalid_LeavesOutInvalid()
+        public void ConvertBack_InvariantString_ReturnsInvariantCultureInfo()
         {
-            var languageOriginal1 = new CultureInfo("chr-Cher-US");
-            string language1 = languageOriginal1.DisplayName + " (" + languageOriginal1.Name + ")";
-            string language2 = "Some name (hel-lo)";
-            IEnumerable<string> languages = new List<string> { language1, language2 };
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            var languageOriginal = CultureInfo.InvariantCulture;
+            string language = languageOriginal.DisplayName + " (" + languageOriginal.Name + ")";
 
-            object converted = _converter.ConvertBack(
-                languages, typeof(IEnumerable<CultureInfo>), null, CultureInfo.InvariantCulture);
-            IList<CultureInfo> convertedAsTargetType = (converted as IEnumerable<CultureInfo>)?.ToList();
+            //Act
+            object converted = converter.ConvertBack(
+                language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as CultureInfo;
 
-            Assert.IsInstanceOfType(converted, typeof(IEnumerable<CultureInfo>));
-            Assert.AreEqual(convertedAsTargetType?.Count, 1);
-            Assert.AreEqual(convertedAsTargetType?[0], languageOriginal1);
+            //Assert
+            Assert.IsInstanceOfType(converted, typeof(CultureInfo));
+            Assert.AreEqual(languageOriginal, convertedAsTargetType);
+        }
+
+        [TestMethod()]
+        public void ConvertBack_InvalidString_ReturnsNull()
+        {
+            //Arrange
+            var converter = new CultureInfoStringConverter();
+            string language = "Some name (hel-lo)";
+
+            //Act
+            object converted = converter.ConvertBack(
+                language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
+            var convertedAsTargetType = converted as CultureInfo;
+
+            //Assert
+            Assert.AreEqual(null, convertedAsTargetType);
         }
     }
 }

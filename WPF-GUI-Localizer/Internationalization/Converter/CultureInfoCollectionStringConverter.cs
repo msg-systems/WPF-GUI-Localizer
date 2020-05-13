@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading;
 using System.Windows.Data;
 using Internationalization.Utilities;
 
@@ -15,6 +14,7 @@ namespace Internationalization.Converter
     {
         /// <summary>
         /// Converts IEnumerable&lt;CultureInfo&gt; to ICollection&lt;string&gt;.
+        /// Strings have format "{full name in OS language} ({language code})".
         /// Will always return at least an empty list.
         /// </summary>
         /// <param name="value">The IEnumerable&lt;CultureInfo&gt; object that should be converted.</param>
@@ -23,10 +23,7 @@ namespace Internationalization.Converter
         /// type does not influence what is returned.
         /// </param>
         /// <param name="parameter">This converter does not use parameters.</param>
-        /// <param name="culture">
-        /// This value is ignored, as the value used by .NET for this parameter, does not align with
-        /// <see cref="Thread.CurrentThread.CurrentUICulture"/>.
-        /// </param>
+        /// <param name="culture">This converter does not use <paramref name="culture"/>.</param>
         /// <returns>
         /// The converted sequence. All invalid elements out of <paramref name="value"/> will be excluded.
         /// </returns>
@@ -42,7 +39,7 @@ namespace Internationalization.Converter
                         continue;
                     }
 
-                    languageStrings.Add(language.DisplayName + " (" + language.Name + ")");
+                    languageStrings.Add($"{language.DisplayName} ({language.Name})");
                 }
             }
 
@@ -51,6 +48,7 @@ namespace Internationalization.Converter
 
         /// <summary>
         /// Converts IEnumerable&lt;string&gt; to ICollection&lt;CultureInfo&gt;.
+        /// Strings are expected to contain the correct language code in brackets at the end of the string.
         /// Will always return at least an empty list.
         /// </summary>
         /// <param name="value">The IEnumerable&lt;string&gt; object that should be converted.</param>
@@ -59,10 +57,7 @@ namespace Internationalization.Converter
         /// type does not influence what is returned.
         /// </param>
         /// <param name="parameter">This converter does not use parameters.</param>
-        /// <param name="culture">
-        /// This value is ignored, as the value used by .NET for this parameter, does not align with
-        /// <see cref="Thread.CurrentThread.CurrentUICulture"/>.
-        /// </param>
+        /// <param name="culture">This converter does not use <paramref name="cultur</param>
         /// <returns>
         /// The converted sequence. All invalid elements out of <paramref name="value"/> will be excluded.
         /// </returns>

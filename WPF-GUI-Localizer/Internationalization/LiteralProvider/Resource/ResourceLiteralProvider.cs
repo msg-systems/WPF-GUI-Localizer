@@ -43,6 +43,14 @@ namespace Internationalization.LiteralProvider.Resource
             }
         }
 
+        /// <summary>
+        /// Default Constructor needed for mocking.
+        /// </summary>
+        protected ResourceLiteralProvider()
+        {
+            _status = ProviderStatus.Empty;
+        }
+
         private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
             CultureInfo preferredLanguage)
         {
@@ -179,20 +187,21 @@ namespace Internationalization.LiteralProvider.Resource
             var translation =
                 GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
 
-            return string.IsNullOrEmpty(translation) ? "<<empty>>" : translation;
+            return translation;
         }
 
         /// <summary>
-        /// Workaround for ResourcesTextConverter, only supported by ResourceLiteralProvider.
+        /// Needed for ResourcesTextConverter and only supported by ResourceLiteralProvider.
         /// The ResourcesTextConverter can only access the resourceKey string, not the element
         /// itself. It can therefore not use the GetGuiTranslationOfCurrentCulture(DependencyObject)
         /// method provided by all ILiteralProviders.
+        /// Virtual Method to enable mocking.
         /// </summary>
-        public string GetGuiTranslationOfCurrentCulture(string resourceKey)
+        public virtual string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {
             var translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
 
-            return translation ?? "<<empty>>";
+            return translation;
         }
 
         protected override void CancelInitialization()

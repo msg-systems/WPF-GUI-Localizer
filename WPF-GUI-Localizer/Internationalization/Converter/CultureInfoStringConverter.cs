@@ -21,10 +21,7 @@ namespace Internationalization.Converter
         /// type does not influence what is returned.
         /// </param>
         /// <param name="parameter">This converter does not use parameters.</param>
-        /// <param name="culture">
-        /// This value is ignored, as the value used by .NET for this parameter, does not align with
-        /// <see cref="Thread.CurrentThread.CurrentUICulture"/>.
-        /// </param>
+        /// <param name="culture">This converter does not use <paramref name="culture"/>.</param>
         /// <returns>
         /// The corresponding string or string.Empty, if <paramref name="value"/> is not of type
         /// <see cref="CultureInfo"/> or null.
@@ -50,10 +47,7 @@ namespace Internationalization.Converter
         /// type does not influence what is returned.
         /// </param>
         /// <param name="parameter">This converter does not use parameters.</param>
-        /// <param name="culture">
-        /// This value is ignored, as the value used by .NET for this parameter, does not align with
-        /// <see cref="Thread.CurrentThread.CurrentUICulture"/>.
-        /// </param>
+        /// <param name="culture">This converter does not use <paramref name="culture"/>.</param>
         /// <returns>
         /// The corresponding <see cref="CultureInfo"/> object or null, if <paramref name="value"/> is not of type
         /// <see cref="string"/> or an invalid language code.
