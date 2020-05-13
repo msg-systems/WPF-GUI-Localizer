@@ -70,7 +70,7 @@ namespace Internationalization.Utilities
             var propertyInfo = column.GetType()
                 .GetProperty("DataGridOwner", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            return propertyInfo.GetValue(column, null) as DataGrid;
+            return propertyInfo?.GetValue(column, null) as DataGrid;
         }
     }
 }
