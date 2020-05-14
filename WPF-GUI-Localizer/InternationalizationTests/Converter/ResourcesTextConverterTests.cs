@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Internationalization.Enum;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.Interface;
 using Internationalization.LiteralProvider.Resource;
-using Internationalization.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
