@@ -12,7 +12,20 @@ namespace Internationalization.Model
 
         public override string ToString()
         {
-            return $"({Language.Name} : {Text} ({KnownTranslations.Count()} suggested translations))";
+            string languageName = "null";
+            string knownTranslationsCount = "no";
+
+            if (Language != null)
+            {
+                languageName = Language.Name;
+            }
+
+            if (KnownTranslations != null)
+            {
+                knownTranslationsCount = "" + KnownTranslations.Count();
+            }
+
+            return $"({languageName} : {Text} ({knownTranslationsCount} suggested translations))";
         }
     }
 }
