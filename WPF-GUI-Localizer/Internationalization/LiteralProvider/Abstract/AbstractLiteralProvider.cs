@@ -4,16 +4,20 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
 using Internationalization.Enum;
+using Internationalization.Exception;
 using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Interface;
 using Internationalization.Model;
 using Internationalization.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.LiteralProvider.Abstract
 {
     public abstract class AbstractLiteralProvider : ILiteralProvider
     {
         private static AbstractLiteralProvider _instance;
+        private static readonly ILogger Logger;
+
         protected abstract ProviderStatus Status { get; }
 
 
@@ -37,10 +41,9 @@ namespace Internationalization.LiteralProvider.Abstract
         {
             get
             {
-                if (_instance == null)
-                {
-                    return null;//TODO exception
-                }
+                ExceptionLoggingUtils.ThrowIf<LiteralProviderNotInitializedException>(_instance == null,
+                    Logger, "The Instance Property was accessed without calling " +
+                            "a LiteralProviders Initialize function beforehand.");
 
                 //to avoid slowing down the UI.
                 while (_instance.Status != ProviderStatus.Initialized && _instance.Status != ProviderStatus.Empty)
@@ -57,6 +60,11 @@ namespace Internationalization.LiteralProvider.Abstract
         /// The FileProvider used for saving literals, the exact usage varies depending ILiteralProvider implementation.
         /// </summary>
         protected IFileProvider FileProviderInstance { get; set; }
+
+        static AbstractLiteralProvider()
+        {
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<AbstractLiteralProvider>();
+        }
 
         /// <summary>
         /// Saves the current Literals using its FileProvider.

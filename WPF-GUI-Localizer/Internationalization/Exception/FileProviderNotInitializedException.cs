@@ -3,7 +3,7 @@
 namespace Internationalization.Exception
 {
     [Serializable]
-    public class FileProviderNotInitializedException : System.Exception
+    public class FileProviderNotInitializedException : ProviderNotInitializedException
     {
         public FileProviderNotInitializedException()
         {
