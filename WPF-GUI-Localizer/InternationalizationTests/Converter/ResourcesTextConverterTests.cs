@@ -16,12 +16,17 @@ namespace Internationalization.Converter.Tests
     [TestClass()]
     public class ResourcesTextConverterTests
     {
-        private abstract class MoqLiteralProviderSetupHelper : AbstractLiteralProvider
+        public abstract class MoqLiteralProviderSetupHelper : AbstractLiteralProvider
         {
             public static void Init(ILiteralProvider literalProvider)
             {
                 Instance = literalProvider;
             }
+        }
+
+        public abstract class AlwaysInitializedLiteralProvider : AbstractLiteralProvider
+        {
+            protected override ProviderStatus Status => ProviderStatus.Initialized;
         }
 
         [TestMethod()]
@@ -135,6 +140,8 @@ namespace Internationalization.Converter.Tests
         {
             //Arrange
             string resourceKey = "someKey";
+            var mockLP = new Mock<AlwaysInitializedLiteralProvider> { CallBase = true };
+            MoqLiteralProviderSetupHelper.Init(mockLP.Object);
             var converter = new ResourcesTextConverter();
 
             //Act
