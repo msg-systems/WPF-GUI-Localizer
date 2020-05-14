@@ -64,28 +64,6 @@ namespace Internationalization.Converter.Tests
         }
 
         [TestMethod()]
-        public void Convert_EmptyString_ReturnsCorresponding()
-        {
-            //Arrange
-            string resourceKey = "";
-            string expectedTranslation = "Hello World!";
-            var mockLP = new Mock<ResourceLiteralProvider> { CallBase = true };
-            mockLP.Setup(resLP => resLP.GetGuiTranslationOfCurrentCulture(resourceKey))
-                .Returns(expectedTranslation);
-            MoqLiteralProviderSetupHelper.Init(mockLP.Object);
-            var converter = new ResourcesTextConverter();
-
-            //Act
-            object converted = converter.Convert(
-                resourceKey, typeof(string), null, CultureInfo.InvariantCulture);
-            var convertedAsTargetType = converted as string;
-
-            //Assert
-            Assert.IsInstanceOfType(converted, typeof(string));
-            Assert.AreEqual(expectedTranslation, convertedAsTargetType);
-        }
-
-        [TestMethod()]
         public void Convert_ExistingEntry_ReturnsCorresponding()
         {
             //Arrange
