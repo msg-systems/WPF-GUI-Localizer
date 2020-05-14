@@ -297,6 +297,11 @@ namespace Internationalization.FileProvider.Excel
                 return;
             }
 
+            if (Status != ProviderStatus.InitializationInProgress)
+            {
+                _logger.Log(LogLevel.Information, $"Initialization finished in State #{Status}.");
+            }
+
             //Result is read here, because it is only now guarenteed to exist.
             _dictOfDicts = e.Result as Dictionary<CultureInfo, Dictionary<string, string>>;
 
@@ -305,15 +310,15 @@ namespace Internationalization.FileProvider.Excel
                 Status = ProviderStatus.Empty;
                 _logger.Log(LogLevel.Information, "Was unable to collect information from file. " +
                                             "ExcelFileProvider is now in State Empty.");
+                return;
             }
             else
             {
                 Status = ProviderStatus.Initialized;
                 _logger.Log(LogLevel.Information,
                     "Finished initialization. ExcelFileProvider is now in State Initialized.");
+                return;
             }
-
-            _logger.Log(LogLevel.Information, $"Initialization finished in State #{Status}.");
         }
 
         private void Initialize()
