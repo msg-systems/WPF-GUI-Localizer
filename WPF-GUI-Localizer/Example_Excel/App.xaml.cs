@@ -33,7 +33,7 @@ namespace Example_Excel
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
             GlobalSettings.UseGuiTranslatorForLocalizationUtils = true;
 
-            IFileProvider efp = new ExcelFileProvider("Resource/Language_File", "gloss");
+            IFileProvider efp = new ExcelFileProvider("Resource/Language_File.xlsx", "gloss");
             //IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
 
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
