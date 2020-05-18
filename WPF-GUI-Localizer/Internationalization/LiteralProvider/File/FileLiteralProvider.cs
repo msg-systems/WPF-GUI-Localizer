@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -106,7 +107,8 @@ namespace Internationalization.LiteralProvider.File
 
             foreach (var language in dictOfDicts.Keys)
             {
-                localizations.Add(GetLiteral(language, parentDialogName, controlType, controlId));
+                localizations.Add(GetLiteral(language, parentDialogName, controlType,
+                    controlId, true));
             }
 
             //if entry is new, use text from XAML.
@@ -147,7 +149,8 @@ namespace Internationalization.LiteralProvider.File
                 return null;
             }
 
-            return GetLiteral(Thread.CurrentThread.CurrentUICulture, parentDialogName, controlType, controlId).Text;
+            return GetLiteral(Thread.CurrentThread.CurrentUICulture, parentDialogName, controlType,
+                controlId, false).Text;
         }
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()
@@ -165,8 +168,8 @@ namespace Internationalization.LiteralProvider.File
                 string.IsNullOrWhiteSpace(controlType) || texts == null)
             {
                 _logger.Log(LogLevel.Debug,
-                    "Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.", parentDialogName,
-                    controlType, controlId);
+                    "Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.",
+                    parentDialogName, controlType, controlId);
                 return;
             }
 
@@ -192,21 +195,24 @@ namespace Internationalization.LiteralProvider.File
             FileProviderInstance.Update(CreateGuiDictionaryKey(dialogName, type, elementName), texts);
         }
 
-        private TextLocalization GetLiteral(CultureInfo language, string dialogName, string type, string elementName)
+        private TextLocalization GetLiteral(CultureInfo language, string dialogName, string type, string elementName,
+            bool exactLanguage)
         {
             var key = CreateGuiDictionaryKey(dialogName, type, elementName);
 
             var dictOfDicts = FileProviderInstance.GetDictionary();
 
-            var result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key, InputLanguage);
-
-            if (result == null)
+            string result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key,
+                InputLanguage, exactLanguage);
+            
+            if (result == null && !exactLanguage)
             {
                 _logger.Log(LogLevel.Debug,
                     "Found no translation for dialog '{0}', type '{1}', name '{2}' and language '{3}'.",
                     dialogName, type, elementName, language);
             }
-            else
+
+            if(result != null)
             {
                 result = EscapedStringToString(result);
             }

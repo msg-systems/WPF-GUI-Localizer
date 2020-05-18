@@ -91,6 +91,7 @@ namespace Internationalization.Utilities
         /// <param name="inputlanguage">
         /// The language the application was originally designed in. Used as a fallback.
         /// </param>
+        /// <param name="useOnlyExactLanguage">If true, compatible languages and fallbacks are ignored.</param>
         /// <returns>
         /// Value for <paramref name="key"/> out of dictionary for <paramref name="targetLanguage"/>, its
         /// parent (usually same as two letter name), its two letter name (e.g. en for en-US), its patents two
@@ -104,7 +105,7 @@ namespace Internationalization.Utilities
         /// </exception>
         public static string GetLanguageDictValueOrDefault(
             Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage, string key,
-            CultureInfo inputlanguage)
+            CultureInfo inputlanguage, bool useOnlyExactLanguage)
         {
             //null checks.
             ExceptionLoggingUtils.VerifyMultiple(baseDictionary, nameof(baseDictionary))
@@ -117,6 +118,11 @@ namespace Internationalization.Utilities
             if (baseDictionary.ContainsKey(targetLanguage) && baseDictionary[targetLanguage].ContainsKey(key))
             {
                 return baseDictionary[targetLanguage][key];
+            }
+
+            if (useOnlyExactLanguage)
+            {
+                return null;
             }
 
             var parentCultureInfo = targetLanguage.Parent;

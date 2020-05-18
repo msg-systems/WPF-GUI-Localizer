@@ -155,7 +155,7 @@ namespace Internationalization.LiteralProvider.Resource
             ICollection<TextLocalization> localizations = new Collection<TextLocalization>();
             foreach (var lang in GetKnownLanguages())
             {
-                var translation = GetTranslation(GetKeyFromUnkownElementType(element), lang);
+                var translation = GetTranslation(GetKeyFromUnkownElementType(element), lang, true);
                 localizations.Add(new TextLocalization {Language = lang, Text = translation});
             }
 
@@ -185,7 +185,7 @@ namespace Internationalization.LiteralProvider.Resource
         public override string GetGuiTranslationOfCurrentCulture(DependencyObject element)
         {
             var translation =
-                GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture);
+                GetTranslation(GetKeyFromUnkownElementType(element), Thread.CurrentThread.CurrentUICulture, false);
 
             return translation;
         }
@@ -199,7 +199,7 @@ namespace Internationalization.LiteralProvider.Resource
         /// </summary>
         public virtual string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {
-            var translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture);
+            var translation = GetTranslation(resourceKey, Thread.CurrentThread.CurrentUICulture, false);
 
             return translation;
         }
@@ -221,7 +221,7 @@ namespace Internationalization.LiteralProvider.Resource
             return ResourcesProperties.GetResourceKey(element);
         }
 
-        private string GetTranslation(string resourceKey, CultureInfo language)
+        private string GetTranslation(string resourceKey, CultureInfo language, bool exactLanguage)
         {
             if (string.IsNullOrEmpty(resourceKey))
             {
@@ -241,12 +241,14 @@ namespace Internationalization.LiteralProvider.Resource
             }
 
             string translation =
-                CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey, InputLanguage);
+                CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey,
+                    InputLanguage, exactLanguage);
 
             if (translation != null) return translation;
 
             //if needed use translations from Resources.
-            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey, InputLanguage);
+            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey,
+                InputLanguage, exactLanguage);
         }
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()

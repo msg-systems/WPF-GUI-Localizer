@@ -237,11 +237,8 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //add translations to dictionary.
                 for (var langIndex = numKeyParts + 1; langIndex <= maxColumn; langIndex++)
                 {
-                    var lang = CultureInfoUtil.GetCultureInfo(
-                        ExcelCellToDictionaryUtils.ExcelCellToString(values[1, langIndex]),
-                        true);
-                    readDict[lang].Add(key,
-                        ExcelCellToDictionaryUtils.ExcelCellToString(values[row, langIndex]));
+                    ExcelCellToDictionaryUtils.AddExcelCellToDictionary(readDict,
+                        values[1, langIndex], values[row, langIndex], key);
                 }
 
                 row++;

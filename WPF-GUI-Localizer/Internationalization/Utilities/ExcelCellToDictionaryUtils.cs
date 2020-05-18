@@ -107,5 +107,19 @@ namespace Internationalization.Utilities
 
             return stringBuilder.ToString();
         }
+
+        public static void AddExcelCellToDictionary(Dictionary<CultureInfo, Dictionary<string, string>> dictionary,
+            object languageCell, object translationCell, string keyOfRow)
+        {
+            var lang = CultureInfoUtil.GetCultureInfo(
+                ExcelCellToDictionaryUtils.ExcelCellToString(languageCell),
+                true);
+
+            var translationString = translationCell as string;
+            if (!string.IsNullOrEmpty(translationString))
+            {
+                dictionary[lang].Add(keyOfRow, translationString);
+            }
+        }
     }
 }
