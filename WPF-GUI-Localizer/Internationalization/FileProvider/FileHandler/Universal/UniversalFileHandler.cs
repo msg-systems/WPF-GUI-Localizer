@@ -27,7 +27,8 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// Handles Exception logging for the given <paramref name="path"/>.
         /// Returns the given <paramref name="path"/> with the appropriate ending, if it was not present.
         /// </summary>
-        /// <param name="path">The path that should </param>
+        /// <param name="path">The path that should be verified.</param>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="path"/> is null.</exception>
         /// <exception cref="ArgumentException">
         /// Thrown, if <paramref name="path"/> contains only white space, includes
         /// unsupported characters or if the system fails to get the fully qualified
@@ -58,6 +59,9 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// </exception>
         public void VerifyPath(string path)
         {
+            ExceptionLoggingUtils.ThrowIfNull(_logger, nameof(VerifyPath), (object) path, nameof(path),
+                "Unable to open path, because it is null.");
+
             var fullPath = GetFullPathWrapper(path);
 
             if (File.Exists(fullPath))
@@ -77,7 +81,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// </summary>
         /// <param name="path">
         /// The path that should be used for the GetFullPath call.
-        /// Is assumed to not be null, because it should have already been checked in the users constructor.
+        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
         /// </param>
         /// <returns>The result of the GetFullPath call.</returns>
         /// <exception cref="ArgumentException">
@@ -102,8 +106,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             try
             {
                 fullPath = Path.GetFullPath(path);
-                //ArgumentNullException is not caught, because path was already
-                //checked for being null in constructor.
+                //ArgumentNullException is not caught, because path was already checked for being null.
             }
             catch (ArgumentException e)
             {
@@ -143,7 +146,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// </summary>
         /// <param name="fullPath">
         /// The path of the file, for which a directory should be created.
-        /// Is assumed to not be null, because it should have already been checked in the users constructor.
+        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
         /// </param>
         /// <exception cref="UnauthorizedAccessException">
         /// Thrown, if permissions to create the directory are missing.
@@ -363,7 +366,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// <param name="fromPath">The path of the original file.</param>
         /// <param name="toPath">The path of the destination.</param>
         public void CopyBackupWrapper(string fromPath, string toPath)
-        {
+        {//TODO Exception doku
             var fromFullPath = Path.GetFullPath(fromPath);
             var toFullPath = Path.GetFullPath(toPath);
             if (!File.Exists(toFullPath))
