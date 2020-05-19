@@ -112,14 +112,16 @@ WPF-GUI-Localizer and Json.NET NuGet packages have to be added to your project.
 <a id="filesrequiredExcel"></a>
 ##### Files required for Excel use case
 
-In case of the Excel use case, an Excel File will need to be used / created.
-The first worksheet of this file will need to have a first row similar to this example:
+In case of the Excel use case, you may decide to either use an existing Excel sheet or run the application without one. In case you plan on using an existing sheet, you can place this file in the same folder as the executable.
+If you are using an existing sheet, the first worksheet of this file will need to have a first row similar to this example:
 
 | Dialog | Type | Name | English (United Kingdom) (en-GB) | (sv) Swedish | Deutsch (de) | fr |
 | --- | --- | --- | --- | --- | --- | --- |
 |     |     |     |     |     |     |     |
 
 The list of languages used in the Excel sheet has to include the original language of the application.
+
+If no Excel sheet is supplied, the library will create a new sheet at the location specified in [Loading the translation files](#initfiles)
 
 ##### Files required for Resources use case
 
