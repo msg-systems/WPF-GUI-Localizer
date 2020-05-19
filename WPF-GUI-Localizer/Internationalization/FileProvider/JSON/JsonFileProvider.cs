@@ -182,31 +182,17 @@ namespace Internationalization.FileProvider.JSON
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
-            switch (Status)
+            if (Status == ProviderStatus.Empty || Status == ProviderStatus.Initialized)
             {
-                case ProviderStatus.Empty:
-                {
-                    var minimalDict = new Dictionary<CultureInfo, Dictionary<string, string>>
-                    {
-                        { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
-                    };
-
-                    return minimalDict;
-                }
-                case ProviderStatus.Initialized:
-                {
-                    return _dictOfDicts;
-                }
-                default:
-                {
-                    //JsonFileProvider is still initializing, cancelling or cancelled.
-                    ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
-                            "Dictionary was accessed, without JsonFileProvider being initialized.");
-
-                    //TODO er sollte nie hier hin kommen, aber meckert trotzdem
-                    throw new NotSupportedException("unreachable code.");
-                }
+                return _dictOfDicts;
             }
+
+            //JsonFileProvider is still initializing, cancelling or cancelled.
+            ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
+                    "Dictionary was accessed, without JsonFileProvider being initialized.");
+
+            //TODO er sollte nie hier hin kommen, aber meckert trotzdem
+            throw new NotSupportedException("unreachable code.");
         }
 
         /// <summary>

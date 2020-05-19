@@ -61,62 +61,6 @@ namespace Internationalization.LiteralProvider.Resource
             ReadDicts();
         }
 
-        private void ReadDicts()
-        {
-            var rm = ResourcesUtils.GetResourcesManager();
-            if (rm == null)
-            {
-                var nameOfAssembly = GlobalSettings.ResourcesAssembly == null
-                    ? Assembly.GetEntryAssembly()?.FullName
-                    : GlobalSettings.ResourcesAssembly.FullName;
-                _logger.Log(LogLevel.Warning, $"Unable to read Resources files from assembly ({nameOfAssembly}).");
-                return;
-            }
-
-            var invariantFallback = new Dictionary<string, string>();
-
-            //collect all Resource entries.
-            var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            foreach (var lang in langs)
-            {
-                try
-                {
-                    //tryParents is false and will be handled in CultureInfoUtils insted, to avoid registering
-                    //same dict multiple times.
-                    var resourceSet = rm.GetResourceSet(lang, true, false);
-                    if (resourceSet == null) continue;
-
-                    if (lang.Equals(CultureInfo.InvariantCulture))
-                    {
-                        invariantFallback = resourceSet.Cast<DictionaryEntry>().ToDictionary(
-                            r => r.Key.ToString(), r => r.Value.ToString());
-                    }
-                    else
-                    {
-                        _dictOfDicts.Add(lang, resourceSet.Cast<DictionaryEntry>().ToDictionary(
-                            r => r.Key.ToString(), r => r.Value.ToString()));
-                    }
-                }
-                catch (CultureNotFoundException)
-                {
-                    //all non-existent languages will be ignored.
-                }
-            }
-
-            if (_dictOfDicts.ContainsKey(InputLanguage))
-            {
-                _dictOfDicts.Add(CultureInfo.InvariantCulture, invariantFallback);
-            }
-            //if Inputlanguage is not present, use invariant as replacement instead, bacause
-            //InputLanguage is expected to always exist.
-            else
-            {
-                _dictOfDicts.Add(InputLanguage, invariantFallback);
-            }
-
-            _status = ProviderStatus.Initialized;
-        }
-
         /// <summary>
         /// Initializes the singleton instance of AbstractLiteralProvider.
         /// Call this method before accessing the property Instance.
@@ -204,53 +148,6 @@ namespace Internationalization.LiteralProvider.Resource
             return translation;
         }
 
-        protected override void CancelInitialization()
-        {
-            _status = ProviderStatus.CancellationInProgress;
-            FileProviderInstance.CancelInitialization();
-        }
-
-        private static string GetKeyFromUnkownElementType(DependencyObject element)
-        {
-            //ResourceKeyProperty in only attached to DataGridColumn.
-            if (element is DataGridColumnHeader asColumnHeader)
-            {
-                return ResourcesProperties.GetResourceKey(asColumnHeader.Column);
-            }
-
-            return ResourcesProperties.GetResourceKey(element);
-        }
-
-        private string GetTranslation(string resourceKey, CultureInfo language, bool exactLanguage)
-        {
-            if (string.IsNullOrEmpty(resourceKey))
-            {
-                return null;
-            }
-
-            //check for changes everytime (changes-dict can change due to late loading).
-            Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
-            try
-            {
-                changes = FileProviderInstance.GetDictionary();
-            }
-            catch (FileProviderNotInitializedException)
-            {
-                //logged in Debug, as this behaviour is intended, if the file does not exists initially.
-                _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
-            }
-
-            string translation =
-                CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey,
-                    InputLanguage, exactLanguage);
-
-            if (translation != null) return translation;
-
-            //if needed use translations from Resources.
-            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey,
-                InputLanguage, exactLanguage);
-        }
-
         public override IEnumerable<CultureInfo> GetKnownLanguages()
         {
             IList<CultureInfo> langList = _dictOfDicts.Keys.ToList();
@@ -286,6 +183,129 @@ namespace Internationalization.LiteralProvider.Resource
         public override void Save()
         {
             FileProviderInstance.SaveDictionary();
+        }
+
+        protected override void CancelInitialization()
+        {
+            _status = ProviderStatus.CancellationInProgress;
+            FileProviderInstance.CancelInitialization();
+        }
+
+        private void ReadDicts()
+        {
+            var rm = ResourcesUtils.GetResourcesManager();
+            if (rm == null)
+            {
+                var nameOfAssembly = GlobalSettings.ResourcesAssembly == null
+                    ? Assembly.GetEntryAssembly()?.FullName
+                    : GlobalSettings.ResourcesAssembly.FullName;
+                _logger.Log(LogLevel.Warning, $"Unable to read Resources files from assembly ({nameOfAssembly}).");
+                return;
+            }
+
+            var invariantFallback = new Dictionary<string, string>();
+
+            //collect all Resource entries.
+            var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
+            foreach (var lang in langs)
+            {
+                try
+                {
+                    //tryParents is false and will be handled in CultureInfoUtils insted, to avoid registering
+                    //same dict multiple times.
+                    var resourceSet = rm.GetResourceSet(lang, true, false);
+                    if (resourceSet == null) continue;
+
+                    if (lang.Equals(CultureInfo.InvariantCulture))
+                    {
+                        invariantFallback = resourceSet.Cast<DictionaryEntry>().ToDictionary(
+                            r => r.Key.ToString(), r => r.Value.ToString());
+                    }
+                    else
+                    {
+                        _dictOfDicts.Add(lang, resourceSet.Cast<DictionaryEntry>().ToDictionary(
+                            r => r.Key.ToString(), r => r.Value.ToString()));
+                    }
+                }
+                catch (CultureNotFoundException)
+                {
+                    //all non-existent languages will be ignored.
+                }
+            }
+
+            if (_dictOfDicts.ContainsKey(InputLanguage))
+            {
+                _dictOfDicts.Add(CultureInfo.InvariantCulture, invariantFallback);
+            }
+            //if Inputlanguage is not present, use invariant as replacement instead, bacause
+            //InputLanguage is expected to always exist.
+            else
+            {
+                _dictOfDicts.Add(InputLanguage, invariantFallback);
+            }
+
+            _status = ProviderStatus.Initialized;
+        }
+
+        private static string GetKeyFromUnkownElementType(DependencyObject element)
+        {
+            //ResourceKeyProperty in only attached to DataGridColumn.
+            if (element is DataGridColumnHeader asColumnHeader)
+            {
+                return ResourcesProperties.GetResourceKey(asColumnHeader.Column);
+            }
+
+            return ResourcesProperties.GetResourceKey(element);
+        }
+
+        private string GetTranslation(string resourceKey, CultureInfo language, bool exactLanguage)
+        {
+            if (string.IsNullOrEmpty(resourceKey))
+            {
+                return null;
+            }
+
+            //check for changes everytime (changes-dict can change due to late loading).
+            Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
+            try
+            {
+                changes = GetDictionaryFromFileProvider();
+            }
+            catch (FileProviderNotInitializedException)
+            {
+                //logged in Debug, as this behaviour is intended, if the file does not exists initially.
+                _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
+            }
+
+            string translation =
+                CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey,
+                    InputLanguage, exactLanguage);
+
+            if (translation != null) return translation;
+
+            //if needed use translations from Resources.
+            return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey,
+                InputLanguage, exactLanguage);
+        }
+
+        private Dictionary<CultureInfo, Dictionary<string, string>> GetDictionaryFromFileProvider()
+        {
+            var dict = FileProviderInstance.GetDictionary();
+
+            if (dict == null || dict.Count == 0)
+            {
+                dict = new Dictionary<CultureInfo, Dictionary<string, string>>()
+                {
+                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                };
+            }
+
+            if (!dict.ContainsKey(InputLanguage))
+            {
+                dict.Add(InputLanguage, new Dictionary<string, string>());
+            }
+
+            return dict;
         }
     }
 }

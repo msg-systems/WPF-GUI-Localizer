@@ -102,7 +102,8 @@ namespace Internationalization.LiteralProvider.File
                 return null;
             }
 
-            var dictOfDicts = FileProviderInstance.GetDictionary();
+            var dictOfDicts = GetDictionaryFromFileProvider();
+
             ICollection<TextLocalization> localizations = new Collection<TextLocalization>();
 
             foreach (var language in dictOfDicts.Keys)
@@ -155,7 +156,7 @@ namespace Internationalization.LiteralProvider.File
 
         public override IEnumerable<CultureInfo> GetKnownLanguages()
         {
-            IList<CultureInfo> langList = FileProviderInstance.GetDictionary().Keys.ToList();
+            IList<CultureInfo> langList = GetDictionaryFromFileProvider().Keys.ToList();
             langList.Remove(CultureInfo.InvariantCulture);
             return langList;
         }
@@ -200,7 +201,7 @@ namespace Internationalization.LiteralProvider.File
         {
             var key = CreateGuiDictionaryKey(dialogName, type, elementName);
 
-            var dictOfDicts = FileProviderInstance.GetDictionary();
+            var dictOfDicts = GetDictionaryFromFileProvider();
 
             string result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key,
                 InputLanguage, exactLanguage);
