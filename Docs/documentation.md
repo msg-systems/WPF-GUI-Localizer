@@ -121,7 +121,7 @@ If you are using an existing sheet, the first worksheet of this file will need t
 
 The list of languages used in the Excel sheet has to include the original language of the application.
 
-If no Excel sheet is supplied, the library will create a new sheet at the location specified in [Loading the translation files](#initfiles)
+If no Excel sheet is supplied, the library will create a new sheet at the location specified in [Loading the translation files](#initfiles) and use the Input- as well as the current language of the OS the application is running on.
 
 ##### Files required for Resources use case
 
@@ -211,10 +211,12 @@ xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=I
 ##### ExcelFileProvider for Excel use case
 You can create an  instance of ```ExcelFileProvider``` using its constructor
 ```c#
-ExcelFileProvider(string translationFilePath, string oldTranslationFilePath)
+ExcelFileProvider(string translationFilePath, [string glossaryTag], [string oldTranslationFilePath])
 ```
 
-```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case](#filesrequiredExcel) here.
+```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case](#filesrequiredExcel) relative to the executable here.
+
+```glossaryTag``` marks entries in the excel sheet that are part of the glossary and used for speeding up the translation process.
 
 ```oldTranslationFilePath``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
 
