@@ -75,10 +75,10 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         }
 
         /// <summary>
-        /// Checks if the edgecases TabItem and Datagrid acctually need to be handled.
-        /// TabItems may need to be translated themselves or an element nested inside them
-        /// (e.g. a Lable). Since DataGridHeaders were not individually handled in
-        /// LocalizerEventHandler, they are handled here.
+        /// Checks if the edgecases (currently just Datagrid) acctually need to be handled and corrects
+        /// <paramref name="senderObject"/>, if necessary.
+        /// Since DataGridHeaders were not individually handled in
+        /// <see cref="LocalizerEventHandler"/>, they are handled here.
         /// </summary>
         /// <param name="senderObject">
         /// The object that triggered the MouseEvent.
@@ -90,38 +90,29 @@ namespace Internationalization.Localizer.LocalizerDialogHandler
         /// </returns>
         private static bool CorrectElementWasClicked(ref object senderObject, MouseButtonEventArgs eventArgs)
         {
-            switch (senderObject)
+            if (senderObject is DataGrid)
             {
-                case TabItem tabItem:
+                //find the DataGridColumnHeader that was originally clicked
+                //use the VisualTree, as Headers aren't found in the LogicalTree.
+                //eventArgs.OriginalSource can be cast to DepencyObject, as
+                //FindVisualParent returns null in that case.
+                var columnHeader =
+                    VisualTreeUtils.FindVisualParent<DataGridColumnHeader>(
+                        eventArgs.OriginalSource as DependencyObject);
+
+                if (columnHeader == null)
                 {
-                    //a TabItem may contain nested Elements, make sure the tabItem itself was clicked.
-                    //this is part of the edge cases, because
-                    return eventArgs.Source is TabItem && tabItem.Header is string;
+                    //Header wasn't clicked.
+                    return false;
                 }
-                case DataGrid _:
-                {
-                    //find the DataGridColumnHeader that was originally clicked
-                    //use the VisualTree, as Headers aren't found in the LogicalTree.
-                    //eventArgs.OriginalSource can be cast to DepencyObject, as
-                    //FindVisualParent returns null in that case.
-                    var columnHeader =
-                        VisualTreeUtils.FindVisualParent<DataGridColumnHeader>(
-                            eventArgs.OriginalSource as DependencyObject);
 
-                    if (columnHeader == null)
-                    {
-                        //Header wasn't clicked.
-                        return false;
-                    }
+                senderObject = columnHeader;
 
-                    senderObject = columnHeader;
-
-                    return true;
-                }
-                default:
-                    //if senderObject is not considered edgecase, it will be assumed to be correct.
-                    return true;
+                return true;
             }
+            
+            //if senderObject is not considered edgecase, it will be assumed to be correct.
+            return true;
         }
 
         /// <summary>
