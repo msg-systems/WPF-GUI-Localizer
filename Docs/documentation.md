@@ -23,7 +23,7 @@
     * [Saving translations to .xlsx (ExcelFileProvider)](#excelfp)
     * [Saving translations to .json (JsonFileProvider)](#jsonfp)
   * [Translating Views and Windows](#translating)
-* [Information for developers](#Information for developers)
+* [Information for developers](#devinfo)
   * [Components](#components)
   * [Rough Architecture](#architecture)
   * [Code Style](#codestyle)
