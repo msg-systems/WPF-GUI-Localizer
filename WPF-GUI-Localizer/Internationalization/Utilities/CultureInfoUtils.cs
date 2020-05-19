@@ -88,14 +88,14 @@ namespace Internationalization.Utilities
         /// <param name="baseDictionary">Dictionary collection to be searched.</param>
         /// <param name="targetLanguage">CultureInfo with which the used dictionary has to be compatible.</param>
         /// <param name="key">Key to search for in available dictionarys.</param>
-        /// <param name="inputlanguage">
+        /// <param name="inputLanguage">
         /// The language the application was originally designed in. Used as a fallback.
         /// </param>
         /// <param name="useOnlyExactLanguage">If true, compatible languages and fallbacks are ignored.</param>
         /// <returns>
         /// Value for <paramref name="key"/> out of dictionary for <paramref name="targetLanguage"/>, its
         /// parent (usually same as two letter name), its two letter name (e.g. en for en-US), its patents two
-        /// letter name, <see cref="CultureInfo.InvariantCulture"/>, the <paramref name="inputlanguage"/> or
+        /// letter name, <see cref="CultureInfo.InvariantCulture"/>, the <paramref name="inputLanguage"/> or
         /// null if no compatible dictionary can be found in <paramref name="baseDictionary"/>
         /// (Dictionaries will be searched in this order).
         /// </returns>
@@ -105,12 +105,13 @@ namespace Internationalization.Utilities
         /// </exception>
         public static string GetLanguageDictValueOrDefault(
             Dictionary<CultureInfo, Dictionary<string, string>> baseDictionary, CultureInfo targetLanguage, string key,
-            CultureInfo inputlanguage, bool useOnlyExactLanguage)
+            CultureInfo inputLanguage, bool useOnlyExactLanguage)
         {
             //null checks.
             ExceptionLoggingUtils.VerifyMultiple(baseDictionary, nameof(baseDictionary))
                 .AlsoVerify(targetLanguage, nameof(targetLanguage))
                 .AlsoVerify(key, nameof(key))
+                .AlsoVerify(inputLanguage, nameof(inputLanguage))
                 .ThrowIfNull(Logger, nameof(GetLanguageDictValueOrDefault),
                     "Unable to pick dictionary with null parameter.");
 
@@ -149,9 +150,9 @@ namespace Internationalization.Utilities
                 return baseDictionary[CultureInfo.InvariantCulture][key];
             }
 
-            if (baseDictionary.ContainsKey(inputlanguage) && baseDictionary[inputlanguage].ContainsKey(key))
+            if (baseDictionary.ContainsKey(inputLanguage) && baseDictionary[inputLanguage].ContainsKey(key))
             {
-                return baseDictionary[inputlanguage][key];
+                return baseDictionary[inputLanguage][key];
             }
 
             //default.
