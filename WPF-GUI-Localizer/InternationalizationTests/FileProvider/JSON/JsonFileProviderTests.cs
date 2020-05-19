@@ -18,12 +18,6 @@ namespace Internationalization.FileProvider.JSON.Tests
         }
 
         [TestMethod()]
-        public void SaveDictionaryTest()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod()]
         public void UpdateTest()
         {
             Assert.Fail();

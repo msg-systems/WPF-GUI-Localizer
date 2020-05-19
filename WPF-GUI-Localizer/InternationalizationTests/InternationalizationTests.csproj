@@ -126,7 +126,6 @@
     <Compile Include="Converter\CultureInfoStringConverterTests.cs" />
     <Compile Include="Converter\ResourcesTextConverterTests.cs" />
     <Compile Include="FileProvider\Excel\ExcelFileProviderTests.cs" />
-    <Compile Include="FileProvider\FileHandler\ExcelApp\ExcelFileHandlerTests.cs" />
     <Compile Include="FileProvider\FileHandler\Universal\UniversalFileHandlerTests.cs" />
     <Compile Include="FileProvider\JSON\JsonFileProviderTests.cs" />
     <Compile Include="LiteralProvider\File\FileLiteralProviderTests.cs" />
