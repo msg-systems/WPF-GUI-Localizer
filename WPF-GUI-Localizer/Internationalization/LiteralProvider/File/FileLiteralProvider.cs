@@ -189,7 +189,7 @@ namespace Internationalization.LiteralProvider.File
             {
                 if (textLocalization?.Text != null)
                 {
-                    textLocalization.Text = ToEscapedString(textLocalization.Text);
+                    textLocalization.Text = EscapedStringConverter.ToEscapedString(textLocalization.Text);
                 }
             }
 
@@ -215,7 +215,7 @@ namespace Internationalization.LiteralProvider.File
 
             if(result != null)
             {
-                result = EscapedStringToString(result);
+                result = EscapedStringConverter.ToNormalString(result);
             }
 
             return new TextLocalization {Language = language, Text = result};
@@ -245,41 +245,6 @@ namespace Internationalization.LiteralProvider.File
             }
 
             return dict;
-        }
-
-        private string EscapedStringToString(string s)
-        {
-            return s.Replace(@"\t", "\t").Replace(@"\r", "\r").Replace(@"\n", "\n").Replace(@"\slash", @"\");
-        }
-
-        private string ToEscapedString(string s)
-        {
-            var builder = new StringBuilder();
-            foreach (var c in s)
-            {
-                switch (c)
-                {
-                    case '\t':
-                        builder.Append(@"\t");
-                        break;
-                    case '\r':
-                        builder.Append(@"\r");
-                        break;
-                    case '\n':
-                        builder.Append(@"\n");
-                        break;
-                    case '\\':
-                        //using @"\\" caused problems, when used with Replace(@"\\", @"\").Replace(@"\n", "\n")
-                        //in situations like '\'+'n' -> "\\n" -> file -> "\\n" -> '\'+'n' -> '\n'.
-                        builder.Append(@"\slash");
-                        break;
-                    default:
-                        builder.Append(c);
-                        break;
-                }
-            }
-
-            return builder.ToString();
         }
 
         private static void GetControlProperties(DependencyObject element, out string controlId, out string currentText,

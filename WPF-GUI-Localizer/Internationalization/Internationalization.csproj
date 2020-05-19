@@ -146,6 +146,7 @@
     <Compile Include="Model\TextLocalization.cs" />
     <Compile Include="Utilities\CultureInfoUtils.cs" />
     <Compile Include="Utilities\DictionaryToExcelCellUtils.cs" />
+    <Compile Include="Utilities\EscapedStringConverter.cs" />
     <Compile Include="Utilities\ExcelCellToDictionaryUtils.cs" />
     <Compile Include="Utilities\ExceptionLoggingUtils.cs" />
     <Compile Include="Utilities\LogicalTreeUtils.cs" />
