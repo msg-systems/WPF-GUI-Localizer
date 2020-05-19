@@ -16,8 +16,6 @@
   * [Saving the translations](#saving)
   * [Switching between Languages *(optional)*](#switchinglanguages)
 * [Further Notes](#usage)
-  * [Components](#components)
-  * [Rough Architecture](#architecture)
   * [Exiting](#exit)
     * [Exiting and saving](#exitsave)
     * [Exiting without saving](#exitnosave)
@@ -25,6 +23,10 @@
     * [Saving translations to .xlsx (ExcelFileProvider)](#excelfp)
     * [Saving translations to .json (JsonFileProvider)](#jsonfp)
   * [Translating Views and Windows](#translating)
+* [Information for developers](#Information for developers)
+  * [Components](#components)
+  * [Rough Architecture](#architecture)
+  * [Code Style](#codestyle)
 * [Quickstart-Checklist and Examples](#checklist)
   * [Excel](#excelquickstart)
   * [Resources](#resourcequickstart)
@@ -305,38 +307,6 @@ Since the act of doing so after the View / Window was loaded does not translate 
 <a id="usage"></a>
 ## Further Notes
 
-<a id="components"></a>
-### Components
-
-This is a simplified class diagram of all key classes
-
-![Architecture Class Diagram](architecture.png)
-
-1. FileProvider - is used in order to read and write the existing translation dictionary of the target application from / to a given file.
-1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are two implementations for the LiteralProvider:
-
-   1. ```ResourceLiteralProvider``` - is used for applications that are translated using Resources (.resx) files. It reads the existing Resources in order to provide context to the translation and writes changes into a separate file using the FileProvider, since compiled resources files cannot be altered directly.
-   1. ```FileLiteralProvider``` - is used for applications that might not already have a translation and want to transition to a File-based translation (e.g. Excel or JSON). It uses the FileProvider in order to load and store the entire translation dictionary from/into one file (e.g. a translation Excel). It works using a "translation dictionary file", which contains the entire translation dictionary of the application, similar to a Resources (.resx) file but with all translations in one sheet.
-
-1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library. If the application is using the file-based approach as translation technology (see FileLiteralProvider), the GuiTranslator is used in order to update the views using the translations from the translation dictionary file.
-1. ```LocalizationUtils``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the localization pop-up feature. If the feature is activated, it loads the translation dialog when clicking on any of the specified GUI-Elements. If changes are made, it sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
-
-<a id="architecture"></a>
-### Rough Architecture
-
-```AbstractLiteralProvider``` holds a singleton instance, which gets created by calling ```FileLiteralProvider.Initialize``` or ```ResourceLiteralProvider.Initialize```.
-```AbstractLiteralProvider.Instance``` is a central part of the library, because it determines where the translations come from.
-Incase of ```FileLiteralProvider``` the translations come directly from an ```IFileProvider``` object.
-Incase of ```ResourceLiteralProvider``` however translations will primarily be read from Resources files and only edits will be saved and read using an ```IFileProvider``` object.
-
-Since the full initialization of a LiteralProvider can take a lot of time, trying to access ```AbstractLiteralProvider.Instance``` before the initialization finished will cause ```AbstractLiteralProvider``` to "manually keep the UI alive", until the instance is available.
-The ```Exit``` function can be called to abort the initialization process
-
-```GuiTranslator``` is used to assign the correct localized texts to all GUI-elements of Views or Windows. It is required when using ```FileLiteralProvider``` or ```LocalizationUtils```. ```GuiTranslator``` uses ```AbstractLiteralProvider.Instance``` to get the localized texts needed for translation.
-
-```LocalizationUtils``` can be attached to a View / Window using the ```IsActive``` Property of ```LocalizationProperties```. Doing so will add the ```OpenLocalizationDialog``` Eventhandler to the ```MouseRightButtonUp``` event of all supported GUI-elements inside the View / Window it was attached to.
-If the ```OpenLocalizationDialog``` Eventhandler is triggered, ```LocalizationUtils``` will first get the localized texts for the clicked element from ```AbstractLiteralProvider.Instance```. Next it will open a ```LocalizationInputDialog``` for the user to edit the translations and then give the updated texts back to ```AbstractLiteralProvider.Instance```. Lastly ```GuiTranslator``` is also called to update the translation in the GUI.
-
 <a id="exit"></a>
 ### Exiting
 
@@ -473,6 +443,46 @@ In order to translate a single element, call: ```GuiTranslator.TranslateGuiEleme
 The ```ResourcesTextConverter``` supports converting a string to the value of the Resources file entry with a key that matched the given string. It will use ```AbstractLiteralProvider.Instance``` to get these entries. ```ResourcesTextConverter``` **only** works if ```AbstractLiteralProvider.Instance``` is a ```ResourceLiteralProvider``` and does not support the ```ConvertBack``` function.
 
 For information about how to add the ```ResourcesTextConverter``` to an application read [XAML modifications needed for Resources use case](#translationpreperationRes).
+
+<a id="devinfo"></a>
+### Information for developers
+
+<a id="components"></a>
+### Components
+
+This is a simplified class diagram of all key classes
+
+![Architecture Class Diagram](architecture.png)
+
+1. FileProvider - is used in order to read and write the existing translation dictionary of the target application from / to a given file.
+1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are two implementations for the LiteralProvider:
+
+   1. ```ResourceLiteralProvider``` - is used for applications that are translated using Resources (.resx) files. It reads the existing Resources in order to provide context to the translation and writes changes into a separate file using the FileProvider, since compiled resources files cannot be altered directly.
+   1. ```FileLiteralProvider``` - is used for applications that might not already have a translation and want to transition to a File-based translation (e.g. Excel or JSON). It uses the FileProvider in order to load and store the entire translation dictionary from/into one file (e.g. a translation Excel). It works using a "translation dictionary file", which contains the entire translation dictionary of the application, similar to a Resources (.resx) file but with all translations in one sheet.
+
+1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library. If the application is using the file-based approach as translation technology (see FileLiteralProvider), the GuiTranslator is used in order to update the views using the translations from the translation dictionary file.
+1. ```LocalizationUtils``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the localization pop-up feature. If the feature is activated, it loads the translation dialog when clicking on any of the specified GUI-Elements. If changes are made, it sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
+
+<a id="architecture"></a>
+### Rough Architecture
+
+```AbstractLiteralProvider``` holds a singleton instance, which gets created by calling ```FileLiteralProvider.Initialize``` or ```ResourceLiteralProvider.Initialize```.
+```AbstractLiteralProvider.Instance``` is a central part of the library, because it determines where the translations come from.
+Incase of ```FileLiteralProvider``` the translations come directly from an ```IFileProvider``` object.
+Incase of ```ResourceLiteralProvider``` however translations will primarily be read from Resources files and only edits will be saved and read using an ```IFileProvider``` object.
+
+Since the full initialization of a LiteralProvider can take a lot of time, trying to access ```AbstractLiteralProvider.Instance``` before the initialization finished will cause ```AbstractLiteralProvider``` to "manually keep the UI alive", until the instance is available.
+The ```Exit``` function can be called to abort the initialization process
+
+```GuiTranslator``` is used to assign the correct localized texts to all GUI-elements of Views or Windows. It is required when using ```FileLiteralProvider``` or ```LocalizationUtils```. ```GuiTranslator``` uses ```AbstractLiteralProvider.Instance``` to get the localized texts needed for translation.
+
+```LocalizationUtils``` can be attached to a View / Window using the ```IsActive``` Property of ```LocalizationProperties```. Doing so will add the ```OpenLocalizationDialog``` Eventhandler to the ```MouseRightButtonUp``` event of all supported GUI-elements inside the View / Window it was attached to.
+If the ```OpenLocalizationDialog``` Eventhandler is triggered, ```LocalizationUtils``` will first get the localized texts for the clicked element from ```AbstractLiteralProvider.Instance```. Next it will open a ```LocalizationInputDialog``` for the user to edit the translations and then give the updated texts back to ```AbstractLiteralProvider.Instance```. Lastly ```GuiTranslator``` is also called to update the translation in the GUI.
+
+<a id="codestyle"></a>
+#### Code Style
+
+A .editorconfig file can be found as part of the repository and is included in the solution as a solution item. If not automatically detected, set your editors formatting style to the one defined in .editorconfig. 
 
 <a id="checklist"></a>
 ## Quickstart-Checklist and Examples
