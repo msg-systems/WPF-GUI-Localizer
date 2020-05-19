@@ -227,6 +227,26 @@ namespace Internationalization.LiteralProvider.File
             return dialogName + seperator + type + seperator + elementName;
         }
 
+        private Dictionary<CultureInfo, Dictionary<string, string>> GetDictionaryFromFileProvider()
+        {
+            var dict = FileProviderInstance.GetDictionary();
+
+            if (dict == null || dict.Count == 0)
+            {
+                dict = new Dictionary<CultureInfo, Dictionary<string, string>>()
+                {
+                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                };
+            }
+
+            if (!dict.ContainsKey(InputLanguage))
+            {
+                dict.Add(InputLanguage, new Dictionary<string, string>());
+            }
+
+            return dict;
+        }
+
         private string EscapedStringToString(string s)
         {
             return s.Replace(@"\t", "\t").Replace(@"\r", "\r").Replace(@"\n", "\n").Replace(@"\slash", @"\");
