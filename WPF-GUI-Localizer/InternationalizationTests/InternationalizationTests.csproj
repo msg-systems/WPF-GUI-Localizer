@@ -138,13 +138,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="ExcelTestResources\Language_File_almost_full.xlsx">
+    <None Include="TestResources\ExcelTestResources\Language_File_almost_full.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ExcelTestResources\Language_File_empty.xlsx">
+    <None Include="TestResources\ExcelTestResources\Language_File_empty.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ExcelTestResources\Language_File_no_languages.xlsx">
+    <None Include="TestResources\ExcelTestResources\Language_File_no_languages.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -157,7 +157,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="UniversalFHTestResources\Text.txt">
+    <Content Include="TestResources\UniversalFHTestResources\Text.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

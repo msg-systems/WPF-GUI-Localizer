@@ -7,7 +7,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
     [TestClass()]
     public class UniversalFileHandlerTests
     {
-        private const string TextFilePath = @"UniversalFHTestResources\Text.txt";
+        private const string TextFilePath = @"TestResources\UniversalFHTestResources\Text.txt";
         private readonly string _textFileContent = "Hello, World!" + Environment.NewLine + "This is a test.";
 
         [TestCleanup]
@@ -89,7 +89,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
         public void VerifyPath_PathIsDirectory_ThrowsFileNotFoundException()
         {
             //Arrange
-            string path = "UniversalFHTestResources";
+            string path = @"TestResources\UniversalFHTestResources";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
@@ -114,7 +114,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
         public void ReadAllTextWrapper_FileDoesNotExists_ThrowsFileNotFoundException()
         {
             //Arrange
-            string nonexistentPath = "UniversalFHTestResources/Not_Text.txt";
+            string nonexistentPath = @"TestResources\UniversalFHTestResources\Not_Text.txt";
             if (File.Exists(nonexistentPath) || Directory.Exists(nonexistentPath))
             {
                 Assert.Fail("Path that should not exist exists.");
@@ -129,7 +129,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
         public void ReadAllTextWrapper_PathIsDirectory_ThrowsUnauthorizedAccessException()
         {
             //Arrange
-            string path = "UniversalFHTestResources";
+            string path = @"TestResources\UniversalFHTestResources";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert

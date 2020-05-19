@@ -18,7 +18,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             {new CultureInfo("en"), new CultureInfo("sv"), new CultureInfo("de"), new CultureInfo("fr")};
         private const int NumberOfRowsInAlmostFull = 14;
         //properties of path language file
-        private const string PathBeginningPart = @"ExcelTestResources\Language_File";
+        private const string PathBeginningPart = @"TestResources\ExcelTestResources\Language_File";
         private const string PathEndingPart = ".xlsx";
         private const string PathEmptyPart = "_empty";
         private const string PathAlmostFullPart = "_almost_full";
