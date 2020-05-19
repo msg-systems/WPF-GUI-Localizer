@@ -144,13 +144,14 @@
     <Compile Include="Localizer\LocalizerDialogHandler\LocalizerDialogHandler.cs" />
     <Compile Include="Localizer\LocalizerEventHandler\LocalizerEventHandler.cs" />
     <Compile Include="Model\TextLocalization.cs" />
+    <Compile Include="Utilities\ControlElementInspector.cs" />
     <Compile Include="Utilities\CultureInfoUtils.cs" />
     <Compile Include="Utilities\DictionaryToExcelCellUtils.cs" />
     <Compile Include="Utilities\EscapedStringConverter.cs" />
     <Compile Include="Utilities\ExcelCellToDictionaryUtils.cs" />
     <Compile Include="Utilities\ExceptionLoggingUtils.cs" />
     <Compile Include="Utilities\LogicalTreeUtils.cs" />
-    <Compile Include="Utilities\ResourcesUtils.cs" />
+    <Compile Include="Utilities\ResourcesManagerProvider.cs" />
     <Compile Include="Utilities\TextLocalizationsUtils.cs" />
     <Compile Include="Utilities\VisualTreeUtils.cs" />
     <Compile Include="GUITranslator\GuiTranslator.cs" />

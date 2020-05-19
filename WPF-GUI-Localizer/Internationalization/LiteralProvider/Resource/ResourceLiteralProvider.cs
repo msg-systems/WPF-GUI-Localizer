@@ -193,7 +193,7 @@ namespace Internationalization.LiteralProvider.Resource
 
         private void ReadDicts()
         {
-            var rm = ResourcesUtils.GetResourcesManager();
+            var rm = ResourcesManagerProvider.GetResourcesManager();
             if (rm == null)
             {
                 var nameOfAssembly = GlobalSettings.ResourcesAssembly == null

@@ -3,7 +3,7 @@ using System.Resources;
 
 namespace Internationalization.Utilities
 {
-    public static class ResourcesUtils
+    public static class ResourcesManagerProvider
     {
         /// <summary>
         /// Returns ResourcesManager of <see cref="GlobalSettings.ResourcesAssembly"/> or the current entry assembly if not defined or null if neither can be used

@@ -94,10 +94,8 @@ namespace Internationalization.LiteralProvider.File
 
         public override ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element)
         {
-            GetControlProperties(element, out var controlId, out var currentText, out var controlType,
-                out var parentDialogName);
-            if (string.IsNullOrWhiteSpace(parentDialogName) || string.IsNullOrWhiteSpace(controlId) ||
-                string.IsNullOrWhiteSpace(controlType))
+            if (!ControlElementInspector.GetControlProperties(element, out var controlId, out var currentText,
+                out var controlType, out var parentDialogName))
             {
                 return null;
             }
@@ -142,10 +140,8 @@ namespace Internationalization.LiteralProvider.File
 
         public override string GetGuiTranslationOfCurrentCulture(DependencyObject element)
         {
-            GetControlProperties(element, out var controlId, out _, out var controlType,
-                out var parentDialogName);
-            if (string.IsNullOrWhiteSpace(parentDialogName) || string.IsNullOrWhiteSpace(controlId) ||
-                string.IsNullOrWhiteSpace(controlType))
+            if (!ControlElementInspector.GetControlProperties(element, out var controlId, out _,
+                out var controlType, out var parentDialogName))
             {
                 return null;
             }
@@ -163,10 +159,8 @@ namespace Internationalization.LiteralProvider.File
 
         public override void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts)
         {
-            GetControlProperties(element, out var controlId, out _, out var controlType,
-                out var parentDialogName);
-            if (string.IsNullOrWhiteSpace(parentDialogName) || string.IsNullOrWhiteSpace(controlId) ||
-                string.IsNullOrWhiteSpace(controlType) || texts == null)
+            if (!ControlElementInspector.GetControlProperties(element, out var controlId, out _,
+                out var controlType, out var parentDialogName))
             {
                 _logger.Log(LogLevel.Debug,
                     "Failed to override translation for dialog '{0}', type '{1}' and name '{2}'.",
@@ -187,7 +181,7 @@ namespace Internationalization.LiteralProvider.File
         {
             foreach (var textLocalization in texts)
             {
-                if (textLocalization?.Text != null)
+                if (textLocalization != null)
                 {
                     textLocalization.Text = EscapedStringConverter.ToEscapedString(textLocalization.Text);
                 }
@@ -213,10 +207,7 @@ namespace Internationalization.LiteralProvider.File
                     dialogName, type, elementName, language);
             }
 
-            if(result != null)
-            {
-                result = EscapedStringConverter.ToNormalString(result);
-            }
+            result = EscapedStringConverter.ToNormalString(result);
 
             return new TextLocalization {Language = language, Text = result};
         }
@@ -245,161 +236,6 @@ namespace Internationalization.LiteralProvider.File
             }
 
             return dict;
-        }
-
-        private static void GetControlProperties(DependencyObject element, out string controlId, out string currentText,
-            out string controlType, out string parentDialogName)
-        {
-            parentDialogName = null;
-
-            //determine Name, Type and current Text.
-            switch (element)
-            {
-                case RibbonTab ribbonTab:
-                {
-                    controlId = ribbonTab.Name;
-                    currentText = ribbonTab.Header as string;
-                    controlType = typeof(RibbonTab).Name;
-                    break;
-                }
-                case RibbonGroup ribbonGroup:
-                {
-                    controlId = ribbonGroup.Name;
-                    currentText = ribbonGroup.Header as string;
-                    controlType = typeof(RibbonGroup).Name;
-                    break;
-                }
-                case TabItem tabItem:
-                {
-                    controlId = tabItem.Name;
-                    currentText = tabItem.Header as string;
-                    controlType = typeof(TabItem).Name;
-
-                    break;
-                }
-                case RibbonButton ribbonButton:
-                {
-                    controlId = ribbonButton.Name;
-                    currentText = ribbonButton.Content as string;
-                    controlType = typeof(RibbonButton).Name;
-                    break;
-                }
-                case Label label:
-                {
-                    controlId = label.Name;
-                    currentText = label.Content as string;
-                    controlType = typeof(Label).Name;
-                    break;
-                }
-                case Button button:
-                {
-                    controlId = button.Name;
-                    currentText = button.Content as string;
-                    controlType = typeof(Button).Name;
-                    break;
-                }
-                case RadioButton radioButton:
-                {
-                    controlId = radioButton.Name;
-                    currentText = radioButton.Content as string;
-                    controlType = typeof(RadioButton).Name;
-                    break;
-                }
-                case CheckBox checkBox:
-                {
-                    controlId = checkBox.Name;
-                    currentText = checkBox.Content as string;
-                    controlType = typeof(CheckBox).Name;
-                    break;
-                }
-                case TextBlock textBox:
-                {
-                    controlId = textBox.Name;
-                    currentText = textBox.Text;
-                    controlType = typeof(TextBlock).Name;
-                    break;
-                }
-                case DataGridColumnHeader columnHeader:
-                {
-                    controlId = DataGridProperties.GetName(columnHeader.Column);
-                    currentText = columnHeader.Content as string;
-                    controlType = typeof(DataGridColumn).Name;
-                    break;
-                }
-                case DataGridColumn column:
-                {
-                    controlId = DataGridProperties.GetName(column);
-                    currentText = column.Header as string;
-                    controlType = typeof(DataGridColumn).Name;
-                    try
-                    {
-                        //column itself is not in the VisualTree, since it isn't a Visual.
-                        parentDialogName = GetParentDialogName(LogicalTreeUtils.GetDataGridParent(column));
-                    }
-                    catch
-                    {
-                        _logger.Log(LogLevel.Debug, "Unable to find parent of DataGridColumn.");
-                    }
-
-                    break;
-                }
-                default:
-                {
-                    controlId = null;
-                    currentText = null;
-                    controlType = null;
-                    _logger.Log(LogLevel.Debug, 
-                        $"GetControlProperties was called for non translatable type ({element.GetType()})");
-
-                    return;
-                }
-            }
-
-            //determine Name of View or Window, if element isn't DataGridColumn.
-            if (parentDialogName == null)
-            {
-                parentDialogName = GetParentDialogName(element);
-            }
-
-            //to avoid misalignment while using ExcelFileProvider.
-            controlId = controlId?.Replace(Properties.Settings.Default.Seperator_for_partial_Literalkeys.ToString(),
-                "");
-            controlType = controlType?.Replace(Properties.Settings.Default.Seperator_for_partial_Literalkeys.ToString(),
-                "");
-            parentDialogName =
-                parentDialogName?.Replace(Properties.Settings.Default.Seperator_for_partial_Literalkeys.ToString(), "");
-        }
-
-        private static string GetParentDialogName(object sender)
-        {
-            string parentDialogName = null;
-            var currentObject = sender as DependencyObject;
-
-            //move up the VisualTree, until UserControl or Window is found.
-            //search limited by numbers of iterations to stop infinite loops.
-            for (var i = 0; currentObject != null && parentDialogName == null; i++)
-            {
-                currentObject = VisualTreeHelper.GetParent(currentObject);
-
-                switch (currentObject)
-                {
-                    case UserControl userControl:
-                        parentDialogName = userControl.Name;
-                        //by setting parentDialogName, the search is aborted.
-
-                        break;
-                    case Window window:
-                        parentDialogName = window.Name;
-                        //by setting parentDialogName, the search is aborted.
-
-                        break;
-                    default:
-                        //continue searching.
-                        break;
-                }
-            }
-
-            return parentDialogName;
         }
     }
 }
