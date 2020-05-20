@@ -11,7 +11,7 @@ using Internationalization.Utilities;
 using Internationalization.View;
 using Microsoft.Extensions.Logging;
 
-namespace Internationalization.Localizer.LocalizerDialogHandler
+namespace Internationalization.Localizer.DialogHandler
 {
     public static class LocalizerDialogHandler
     {

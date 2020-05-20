@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
+using Internationalization.Localizer.DialogHandler;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Internationalization.Localizer.LocalizerEventHandler
+namespace Internationalization.Localizer.EventHandler
 {
     public static class LocalizerEventHandler
     {
@@ -65,14 +66,14 @@ namespace Internationalization.Localizer.LocalizerEventHandler
             if (isActive)
             {
                 foreach (var element in supportedElements)
-                    element.MouseRightButtonUp += LocalizerDialogHandler.LocalizerDialogHandler.OpenLocalizationDialog;
+                    element.MouseRightButtonUp += LocalizerDialogHandler.OpenLocalizationDialog;
                 Logger.Log(LogLevel.Debug, "Localizer was successfully attached to {0} elements.",
                     supportedElements.Count);
             }
             else
             {
                 foreach (var element in supportedElements)
-                    element.MouseRightButtonUp -= LocalizerDialogHandler.LocalizerDialogHandler.OpenLocalizationDialog;
+                    element.MouseRightButtonUp -= LocalizerDialogHandler.OpenLocalizationDialog;
                 Logger.Log(LogLevel.Debug, "Localizer was successfully detached from {0} elements.",
                     supportedElements.Count);
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows;
-using Internationalization.Localizer.LocalizerEventHandler;
+using Internationalization.Localizer.EventHandler;
 
 namespace Internationalization.AttachedProperties
 {

@@ -141,8 +141,8 @@
     <Compile Include="LiteralProvider\Interface\ILiteralProvider.cs" />
     <Compile Include="LiteralProvider\File\FileLiteralProvider.cs" />
     <Compile Include="LiteralProvider\Resource\ResourceLiteralProvider.cs" />
-    <Compile Include="Localizer\LocalizerDialogHandler\LocalizerDialogHandler.cs" />
-    <Compile Include="Localizer\LocalizerEventHandler\LocalizerEventHandler.cs" />
+    <Compile Include="Localizer\DialogHandler\LocalizerDialogHandler.cs" />
+    <Compile Include="Localizer\EventHandler\LocalizerEventHandler.cs" />
     <Compile Include="Model\TextLocalization.cs" />
     <Compile Include="Utilities\ControlElementInspector.cs" />
     <Compile Include="Utilities\CultureInfoUtils.cs" />
