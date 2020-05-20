@@ -25,7 +25,9 @@
   * [Translating Views and Windows](#translating)
 * [Information for developers](#devinfo)
   * [Components](#components)
-  * [Rough Architecture](#architecture)
+  * [Lifecycle](#lifecycle)
+    * [Whole Application](#applifecycle)
+    * [IFileProvider](#fplifecycle)
   * [Code Style](#codestyle)
 * [Quickstart-Checklist and Examples](#checklist)
   * [Excel](#excelquickstart)
@@ -37,7 +39,7 @@
 <a id="intro"></a>
 ## Introduction
 
-This library offers the functionality to add or optimize localization in WPF applications. By applying a right-click event to every localizable element (Label, Button etc.), it opens a dialog in which the translations of the texts for given element in any language can be edited/added.
+This library offers the functionality to add or optimize localization in WPF applications. By applying a right-click event to every localizable element (Label, Button etc.), it opens a window in which the translations of the given elements text can be edited for any available language.
 
 It comes along with tools to localize WPF applications using either human-readable Excel files or traditional Resources (.resx) files.
 
@@ -47,7 +49,7 @@ Many applications have this problem: translations are done by external service c
 
 <a id="idea"></a>
 ### Idea
-The idea behind this library is to translate applications within its live context, inside the application itself. In order to do so, a click event is added to the given application that opens a dialog whenever a translatable object (e.g. Label) is clicked.
+The idea behind this library is to translate applications within its live context, inside the application itself. In order to do so, a click event is added to the given application that opens a dialog whenever a translatable object (e.g. Label) is right-clicked.
 
 ![Dialog Popup Window](dialog.PNG)
 
@@ -87,7 +89,7 @@ Benefits of the Excel Use Case include:
 
 This Use Case is recommended if you
 * Are unsure whether to keep the library or not and want to minimize time lost due to code rewriting.
-* Plan on exchanging the translations regularly or at all for example through E-mail.
+* Plan on exchanging the translations regularly or at all e.g. through E-mail.
 * Have translations for some / all Texts used in the GUI as an Excel sheet.
 
 #### Distinction
@@ -106,7 +108,7 @@ the Excel Use Case is defined as using the ```FileLiteralProvider``` with an ```
 
 The .NET Framework version 4.7.2 as well as Excel have to be installed.
 
-WPF-GUI-Localizer and Json.NET NuGet packages have to be added to your project.
+The WPF-GUI-Localizer NuGet package has to be added to your project.(Remove before release: also add Json.NET, Microsoft.Logging, Microsoft.Logging.Console manually while not available through NuGet)
 
 <a id="filesrequired"></a>
 #### Files required
@@ -114,16 +116,17 @@ WPF-GUI-Localizer and Json.NET NuGet packages have to be added to your project.
 <a id="filesrequiredExcel"></a>
 ##### Files required for Excel use case
 
-In case of the Excel use case, you may decide to either use an existing Excel sheet or run the application without one. In case you plan on using an existing sheet, you can place this file in the same folder as the executable.
+In case of the Excel use case, you may decide to either use an existing Excel sheet or run the application without one. In case you plan on using an existing sheet, you may place this file in the same folder as the executable. If you want to place the file elsewhere like a subfolder, use the appropriate relative path in [Loading the translation files](#initfiles).
+
 If you are using an existing sheet, the first worksheet of this file will need to have a first row similar to this example:
 
 | Dialog | Type | Name | English (United Kingdom) (en-GB) | (sv) Swedish | Deutsch (de) | fr |
 | --- | --- | --- | --- | --- | --- | --- |
 |     |     |     |     |     |     |     |
 
-The list of languages used in the Excel sheet has to include the original language of the application.
+The list of languages used in the Excel sheet should include the original language of the application.
 
-If no Excel sheet is supplied, the library will create a new sheet at the location specified in [Loading the translation files](#initfiles) and use the Input- as well as the current language of the OS the application is running on.
+If no Excel sheet is supplied, the library will create a new sheet at the location specified in [Loading the translation files](#initfiles).
 
 ##### Files required for Resources use case
 
@@ -154,7 +157,9 @@ The translation feature should not be running for the end user in order to not i
 ##### XAML modifications needed for Excel use case
 All GUI-elements intended for translation need to have a "Name"-Property which is a unique key inside their View or Window. All Views and Windows need to have a "Name"-Property that uniquely identifies them as well.
 
-If the Headers of DataGrids need to be localized as well, they will have to have a "Name" attached property provided by this library assigned to each DataGridColumn. This is necessary as the DataGridColumns are not FrameworkElements and therefore do not support the ```NameProperty```.
+Note: in cases, where usually localizable elements have nested elements e.g. a Lable is placed inside of a CheckBoxes Content, the Lable has to have a Name as well. If this is not the case, the library will replace the Lable and all other elements insinde the CheckBoxes Content with the translation.
+
+If the Headers of DataGrids need to be localized as well, they will need to have a "Name" attached property provided by this library assigned to each DataGridColumn. This is necessary as the DataGridColumns are not FrameworkElements and therefore do not support the ```NameProperty```.
 
 The "Name" attached property can be added to a DataGrid Column like this
 ```xaml
@@ -172,7 +177,7 @@ For example if your Resources.en.resx file has this entry:
 | ItemListQuantity | Item Quantity | |
 | | | |
 
-and it is used similar to this:
+and it is currently used similar to this:
 
 ```xaml
 <DataGridTextColumn Header="{x:Static properties:Resources.ItemListQuantity}" Binding="{Binding Quantity}" />
@@ -216,11 +221,13 @@ You can create an  instance of ```ExcelFileProvider``` using its constructor
 ExcelFileProvider(string translationFilePath, [string glossaryTag], [string oldTranslationFilePath])
 ```
 
-```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file. Use the path of the file created in [Files needed for Excel use case](#filesrequiredExcel) relative to the executable here.
+```translationFilePath``` is where ```ExcelLiteralProvider``` will search for the Excel file / create a new one. Use the path of the file relative to the executable including the files name and file extension here.
 
-```glossaryTag``` marks entries in the excel sheet that are part of the glossary and used for speeding up the translation process.
+If the file is automatically created it will be filled with the current language of the OS and the ```Inputlanguage``` given in [Loading the translations into the application](#initlp) as soon as any edits are made.
 
-```oldTranslationFilePath``` is optional. If given, a backup of the excel sheet will be saved there prior to any modifications by the library.
+```glossaryTag``` marks entries in the excel sheet that are part of a glossary and used for speeding up the translation process without being assigned to any specific element. If no value, null or an empty string is given, this feature will not be active.
+
+```oldTranslationFilePath``` if given, a backup of the excel sheet will be saved there prior to any modifications by the library.
 
 ##### JsonFileProvider for Resources use case
 You can create an instance of ```JsonFileProvider``` using
@@ -233,18 +240,20 @@ JsonFileProvider(string translationFilePath)
 <a id="initlp"></a>
 #### Loading the translations into the application
 
-In order to initialize a localization feature (Excel file or Resources), the LiteralProvider's ```Initialize``` function has to be called, which creates the Instance in the ```AbstractLiteralProvider```. The instance and therefore also ```GuiTranslator``` and ```LocalizationUtils```, which are dependent on it, can not be used before initialization is complete.
+In order to initialize a localization feature (Excel file or Resources), the LiteralProvider's ```Initialize``` function has to be called, which creates the Instance in the ```AbstractLiteralProvider```. The instance and therefore also ```GuiTranslator``` and ```Localizer```, which are dependent on it, can not be used before initialization is complete.
 
-If ```AbstractLiteralProvider.Instance``` is called before initialization has finished, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispatcher to continuously push new frames to the UI, in order to not freeze up the UI during the initialization process.
+If ```AbstractLiteralProvider.Instance``` is called before initialization has finished, ```AbstractLiteralProvider``` will wait for the initialization process to finish before returning the instance and use a Dispatcher to continuously push new frames to the UI, in order to not freeze up the UI during the initialization process.
 
 To avoid indirectly accessing ```AbstractLiteralProvider.Instance``` prior to starting the initialization process by loading a view, which has been set up to be translated by ```GuiTranslator``` or ```ResourcesTextConverter``` on load, it is recommended to call the following function on Application start up:
 
 ```c#
-FileLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+FileLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
+  [CultureInfo preferedLanguage])
 ```
 when using Excel-based localization, or
 ```c#
-ResourceLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+ResourceLiteralProvider.Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
+  [CultureInfo preferedLanguage])
 ```
 when using Resource-based localization.
 
@@ -253,8 +262,6 @@ when using Resource-based localization.
 ```inputLanguage``` represents the language your application was originally created in.
 
 ```preferedLanguage``` is optional and determines what language to use as basis for translation dummy texts (e.g. "fr--Save" instead of "fr--Speichern" if the application was originally German and ```preferedLanguage``` is English). If no ```preferedLanguage``` is specified, English will be used.
-
-Note: Before initializing, it is recommended to set ```Thread.CurrentThread.CurrentUICulture``` to the language the application was originally created in, as otherwise the operating systems current language will be used, which may result in visual problems due to missing translations.
 
 <a id="translate"></a>
 ### Translating the Views
@@ -267,15 +274,11 @@ The ```GuiTranslator``` can be used to translate a whole view or window.
 For the Resource use case ```GuiTranslator``` does not need to be called after the View or Window was loaded, but can still be called after ```Thread.CurrentThread.CurrentUILanguage``` gets altered.
 Alternatively the View / Window can be reloaded after changing ```Thread.CurrentThread.CurrentUILanguage```, in which case ```GuiTranslator``` will not need to be called explicitly at all. 
 
-To call ```GuiTranslator``` for a View, call
+To call ```GuiTranslator``` for a View or Window, call
 ```c#
-GuiTranslator.TranslateDialog(userControl)
+GuiTranslator.TranslateGui(FrameworkElement rootElement)
 ```
-
-To call ```GuiTranslator``` for a Window, call
-```c#
-GuiTranslator.TranslateWindow(window)
-```
+This will translate all elements nested inside ```rootElement```.
 
 #### ResourcesTextConverter for Resources use case
 The ```ResourcesTextConverter``` can be used to translate an individual GUI-element.
@@ -317,7 +320,7 @@ Since the act of doing so after the View / Window was loaded does not translate 
 Calling ```AbstractLiteralProvider.Instance.Save()``` guarantees changes made to the translations will be saved. If necessary, ```AbstractLiteralProvider``` will wait for the initialization process to finish and use a Dispatcher to continuously push new frames, in order to not freeze up the UI during the initialization process.
 
 ##### ```AbstractLiteralProvider.Exit(true)```
-If possible, changes made to the translations will be saved. If initialization has not finished, it will be aborted and changes will not be saved. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispatcher to continuously push new frames, in order to not freeze up the UI during the cancellation process.
+If possible, changes made to the translations will be saved. If initialization has not finished, it will be aborted and changes will not be saved. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispatcher like described above.
 
 *In some cases calling ```AbstractLiteralProvider.Exit(true)``` may take as much time as calling no function.*
 
@@ -325,7 +328,7 @@ If possible, changes made to the translations will be saved. If initialization h
 #### Exiting without saving
 
 ##### ```AbstractLiteralProvider.Exit(false)```
-The changes made to the translations will not be saved and initialization will be stopped, if it has not finished. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispatcher to continuously push new frames, in order to not freeze up the UI during the cancellation process.
+The changes made to the translations will not be saved and initialization will be stopped, if it has not finished. Until the cancellation process has finished, ```AbstractLiteralProvider``` will use a Dispatcher  like described above.
 
 *In some cases calling ```AbstractLiteralProvider.Exit(false)``` may take as much time as calling no function.*
 
@@ -383,10 +386,29 @@ while using ```ResourceLiteralProvider``` comments may be included like this:
 
 If only 1 column is used for the key, the first translations column has to be filled, otherwise some rows will be ignored. It is therefore recommended to only add new languages at the end and not insert them right after the key columns. If the Excel sheet has been filled prior to using this library and only one key column is used, please verify that the whole second column is filled. This does not cause problems if the sheet is filled by the library, as all key and translations columns will be filled at the same time.
 
+##### Glossary
+In order to get translation recommendations without having translated the given text somewhere else in the GUI, a glossary can be included in the Excel sheet. One major use case for a glossary is for abbreviations used in your application that are hard to translate for external contractors, who may not be familliar with some of your industry specific terminology. This way translation can be picked from the drop down menu like in this screenshot:
+
+![Recommendations from Glossary](glossary.png)
+
+A Glossary entry may be included like this for a ```FileLiteralProvider```:
+
+| Dialog | Type | Name | German (de) | English (en) | Lithuanian (lt) | Swedish (sv) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Glossary |  |  | Bestätigen | Confirm | Patvirtinti | Bekräfta |
+
+or like this for a ```ResourceLiteralProvider```:
+
+| Resource Key | German (de) | English (en) | Lithuanian (lt) | Swedish (sv) |
+| --- | --- | --- | --- | --- |
+| Glossary | Bestätigen | Confirm | Patvirtinti | Bekräfta |
+
+The glossary entry identifier (here: "Glossary") has to be the same as the value used for ```glossaryTag``` in [Loading the translation files](#initfiles).
+
 ##### Writing
 If ```ExcelFileProvider``` was given a value for ```oldTranslationFilePath```, it will save the initial sheet under that path and not override it, unless the file can no longer be found under ```oldTranslationFilePath```.
 
-If keys given to ```ExcelFileProvider``` contain ```|```s, they will be split up into individual columns. ```FileLiteralProvider``` will always give its FileProvider a key that is made up of name of View/Window + "|" + type of element + "|" + name of element.
+If keys given to ```ExcelFileProvider``` contain ```|```s, they will be split up into individual columns. ```FileLiteralProvider``` will always give its FileProvider a key that is made up of name of View/Window + ```|``` + type of element + ```|``` + name of element.
 
 If ```ExcelFileProvider``` receives a key with a number of ```|``` that does not align with the number of columns it recognized in the Excel sheet, it will either not use up all columns (this can cause problems with the comment recognition) or write all additional key parts into the last column including the ```|```s.
 
@@ -408,11 +430,37 @@ The ```JsonFileProvider``` saves files in a less human readable manner, but it i
 }
 ```
 
+##### Glossary
+In order to get translation recommendations without having translated the given text somewhere else in the GUI, a glossary can be included in the json file. One major use case for a glossary is for abbreviations used in your application that are hard to translate for external contractors, who may not be familliar with some of your industry specific terminology. This way translation can be picked from the drop down menu like in this screenshot:
+
+![Recommendations from Glossary](glossary.png)
+
+Glossary entries may be included like this for either LiteralProvider:
+
+```json
+{
+  "en": {
+    "Glossary1": "Confirm",
+    "Glossary2": "Accept"
+  },
+  "lt": {
+    "Glossary1": "Patvirtinti",
+    "Glossary2": "Priimti"
+  },
+  "sv": {
+    "Glossary1": "Bekräfta",
+    "Glossary2": "Acceptera"
+  }
+}
+```
+
+The glossary entry identifier (here: "Glossary1", "Glossary2") has to be the unique, in order to determine what entires belong together.
+
 <a id="translating"></a>
 ### Translating Views and Windows
 
 #### Usages
-Views / Windows may be translated using ```GuiTranslator``` after ```Thread.CurrentThread.CurrentUICulture``` was changed (not needed with ```ResourceLiteralProvider```) or after they were loaded (only needed when using ```FileLiteralProvider```).
+Views / Windows may be translated using ```GuiTranslator``` after ```Thread.CurrentThread.CurrentUICulture``` was changed or after they were loaded (only needed when using ```FileLiteralProvider```).
 
 Views and Windows may alternatively also be translated by having an attached property ```ResourceKey``` and referencing this Property through a ```ResourcesTextConverter``` (only when using ```ResourceLiteralProvider```). This approach just like normal Resources localization only translates the View / Window once while it is being loaded.
 
@@ -430,14 +478,11 @@ GUI-elements are always automatically translated using ```GuiTranslator``` after
 * RadioButton
 * TextBlock
 * CheckBox
+* DataGrids
 
 #### GuiTranslator
 ```GuiTranslator``` supports the translation of all GUI-elements inside a UserControl or Window. Note however that UserControls nested inside other UserControls or Windows will be ignored.
-Translating individual elements only is also supported.
-
-In order to translate a View, call: ```GuiTranslator.TranslateDialog(userControl)```  
-In order to translate a Window, call: ```GuiTranslator.TranslateWindow(window)```  
-In order to translate a single element, call: ```GuiTranslator.TranslateGuiElement(frameworkElement)```  
+Translating individual elements or a single Grid / Panel only is also supported.
 
 #### ResourcesTextConverter
 The ```ResourcesTextConverter``` supports converting a string to the value of the Resources file entry with a key that matched the given string. It will use ```AbstractLiteralProvider.Instance``` to get these entries. ```ResourcesTextConverter``` **only** works if ```AbstractLiteralProvider.Instance``` is a ```ResourceLiteralProvider``` and does not support the ```ConvertBack``` function.
@@ -454,30 +499,31 @@ This is a simplified class diagram of all key classes
 
 ![Architecture Class Diagram](architecture.png)
 
-1. FileProvider - is used in order to read and write the existing translation dictionary of the target application from / to a given file.
-1. LiteralProvider - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are two implementations for the LiteralProvider:
+1. ```IFileProvider``` - is used in order to read and write the existing translation dictionary of the target application from / to a given file.
+1. ```ILiteralProvider``` - is used in order to read and change existing translations of the target application while utilizing the FileProvider. There are two implementations for the ```ILiteralProvider``` Interface:
 
    1. ```ResourceLiteralProvider``` - is used for applications that are translated using Resources (.resx) files. It reads the existing Resources in order to provide context to the translation and writes changes into a separate file using the FileProvider, since compiled resources files cannot be altered directly.
-   1. ```FileLiteralProvider``` - is used for applications that might not already have a translation and want to transition to a File-based translation (e.g. Excel or JSON). It uses the FileProvider in order to load and store the entire translation dictionary from/into one file (e.g. a translation Excel). It works using a "translation dictionary file", which contains the entire translation dictionary of the application, similar to a Resources (.resx) file but with all translations in one sheet.
+   1. ```FileLiteralProvider``` - is used for applications that might not already have a translation and want to transition to a File-based translation (e.g. Excel or JSON). It uses the FileProvider in order to load and store the entire translation dictionary from/into one file.
 
-1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library. If the application is using the file-based approach as translation technology (see FileLiteralProvider), the GuiTranslator is used in order to update the views using the translations from the translation dictionary file.
-1. ```LocalizationUtils``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the localization pop-up feature. If the feature is activated, it loads the translation dialog when clicking on any of the specified GUI-Elements. If changes are made, it sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
+1. ```GuiTranslator``` - is used in order to update Texts in the GUI, for example when altering texts using this library.
+1. ```Localizer``` - contains the core functionality of this library. It uses the attached property ```isActive``` (LocalizationProperties) in order to activate or deactivate the "Localization Helper" pop-up feature. If the feature is activated, it opens the translation dialog when clicking on any of the specified GUI-Elements. It sends the changes of the texts to the LiteralProvider, and reloads the GUI-Texts using the ```GuiTranslator```.
 
-<a id="architecture"></a>
-### Rough Architecture
+<a id="lifecycle"></a>
+#### Lifecycle
 
-```AbstractLiteralProvider``` holds a singleton instance, which gets created by calling ```FileLiteralProvider.Initialize``` or ```ResourceLiteralProvider.Initialize```.
-```AbstractLiteralProvider.Instance``` is a central part of the library, because it determines where the translations come from.
-Incase of ```FileLiteralProvider``` the translations come directly from an ```IFileProvider``` object.
-Incase of ```ResourceLiteralProvider``` however translations will primarily be read from Resources files and only edits will be saved and read using an ```IFileProvider``` object.
+<a id="applifecycle"></a>
+##### Whole Application
+The following diagram shows an example for how the application may be used and how the different key classes communicate information:
 
-Since the full initialization of a LiteralProvider can take a lot of time, trying to access ```AbstractLiteralProvider.Instance``` before the initialization finished will cause ```AbstractLiteralProvider``` to "manually keep the UI alive", until the instance is available.
-The ```Exit``` function can be called to abort the initialization process
+![Example Lifecycle](lifecycle_big.png)
 
-```GuiTranslator``` is used to assign the correct localized texts to all GUI-elements of Views or Windows. It is required when using ```FileLiteralProvider``` or ```LocalizationUtils```. ```GuiTranslator``` uses ```AbstractLiteralProvider.Instance``` to get the localized texts needed for translation.
+<a id="fplifecycle"></a>
+##### IFileProvider
+Both ```IFileProvider``` and ```ILiteralProvider``` implementations can only be in the States: InitializationInProgress, Empty, Initialized, CancellationInProgress or CancellationComplete. The following state diagram shows how they transition for a ```IFileProvider``` implemantation:
 
-```LocalizationUtils``` can be attached to a View / Window using the ```IsActive``` Property of ```LocalizationProperties```. Doing so will add the ```OpenLocalizationDialog``` Eventhandler to the ```MouseRightButtonUp``` event of all supported GUI-elements inside the View / Window it was attached to.
-If the ```OpenLocalizationDialog``` Eventhandler is triggered, ```LocalizationUtils``` will first get the localized texts for the clicked element from ```AbstractLiteralProvider.Instance```. Next it will open a ```LocalizationInputDialog``` for the user to edit the translations and then give the updated texts back to ```AbstractLiteralProvider.Instance```. Lastly ```GuiTranslator``` is also called to update the translation in the GUI.
+![State Diagram for Provider States](state_machine.png)
+
+In case of the ```FileLiteralProvider```, its State aligns with its FileProviders State, but this is not the case for ```ResourceLiteralProvider```. The ```ResourceLiteralProvider``` will hide its FileProviders during initialization and also never reach the Empty state.
 
 <a id="codestyle"></a>
 #### Code Style
@@ -490,7 +536,7 @@ A .editorconfig file can be found as part of the repository and is included in t
 <a id="excelquickstart"></a>
 ### Excel
 
-1. Both WPF-GUI-Localizer and Json.NET NuGet packages are added to your project
+1. The WPF-GUI-Localizer NuGet package and its dependencies are added to your project.
 
 2. ```FileLiteralProvider.Initialize``` is called before first usage of ```GuiTranslator``` or ```AbstractLiteralProvider.Instance```.
    ```AbstractLiteralProvider.Instance.Save``` or ```AbstractLiteralProvider.Exit``` is called before Application Exit.
@@ -505,7 +551,8 @@ A .editorconfig file can be found as part of the repository and is included in t
    
    private void OnStartup(object sender, StartupEventArgs e)
    {
-     FileLiteralProvider.Initialize(new ExcelFileProvider("Resource/Language_File.xlsx"), new CultureInfo("en"));
+     FileLiteralProvider.Initialize(new ExcelFileProvider("Resource/Language_File.xlsx"),
+       new CultureInfo("en"));
    }
    
    private void OnExit(object sender, ExitEventArgs e)
@@ -514,7 +561,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    }
    ```
    
-3. LocalizationProperties is attached to all Views and Windows that need to be localized.
+3. ```LocalizationProperties.IsActive``` is attached to all Views and Windows that need to be localized.
    
    Example:
    ```xaml
@@ -534,7 +581,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    </UserControl>
    ```
    
-4. GuiTranslator is called after Views got loaded.
+4. GuiTranslator is called after Views were loaded.
    
    Example:
    ```c#
@@ -547,35 +594,35 @@ A .editorconfig file can be found as part of the repository and is included in t
    
    private void TranslateMe(object sender, EventArgs eventArgs)
    {
-     GuiTranslator.TranslateDialog(this);
+     GuiTranslator.TranslateGui(this);
    }
    ```
    
-5. An Excel sheet similar to this exists at the path given in ```FileLiteralProvider.Initialize```:
-   
-   | Dialog | Type | Name | English (en) | (sv) Swedish | Deutsch (de) | (fr) |
-   | --- | --- | --- | --- | --- | --- | --- |
-   |     |     |     |     |     |     |     |
-   
-7. All GUI-elements and Views intended for translation have a unique name, including DataGridColumns.
+5. All GUI-elements and Views intended for translation have a unique name, including DataGridColumns.
    
    Example:
    ```xaml
    <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False">
      <DataGrid.Columns>
-       <DataGridTextColumn Header="Item Quantity" Binding="{Binding Quantity}"
+       <DataGridTextColumn Header="Item Quantity"
            internat:DataGridProperties.Name="dgcQuantity" />
-       <DataGridTextColumn Header="Item Name" Binding="{Binding Name}"
+       <DataGridTextColumn Header="Item Name"
            internat:DataGridProperties.Name="dgcName" />
-       <DataGridCheckBoxColumn Header="Received" Binding="{Binding Recived}"
+       <DataGridCheckBoxColumn Header="Received"
            internat:DataGridProperties.Name="dgcRecived" />
-       <DataGridHyperlinkColumn Header="Supplier Website" Binding="{Binding Website}"
+       <DataGridHyperlinkColumn Header="Supplier Website"
            internat:DataGridProperties.Name="dgcWebsite" />
      </DataGrid.Columns>
    </DataGrid>
    ```
    
-8. **Optional** Property for current Language is added to MainWindow and can be controlled by user.
+6. **optional** An Excel sheet similar to this exists at the path given in ```FileLiteralProvider.Initialize```:
+   
+   | Dialog | Type | Name | English (en) | (sv) Swedish | Deutsch (de) | (fr) |
+   | --- | --- | --- | --- | --- | --- | --- |
+   |     |     |     |     |     |     |     |
+   
+7. **optional** Property for current Language is added to MainWindow and can be controlled by user.
    
    Example:
    
@@ -589,11 +636,12 @@ A .editorconfig file can be found as part of the repository and is included in t
        Thread.CurrentThread.CurrentCulture = value;
        Thread.CurrentThread.CurrentUICulture = value;
    
-       GuiTranslator.TranslateDialog(CurrentView);
+       GuiTranslator.TranslateGui(CurrentView);
      }
    }
    
-   public IEnumerable<CultureInfo> TranslatableLanguages => AbstractLiteralProvider.Instance.GetKnownLanguages();
+   public IEnumerable<CultureInfo> TranslatableLanguages =>
+     AbstractLiteralProvider.Instance.GetKnownLanguages();
    ```
    
    XAML:
@@ -634,7 +682,7 @@ A .editorconfig file can be found as part of the repository and is included in t
 <a id="resourcequickstart"></a>
 ### Resource
 
-1. Both WPF-GUI-Localizer and Json.NET NuGet packages are added to your project
+1. The WPF-GUI-Localizer NuGet package and its dependencies are added to your project.
 
 2. ```ResourceLiteralProvider.Initialize``` is called before first usage of ```GuiTranslator``` or ```AbstractLiteralProvider.Instance```.
    ```AbstractLiteralProvider.Instance.Save``` or ```AbstractLiteralProvider.Exit``` is called before Application Exit.
@@ -649,10 +697,8 @@ A .editorconfig file can be found as part of the repository and is included in t
    
    private void OnStartup(object sender, StartupEventArgs e)
    {
-     Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
-     
-     ResourceLiteralProvider.Initialize(
-     new JsonFileProvider("Resource/Resource_Corrections.json"), new CultureInfo("en"));
+     ResourceLiteralProvider.Initialize(new JsonFileProvider("Resource/Resource_Corrections.json"),
+       new CultureInfo("en"));
    }
    
    private void OnExit(object sender, ExitEventArgs e)
@@ -661,7 +707,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    }
    ```
    
-3. LocalizationProperties is attached to all Views and Windows that need to be localized.
+3. ```LocalizationProperties.IsActive``` is attached to all Views and Windows that need to be localized.
    
    Example:
    ```xaml
@@ -686,7 +732,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    Example:
    
    ```xaml
-   <DataGridTextColumn Header="Item Quantity" Binding="{Binding Quantity}"
+   <DataGridTextColumn Header="Item Quantity"
        internat:ResourcesProperties.ResourceKey="ItemListQuantity" />
    ```
    
@@ -704,7 +750,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        Header="{Binding RelativeSource={RelativeSource Self},
            Path=(internat:ResourcesProperties.ResourceKey),
            Converter={StaticResource ResourcesTextConverter}}"
-       internat:ResourcesProperties.ResourceKey="ItemListQuantity" Binding="{Binding Quantity}" />
+       internat:ResourcesProperties.ResourceKey="ItemListQuantity" />
    ```
    
 6. The Converter needed for translation is added into the Views or applications resources.
@@ -727,13 +773,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    
    Example:
    
-   Properties  
-   ├ AssemblyInfo.cs  
-   ├ Resources.de.resx  
-   ├ Resources.en.resx  
-   ├ Resources.fr.resx  
-   ├ Resources.sv.resx  
-   └ Settings.settings
+   ![.resx files in Properties folder](resx_in_properties_folder.png)
    
 8. At least the Resources file for your original language is filled with the correct texts
    
@@ -744,7 +784,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    | ItemListQuantity | Item Quantity | |
    | | | |
    
-8. **Optional** Property for current Language is added to MainWindow and can be controlled by user.
+8. **optional** Property for current Language is added to MainWindow and can be controlled by user.
    
    Example:
    
@@ -755,15 +795,15 @@ A .editorconfig file can be found as part of the repository and is included in t
      get => Thread.CurrentThread.CurrentUICulture;
      set
      {
-       
        Thread.CurrentThread.CurrentCulture = value;
        Thread.CurrentThread.CurrentUICulture = value;
    
-       GuiTranslator.TranslateDialog(CurrentView);
+       GuiTranslator.TranslateGui(CurrentView);
      }
    }
    
-   public IEnumerable<CultureInfo> TranslatableLanguages => AbstractLiteralProvider.Instance.GetKnownLanguages();
+   public IEnumerable<CultureInfo> TranslatableLanguages =>
+     AbstractLiteralProvider.Instance.GetKnownLanguages();
    ```
    
    XAML:
@@ -805,18 +845,3 @@ A .editorconfig file can be found as part of the repository and is included in t
 
 Authors: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group),
 [Fabian Lewalder, msg systems ag](mailto:fabian.lewalder@msg.group)
-
-# Changes
-
-1. Glossary
-   1. for excel: all marked as glossaryTag and glossaryTag given in constructor
-   1. for json: all glossary entries have unique keys already in file
-1. More Stability with I/O stuff
-1. Added ILiteralProvider (AbstractLiteralProvider still has singleton management)
-1. Added GlobalSettings
-   1.Added LoggingFactory Property with default as console.
-
-# Notes
-
-when using ResLP with excelFP, no corrections will be loaded on first translation, bacause excelFP is still loading language file in parallel.
-Microsoft.Extensions.Logging, Microsoft.Extensions.Logging.Console also needed.
