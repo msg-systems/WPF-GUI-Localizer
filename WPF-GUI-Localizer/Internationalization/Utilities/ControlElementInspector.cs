@@ -61,7 +61,9 @@ namespace Internationalization.Utilities
             }
 
             //determine again, if element can be translated.
-            if (controlId == null || controlType == null || parentDialogName == null)
+            //if properties like Name are not set in XAML, they can still be string.Empty instead of null.
+            if (string.IsNullOrEmpty(controlId) || string.IsNullOrEmpty(controlType) ||
+                string.IsNullOrEmpty(parentDialogName))
             {
                 return false;
             }
@@ -177,7 +179,7 @@ namespace Internationalization.Utilities
                         controlId = null;
                         currentText = null;
                         controlType = null;
-                        Logger.Log(LogLevel.Debug,
+                        Logger.Log(LogLevel.Trace,
                             $"GetControlProperties was called for non translatable type ({element.GetType()}).");
 
                         return false;
