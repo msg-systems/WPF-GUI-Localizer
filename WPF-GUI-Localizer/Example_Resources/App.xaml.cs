@@ -34,7 +34,7 @@ namespace Example_Resources
 
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
 
-            IFileProvider jfp = new JsonFileProvider("Resource/Resource_Corrections");
+            IFileProvider jfp = new JsonFileProvider("Resource/Resource_Corrections.json");
             //IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel");
 
             ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));
