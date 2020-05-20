@@ -82,50 +82,7 @@ namespace Internationalization.GUITranslator
             }
 
             //write to element specific Property.
-            switch (visual)
-            {
-                case RibbonTab tab:
-                    tab.Header = guiString;
-                    break;
-                case RibbonGroup ribbonGroup:
-                    ribbonGroup.Header = guiString;
-                    break;
-                case RibbonButton button:
-                    button.Label = guiString;
-                    break;
-                case RibbonRadioButton button:
-                    button.Content = guiString;
-                    break;
-                case RibbonApplicationMenuItem menuItem:
-                    menuItem.Header = guiString;
-                    break;
-                case Label label:
-                    label.Content = guiString;
-                    break;
-                case Button button:
-                    if (button.Content is string || button.Content == null)
-                    {
-                        button.Content = guiString;
-                    }
-
-                    break;
-                case TabItem tabItem:
-                    tabItem.Header = guiString;
-                    break;
-                case RadioButton radioButton:
-                    radioButton.Content = guiString;
-                    break;
-                case TextBlock textBlock:
-                    textBlock.Text = guiString;
-                    break;
-                case CheckBox checkBox:
-                    checkBox.Content = guiString;
-                    break;
-                default:
-                    Logger.Log(LogLevel.Debug, $"Unable to translate unkown type ({visual.GetType()}) "
-                                                     + $"with not null translation ({guiString}).");
-                    break;
-            }
+            ControlElementInspector.WriteToControlElement(visual, guiString);
         }
 
         /// <summary>

@@ -187,6 +187,63 @@ namespace Internationalization.Utilities
             return true;
         }
 
+        /// <summary>
+        /// Sets the <paramref name="element"/> specific Property to <paramref name="guiString"/>.
+        /// </summary>
+        /// <param name="element">The element whose Property should be set.</param>
+        /// <param name="guiString">The text that should be displayed in the GUI.</param>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="element"/> is null.</exception>
+        public static void WriteToControlElement(FrameworkElement element, string guiString)
+        {
+            ExceptionLoggingUtils.ThrowIfNull(Logger, nameof(WriteToControlElement), element,
+                nameof(element), "Unable to write new gui text to null element.");
+
+            switch (element)
+            {
+                case RibbonTab tab:
+                    tab.Header = guiString;
+                    break;
+                case RibbonGroup ribbonGroup:
+                    ribbonGroup.Header = guiString;
+                    break;
+                case RibbonButton button:
+                    button.Label = guiString;
+                    break;
+                case RibbonRadioButton button:
+                    button.Content = guiString;
+                    break;
+                case RibbonApplicationMenuItem menuItem:
+                    menuItem.Header = guiString;
+                    break;
+                case Label label:
+                    label.Content = guiString;
+                    break;
+                case Button button:
+                    if (button.Content is string || button.Content == null)
+                    {
+                        button.Content = guiString;
+                    }
+
+                    break;
+                case TabItem tabItem:
+                    tabItem.Header = guiString;
+                    break;
+                case RadioButton radioButton:
+                    radioButton.Content = guiString;
+                    break;
+                case TextBlock textBlock:
+                    textBlock.Text = guiString;
+                    break;
+                case CheckBox checkBox:
+                    checkBox.Content = guiString;
+                    break;
+                default:
+                    Logger.Log(LogLevel.Debug, $"Unable to translate unkown type ({element.GetType()}) "
+                                               + $"with not translation ({guiString}).");
+                    break;
+            }
+        }
+
         private static string GetParentDialogName(object sender)
         {
             string parentDialogName = null;
