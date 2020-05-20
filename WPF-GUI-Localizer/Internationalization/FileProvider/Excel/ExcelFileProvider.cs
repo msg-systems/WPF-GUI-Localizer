@@ -89,13 +89,15 @@ namespace Internationalization.FileProvider.Excel
             //easy initializations.
             _logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<ExcelFileProvider>();
             _logger.Log(LogLevel.Trace, "Initializing ExcelFileProvider.");
-            _fileHandler = new ExcelFileHandler(typeof(ExcelFileProvider), glossaryTag);
+            _fileHandler = new ExcelFileHandler(typeof(ExcelFileProvider),
+                //make sure all possible not-null values for glossaryTag can be recognized in sheet.
+                glossaryTag == string.Empty ? null : glossaryTag);
 
             //null check.
             ExceptionLoggingUtils.ThrowIfNull(_logger, (object) translationFilePath, nameof(translationFilePath),
                 "Unable to open null path.", "ExcelFileProvider received null parameter in constructor.");
             
-            //start proper initialization.
+            //start difficult initializations.
             if(oldTranslationFilePath != null) {
                 _fileHandler.VerifyPath(oldTranslationFilePath);
                 _backupPath = oldTranslationFilePath;
