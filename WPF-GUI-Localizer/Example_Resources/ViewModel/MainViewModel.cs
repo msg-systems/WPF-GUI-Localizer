@@ -4,7 +4,6 @@ using System.Threading;
 using System.Windows.Controls;
 using Example_Resources.View;
 using GalaSoft.MvvmLight;
-using Internationalization.GUITranslator;
 using Internationalization.LiteralProvider.Abstract;
 
 namespace Example_Resources.ViewModel
@@ -27,8 +26,7 @@ namespace Example_Resources.ViewModel
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
 
-                //CurrentView = new ExampleView();
-                GuiTranslator.TranslateGui(CurrentView);
+                CurrentView = new ExampleView();
             }
         }
 

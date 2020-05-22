@@ -3,7 +3,6 @@ using System.Windows;
 using Internationalization;
 using Internationalization.FileProvider.Excel;
 using Internationalization.FileProvider.Interface;
-using Internationalization.FileProvider.JSON;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.File;
 using Microsoft.Extensions.Logging;
@@ -26,7 +25,7 @@ namespace Example_Excel
             var consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
-                    .SetMinimumLevel(LogLevel.Trace)
+                    .SetMinimumLevel(LogLevel.Information)
                     .AddConsole();
             });
 
@@ -34,7 +33,7 @@ namespace Example_Excel
             GlobalSettings.UseGuiTranslatorForLocalizationUtils = true;
 
             IFileProvider efp = new ExcelFileProvider("Resource/Language_File.xlsx", "gloss");
-            //IFileProvider jfp = new JsonFileProvider("Resource/lang_file");
+            //IFileProvider jfp = new JsonFileProvider("Resource/Language_File_as_json.json");
 
             FileLiteralProvider.Initialize(efp, new CultureInfo("en"));
         }

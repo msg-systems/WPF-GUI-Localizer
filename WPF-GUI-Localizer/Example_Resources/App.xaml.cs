@@ -28,14 +28,14 @@ namespace Example_Resources
             var consoleLoggerFactory = LoggerFactory.Create(builder =>
             {
                 builder
-                    .SetMinimumLevel(LogLevel.Trace)
+                    .SetMinimumLevel(LogLevel.Information)
                     .AddConsole();
             });
 
             GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
 
             IFileProvider jfp = new JsonFileProvider("Resource/Resource_Corrections.json");
-            //IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel");
+            //IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel.xlsx");
 
             ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));
         }
