@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Internationalization.Converter.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class CultureInfoStringConverterTests
     {
-        [TestMethod()]
+        [TestMethod]
         public void Convert_NullCultureInfo_ReturnsEmptyString()
         {
             //Arrange
@@ -15,7 +15,7 @@ namespace Internationalization.Converter.Tests
             CultureInfo language = null;
 
             //Act
-            object converted = converter.Convert(
+            var converted = converter.Convert(
                 language, typeof(string), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as string;
 
@@ -24,15 +24,15 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(string.Empty, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Convert_InappropriateType_ReturnsEmptyString()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
-            string language = "I am a CultureInfo object";
+            var language = "I am a CultureInfo object";
 
             //Act
-            object converted = converter.Convert(
+            var converted = converter.Convert(
                 language, typeof(string), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as string;
 
@@ -41,16 +41,16 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(string.Empty, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Convert_NormalCultureInfo_ReturnsCorrespondingString()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
             var language = new CultureInfo("en-US");
-            string expectedConverted = language.DisplayName + " (" + language.Name + ")";
+            var expectedConverted = language.DisplayName + " (" + language.Name + ")";
 
             //Act
-            object converted = converter.Convert(
+            var converted = converter.Convert(
                 language, typeof(string), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as string;
 
@@ -59,16 +59,16 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(expectedConverted, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Convert_InvariantCultureInfo_ReturnsCorrespondingString()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
             var language = CultureInfo.InvariantCulture;
-            string expectedConverted = language.DisplayName + " (" + language.Name + ")";
+            var expectedConverted = language.DisplayName + " (" + language.Name + ")";
 
             //Act
-            object converted = converter.Convert(
+            var converted = converter.Convert(
                 language, typeof(string), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as string;
 
@@ -77,7 +77,7 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(expectedConverted, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConvertBack_NullString_ReturnsNullCultureInfo()
         {
             //Arrange
@@ -85,7 +85,7 @@ namespace Internationalization.Converter.Tests
             string language = null;
 
             //Act
-            object converted = converter.ConvertBack(
+            var converted = converter.ConvertBack(
                 language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as CultureInfo;
 
@@ -93,16 +93,16 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(null, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConvertBack_ValidString_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
             var languageOriginal = new CultureInfo("en-US");
-            string language = languageOriginal.DisplayName + " (" + languageOriginal.Name + ")";
+            var language = languageOriginal.DisplayName + " (" + languageOriginal.Name + ")";
 
             //Act
-            object converted = converter.ConvertBack(
+            var converted = converter.ConvertBack(
                 language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as CultureInfo;
 
@@ -111,15 +111,15 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(languageOriginal, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConvertBack_EmptyString_ReturnsNullCultureInfo()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
-            string language = string.Empty;
+            var language = string.Empty;
 
             //Act
-            object converted = converter.ConvertBack(
+            var converted = converter.ConvertBack(
                 language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as CultureInfo;
 
@@ -127,15 +127,15 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(null, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConvertBack_InappropriateType_ReturnsNullCultureInfo()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
-            var language = new List<string>{ "I am a string object" };
+            var language = new List<string> {"I am a string object"};
 
             //Act
-            object converted = converter.ConvertBack(
+            var converted = converter.ConvertBack(
                 language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as CultureInfo;
 
@@ -143,16 +143,16 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(null, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConvertBack_InvariantString_ReturnsInvariantCultureInfo()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
             var languageOriginal = CultureInfo.InvariantCulture;
-            string language = languageOriginal.DisplayName + " (" + languageOriginal.Name + ")";
+            var language = languageOriginal.DisplayName + " (" + languageOriginal.Name + ")";
 
             //Act
-            object converted = converter.ConvertBack(
+            var converted = converter.ConvertBack(
                 language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as CultureInfo;
 
@@ -161,15 +161,15 @@ namespace Internationalization.Converter.Tests
             Assert.AreEqual(languageOriginal, convertedAsTargetType);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ConvertBack_InvalidString_ReturnsNull()
         {
             //Arrange
             var converter = new CultureInfoStringConverter();
-            string language = "Some name (hel-lo)";
+            var language = "Some name (hel-lo)";
 
             //Act
-            object converted = converter.ConvertBack(
+            var converted = converter.ConvertBack(
                 language, typeof(CultureInfo), null, CultureInfo.InvariantCulture);
             var convertedAsTargetType = converted as CultureInfo;
 

@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Internationalization.FileProvider.FileHandler.Universal.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class UniversalFileHandlerTests
     {
         private const string TextFilePath = @"TestResources\UniversalFHTestResources\Text.txt";
@@ -17,91 +17,91 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
             SetFileReadAccess(TextFilePath, false);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_NullPath_ThrowsArgumentNullException()
         {
             //Arrange
             string path = null;
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
-            
+
             //Act //Assert
             Assert.ThrowsException<ArgumentNullException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_EmptyPath_ThrowsArgumentException()
         {
             //Arrange
-            string path = string.Empty;
+            var path = string.Empty;
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<ArgumentException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_WhiteSpacePath_ThrowsArgumentException()
         {
             //Arrange
-            string path = "   ";
+            var path = "   ";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<ArgumentException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_PathWithUnsupportedChars_ThrowsArgumentException()
         {
             //Arrange
             //Testing OS specific, because behaviour of ufh is also OS specific.
             var notSupported = Path.GetInvalidPathChars();
             var magicNumber = Math.Min(3, notSupported.Length);
-            string path = $"Evil_D{notSupported[magicNumber]}rectory/Lang_File";
+            var path = $"Evil_D{notSupported[magicNumber]}rectory/Lang_File";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<ArgumentException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_PathWithInvalidColon_ThrowsNotSupportedException()
         {
             //Arrange
-            string path = "/Evil_D:rectory/Lang_File";
+            var path = "/Evil_D:rectory/Lang_File";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<NotSupportedException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_TooLongPath_ThrowsPathTooLangException()
         {
             //Arrange
-            string path = FindShortestStringThatTriggersPathTooLongException();
+            var path = FindShortestStringThatTriggersPathTooLongException();
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<PathTooLongException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void VerifyPath_PathIsDirectory_ThrowsFileNotFoundException()
         {
             //Arrange
-            string path = @"TestResources\UniversalFHTestResources";
+            var path = @"TestResources\UniversalFHTestResources";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<FileNotFoundException>(() => ufh.VerifyPath(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ReadAllTextWrapper_FileExists_ContentIsRead()
         {
             //Arrange
-            string path = TextFilePath;
+            var path = TextFilePath;
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act
@@ -111,34 +111,34 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
             Assert.AreEqual(readText, TextFileContent);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ReadAllTextWrapper_FileDoesNotExists_ThrowsFileNotFoundException()
         {
             //Arrange
-            string nonexistentPath = GetNonExistentPath();
+            var nonexistentPath = GetNonExistentPath();
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<FileNotFoundException>(() => ufh.ReadAllTextWrapper(nonexistentPath));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ReadAllTextWrapper_PathIsDirectory_ThrowsUnauthorizedAccessException()
         {
             //Arrange
-            string path = @"TestResources\UniversalFHTestResources";
+            var path = @"TestResources\UniversalFHTestResources";
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
             Assert.ThrowsException<UnauthorizedAccessException>(() => ufh.ReadAllTextWrapper(path));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void WriteAllTextWrapperTest()
         {
             //Arrange
-            string expectedContent = TextFileContent;
-            string nonexistentPath = GetNonExistentPath();
+            var expectedContent = TextFileContent;
+            var nonexistentPath = GetNonExistentPath();
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act
@@ -152,12 +152,12 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
             File.Delete(nonexistentPath);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CopyBackupWrapperTest()
         {
             //Arrange
-            string path = TextFilePath;
-            string nonexistentPath = GetNonExistentPath();
+            var path = TextFilePath;
+            var nonexistentPath = GetNonExistentPath();
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act
@@ -172,13 +172,13 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
         }
 
         /// <summary>
-        /// As there is not way of reliably getting the conditions for <see cref="PathTooLongException"/>
-        /// excluding a string longer than <see cref="Int16.MaxValue"/>, this function is used.
+        ///     As there is not way of reliably getting the conditions for <see cref="PathTooLongException" />
+        ///     excluding a string longer than <see cref="Int16.MaxValue" />, this function is used.
         /// </summary>
         /// <returns></returns>
         private string FindShortestStringThatTriggersPathTooLongException()
         {
-            string path = "a";
+            var path = "a";
 
             while (path.Length < short.MaxValue)
             {
@@ -198,7 +198,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
 
         private static void SetFileReadAccess(string fileName, bool setReadOnly)
         {
-            FileInfo fInfo = new FileInfo(fileName)
+            var fInfo = new FileInfo(fileName)
             {
                 IsReadOnly = setReadOnly
             };

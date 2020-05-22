@@ -1,32 +1,32 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Internationalization.Utilities.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class CultureInfoUtilTests
     {
         private static readonly Dictionary<CultureInfo, Dictionary<string, string>> DictionaryExample =
-            new Dictionary<CultureInfo, Dictionary<string, string>>()
+            new Dictionary<CultureInfo, Dictionary<string, string>>
             {
                 {
-                    new CultureInfo("en"), new Dictionary<string, string>()
+                    new CultureInfo("en"), new Dictionary<string, string>
                     {
                         {"greeting", "Hello"},
                         {"accept", "I accept"}
                     }
                 },
                 {
-                    new CultureInfo("sv"), new Dictionary<string, string>()
+                    new CultureInfo("sv"), new Dictionary<string, string>
                     {
                         {"greeting", "Hej"},
                         {"accept", "jag accepterar"}
                     }
                 },
                 {
-                    new CultureInfo("de"), new Dictionary<string, string>()
+                    new CultureInfo("de"), new Dictionary<string, string>
                     {
                         {"greeting", "Hallo"},
                         {"accept", "Ich akzeptiere"}
@@ -34,7 +34,7 @@ namespace Internationalization.Utilities.Tests
                 }
             };
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void GetCultureInfo_NullString_ThrowsArgumentNullException(bool withBrackets)
@@ -47,33 +47,33 @@ namespace Internationalization.Utilities.Tests
                 CultureInfoUtil.GetCultureInfo(culture, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void GetCultureInfo_EmptyString_ThrowsCultureNotFoundException(bool withBrackets)
         {
             //Arrange
-            string culture = string.Empty;
+            var culture = string.Empty;
 
             //Act //Assert
             Assert.ThrowsException<CultureNotFoundException>(() =>
                 CultureInfoUtil.GetCultureInfo(culture, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void GetCultureInfo_StringIsNotValidCulture_ThrowsCultureNotFoundException(bool withBrackets)
         {
             //Arrange
-            string culture = withBrackets ? "(llllll)" : "llllll";
+            var culture = withBrackets ? "(llllll)" : "llllll";
 
             //Act //Assert
             Assert.ThrowsException<CultureNotFoundException>(() =>
                 CultureInfoUtil.GetCultureInfo(culture, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfo_ValidCultureWithBracketsNotMatchingCall_ThrowsCultureNotFoundException()
         {
             //Arrange
@@ -85,7 +85,7 @@ namespace Internationalization.Utilities.Tests
                 CultureInfoUtil.GetCultureInfo(cultureString, false));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfo_ValidCultureWithoutBracketsNotMatchingCall_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
@@ -99,7 +99,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(culture, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfo_ValidCultureWithBracketsMatchingCall_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
@@ -113,7 +113,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(culture, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfo_ValidCultureWithoutBracketsMatchingCall_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
@@ -127,7 +127,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(culture, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void GetCultureInfoOrDefault_NullString_ReturnsNull(bool withBrackets)
@@ -142,13 +142,13 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(null, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void GetCultureInfoOrDefault_EmptyString_ReturnsNull(bool withBrackets)
         {
             //Arrange
-            string culture = string.Empty;
+            var culture = string.Empty;
 
             //Act
             var returnCulture = CultureInfoUtil.GetCultureInfoOrDefault(culture, true);
@@ -157,13 +157,13 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(null, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void GetCultureInfoOrDefault_StringIsNotValidCulture_ReturnsNull(bool withBrackets)
         {
             //Arrange
-            string culture = withBrackets ? "(llllll)" : "llllll";
+            var culture = withBrackets ? "(llllll)" : "llllll";
 
             //Act
             var returnCulture = CultureInfoUtil.GetCultureInfoOrDefault(culture, true);
@@ -172,7 +172,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(null, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfoOrDefault_ValidCultureWithBracketsNotMatchingCall_ReturnsNull()
         {
             //Arrange
@@ -186,7 +186,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(null, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfoOrDefault_ValidCultureWithoutBracketsNotMatchingCall_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
@@ -200,7 +200,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(culture, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfoOrDefault_ValidCultureWithBracketsMatchingCall_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
@@ -214,7 +214,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(culture, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetCultureInfoOrDefault_ValidCultureWithoutBracketsMatchingCall_ReturnsCorrespondingCultureInfo()
         {
             //Arrange
@@ -228,7 +228,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(culture, returnCulture);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TryGetLanguageDict_AnyParameterNull_ThrowsArgumentNullException()
         {
             //Arrange
@@ -249,7 +249,7 @@ namespace Internationalization.Utilities.Tests
                 CultureInfoUtil.GetLanguageDictValueOrDefault(dictionary, targetCulture, key, null, useExact));
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DataRow(true)]
         [DataRow(false)]
         public void TryGetLanguageDict_TargetIsInDictionary_ReturnsCorrespondingTranslation(bool useExact)
@@ -269,7 +269,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(expectedTranslation, returnTranslation);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TryGetLanguageDict_TargetParentIsInDictionaryWithoutExact_ReturnsParentTranslation()
         {
             //Arrange
@@ -278,7 +278,7 @@ namespace Internationalization.Utilities.Tests
             var parentOfTarget = targetCulture.Parent;
             var inputCulture = new CultureInfo("id-ID");
             var key = "accept";
-            bool useExact = false;
+            var useExact = false;
             var expectedTranslation = DictionaryExample[parentOfTarget][key];
 
             //Act
@@ -289,7 +289,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(expectedTranslation, returnTranslation);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TryGetLanguageDict_TargetParentIsInDictionaryWithExact_ReturnsNull()
         {
             //Arrange
@@ -297,7 +297,7 @@ namespace Internationalization.Utilities.Tests
             var targetCulture = new CultureInfo("en-US");
             var inputCulture = new CultureInfo("id-ID");
             var key = "accept";
-            bool useExact = true;
+            var useExact = true;
 
             //Act
             var returnTranslation =
@@ -307,7 +307,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(null, returnTranslation);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TryGetLanguageDict_NoMatchesInDictionaryWithoutExact_ReturnsInputTranslation()
         {
             //Arrange
@@ -315,7 +315,7 @@ namespace Internationalization.Utilities.Tests
             var targetCulture = new CultureInfo("fr");
             var inputCulture = new CultureInfo("de");
             var key = "accept";
-            bool useExact = false;
+            var useExact = false;
             var expectedTranslation = DictionaryExample[inputCulture][key];
 
             //Act
@@ -326,7 +326,7 @@ namespace Internationalization.Utilities.Tests
             Assert.AreEqual(expectedTranslation, returnTranslation);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void TryGetLanguageDict_NoMatchesInDictionaryAlAllWithoutExact_ReturnsNull()
         {
             //Arrange
@@ -334,7 +334,7 @@ namespace Internationalization.Utilities.Tests
             var targetCulture = new CultureInfo("fr");
             var inputCulture = new CultureInfo("id-ID");
             var key = "accept";
-            bool useExact = false;
+            var useExact = false;
 
             //Act
             var returnTranslation =

@@ -10,23 +10,29 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Internationalization.FileProvider.Excel.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class ExcelFileProviderTests
     {
-        //properties of language file
-        private static readonly IList<CultureInfo> ContainingLanguages = new List<CultureInfo>
-            {new CultureInfo("en"), new CultureInfo("sv"), new CultureInfo("de"), new CultureInfo("fr")};
         private const int NumberOfRowsInAlmostFull = 14;
+
         //properties of path language file
         private const string PathBeginningPart = @"TestResources\ExcelTestResources\Language_File";
         private const string PathEndingPart = ".xlsx";
         private const string PathEmptyPart = "_empty";
         private const string PathAlmostFullPart = "_almost_full";
+
         private const string PathNoLanguagesPart = "_no_languages";
+
         //parameters used in constructor
         private const string Path = PathBeginningPart + PathEndingPart;
         private const string GlossaryTag = "gloss";
+
         private const string BackupPath = PathBeginningPart + "_backup" + PathEndingPart;
+
+        //properties of language file
+        private static readonly IList<CultureInfo> ContainingLanguages = new List<CultureInfo>
+            {new CultureInfo("en"), new CultureInfo("sv"), new CultureInfo("de"), new CultureInfo("fr")};
+
         //often used objects with large constructors
         private static readonly IList<TextLocalization> GreetingsExample = new List<TextLocalization>
         {
@@ -35,12 +41,14 @@ namespace Internationalization.FileProvider.Excel.Tests
             new TextLocalization {Language = new CultureInfo("de"), Text = "Hallo"},
             new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"}
         };
+
         private static readonly IList<TextLocalization> GreetingsExampleMinusGerman = new List<TextLocalization>
         {
             new TextLocalization {Language = new CultureInfo("en"), Text = "Hello"},
             new TextLocalization {Language = new CultureInfo("sv"), Text = "Hej"},
             new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"}
         };
+
         private static readonly IList<TextLocalization> GreetingsExamplePlusIndonesian = new List<TextLocalization>
         {
             new TextLocalization {Language = new CultureInfo("en"), Text = "Hello"},
@@ -49,6 +57,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"},
             new TextLocalization {Language = new CultureInfo("id"), Text = "Halo"}
         };
+
         private static readonly IList<TextLocalization> AcceptExample = new List<TextLocalization>
         {
             new TextLocalization {Language = new CultureInfo("en"), Text = "I accept"},
@@ -57,7 +66,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             new TextLocalization {Language = new CultureInfo("fr"), Text = "J'accepte"}
         };
 
-        [TestMethod()]
+        [TestMethod]
         public void Constructor_GivenBackupPath_GeneratesBackup()
         {
             //Arrange
@@ -71,7 +80,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.IsTrue(File.Exists(BackupPath));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Constructor_NotGivenBackupPath_DoesNotGenerateBackup()
         {
             //Arrange
@@ -85,7 +94,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.IsFalse(File.Exists(BackupPath));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Update_NullKey_ThrowsArgumentNullException()
         {
             //Arrange
@@ -97,7 +106,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.ThrowsException<ArgumentNullException>(() => efp.Update(null, localizations));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NormalUpdate_ReturnsUpdatedDict()
         {
             //Arrange
@@ -121,7 +130,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(1, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NormalUpdateThenUpdateWithNullLocalizations_DictUpdatedOnce()
         {
             //Arrange
@@ -147,7 +156,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(1, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NormalUpdateThenUpdateWithEmptyLocalizations_DictUpdatedOnce()
         {
             //Arrange
@@ -174,7 +183,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(1, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_TwoUpdatesOneSmaller_ReturnsAppropriatelyShapedDict()
         {
             //Arrange
@@ -202,7 +211,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(2, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_TwoUpdatesOneBigger_ReturnsAppropriatelyShapedDict()
         {
             //Arrange
@@ -214,7 +223,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             IEnumerable<TextLocalization> localizations1 = GreetingsExamplePlusIndonesian;
             IEnumerable<TextLocalization> localizations2 = AcceptExample;
             IList<CultureInfo> containingLanguagesPlusID =
-                (new List<CultureInfo>{new CultureInfo("id")}).Concat(ContainingLanguages).ToList();
+                new List<CultureInfo> {new CultureInfo("id")}.Concat(ContainingLanguages).ToList();
 
             //Act
             efp.Update(key1, localizations1);
@@ -233,7 +242,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(2, dict[containingLanguagesPlusID[4]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NoUpdate_ReturnDictHasEmptyInnerDicts()
         {
             //Arrange
@@ -253,7 +262,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(0, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void LoadingFiles_NoLanguages_FileProviderIsInStateEmpty()
         {
             //Arrange
@@ -266,7 +275,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.AreEqual(ProviderStatus.Empty, efp.Status);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void LoadingFiles_AlmostFull_GetDictionaryReturnsAppropriateNumberOfEntries()
         {
             //Arrange
@@ -281,15 +290,15 @@ namespace Internationalization.FileProvider.Excel.Tests
             Assert.IsTrue(AllDictionariesAreSize(dict, NumberOfRowsInAlmostFull));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CancelInitialization_CallingMethod_PutsFileProviderInStateCancelled()
         {
             //Arrange
-            ExcelFileProvider efp = new ExcelFileProvider(Path);
+            var efp = new ExcelFileProvider(Path);
 
             //Act
             efp.CancelInitialization();
-            while(efp.Status == ProviderStatus.CancellationInProgress)
+            while (efp.Status == ProviderStatus.CancellationInProgress)
             {
                 Thread.Sleep(200);
             }

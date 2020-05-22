@@ -1,29 +1,34 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using Internationalization.Enum;
 using Internationalization.Model;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Internationalization.FileProvider.JSON.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class JsonFileProviderTests
     {
-        //properties of language file
-        private static readonly IList<CultureInfo> ContainingLanguages = new List<CultureInfo>
-            {new CultureInfo("en"), new CultureInfo("sv"), new CultureInfo("de"), new CultureInfo("fr")};
         private const int NumberOfEntriesInSomeFile = 5;
+
         //properties of path language file
         private const string PathBeginningPart = @"TestResources\JsonTestResources\Language_File";
         private const string PathEndingPart = ".json";
         private const string PathEmptyPart = "_empty";
         private const string PathSomePart = "_some";
+
         private const string PathNoLanguagesPart = "_no_languages";
+
         //parameter used in constructor
         private const string Path = PathBeginningPart + PathEndingPart;
+
+        //properties of language file
+        private static readonly IList<CultureInfo> ContainingLanguages = new List<CultureInfo>
+            {new CultureInfo("en"), new CultureInfo("sv"), new CultureInfo("de"), new CultureInfo("fr")};
+
         //often used objects with large constructors
         private static readonly IList<TextLocalization> GreetingsExample = new List<TextLocalization>
         {
@@ -32,12 +37,14 @@ namespace Internationalization.FileProvider.JSON.Tests
             new TextLocalization {Language = new CultureInfo("de"), Text = "Hallo"},
             new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"}
         };
+
         private static readonly IList<TextLocalization> GreetingsExampleMinusGerman = new List<TextLocalization>
         {
             new TextLocalization {Language = new CultureInfo("en"), Text = "Hello"},
             new TextLocalization {Language = new CultureInfo("sv"), Text = "Hej"},
             new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"}
         };
+
         private static readonly IList<TextLocalization> GreetingsExamplePlusIndonesian = new List<TextLocalization>
         {
             new TextLocalization {Language = new CultureInfo("en"), Text = "Hello"},
@@ -46,6 +53,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"},
             new TextLocalization {Language = new CultureInfo("id"), Text = "Halo"}
         };
+
         private static readonly IList<TextLocalization> AcceptExample = new List<TextLocalization>
         {
             new TextLocalization {Language = new CultureInfo("en"), Text = "I accept"},
@@ -54,7 +62,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             new TextLocalization {Language = new CultureInfo("fr"), Text = "J'accepte"}
         };
 
-        [TestMethod()]
+        [TestMethod]
         public void Update_NullKey_ThrowsArgumentNullException()
         {
             //Arrange
@@ -66,7 +74,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.ThrowsException<ArgumentNullException>(() => jfp.Update(null, localizations));
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NormalUpdate_ReturnsUpdatedDict()
         {
             //Arrange
@@ -90,7 +98,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(1, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NormalUpdateThenUpdateWithNullLocalizations_DictUpdatedOnce()
         {
             //Arrange
@@ -116,7 +124,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(1, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NormalUpdateThenUpdateWithEmptyLocalizations_DictUpdatedOnce()
         {
             //Arrange
@@ -143,7 +151,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(1, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_TwoUpdatesOneSmaller_ReturnsAppropriatelyShapedDict()
         {
             //Arrange
@@ -171,7 +179,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(2, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_TwoUpdatesOneBigger_ReturnsAppropriatelyShapedDict()
         {
             //Arrange
@@ -183,7 +191,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             IEnumerable<TextLocalization> localizations1 = GreetingsExamplePlusIndonesian;
             IEnumerable<TextLocalization> localizations2 = AcceptExample;
             IList<CultureInfo> containingLanguagesPlusID =
-                (new List<CultureInfo> { new CultureInfo("id") }).Concat(ContainingLanguages).ToList();
+                new List<CultureInfo> {new CultureInfo("id")}.Concat(ContainingLanguages).ToList();
 
             //Act
             jfp.Update(key1, localizations1);
@@ -202,7 +210,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(2, dict[containingLanguagesPlusID[4]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void GetDictionary_NoUpdate_ReturnDictHasEmptyInnerDicts()
         {
             //Arrange
@@ -222,7 +230,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(0, dict[ContainingLanguages[3]].Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void LoadingFiles_NoLanguages_FileProviderIsInStateEmpty()
         {
             //Arrange
@@ -235,7 +243,7 @@ namespace Internationalization.FileProvider.JSON.Tests
             Assert.AreEqual(ProviderStatus.Empty, efp.Status);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void LoadingFiles_Some_GetDictionaryReturnsAppropriateNumberOfEntries()
         {
             //Arrange
