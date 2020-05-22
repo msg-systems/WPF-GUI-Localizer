@@ -1,17 +1,17 @@
-﻿using Internationalization;
+﻿using System.Globalization;
+using System.Threading;
+using System.Windows;
+using Internationalization;
 using Internationalization.FileProvider.Interface;
 using Internationalization.FileProvider.JSON;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.Resource;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Threading;
-using System.Windows;
 
 namespace Example_Resources
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    ///     Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {

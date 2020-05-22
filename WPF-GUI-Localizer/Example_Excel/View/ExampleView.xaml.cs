@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Controls;
 using Internationalization.GUITranslator;
 
 namespace Example_Excel.View
 {
     /// <summary>
-    /// Interaction logic for ExampleView.xaml
+    ///     Interaction logic for ExampleView.xaml
     /// </summary>
     public partial class ExampleView : UserControl
     {
@@ -14,7 +13,7 @@ namespace Example_Excel.View
         {
             InitializeComponent();
 
-            this.Loaded += TranslateMe;
+            Loaded += TranslateMe;
         }
 
         private void TranslateMe(object sender, EventArgs eventArgs)

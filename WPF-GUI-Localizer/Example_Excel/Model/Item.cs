@@ -4,8 +4,8 @@ namespace Example_Excel.Model
 {
     public class Item : ObservableObject
     {
-        private string _quantity;
         private string _name;
+        private string _quantity;
         private bool _received;
         private string _website;
 
@@ -24,25 +24,25 @@ namespace Example_Excel.Model
         public string Quantity
         {
             get => _quantity;
-            set { Set<string>(() => Quantity, ref _quantity, value); }
+            set { Set(() => Quantity, ref _quantity, value); }
         }
 
         public string Name
         {
             get => _name;
-            set { Set<string>(() => Name, ref _name, value); }
+            set { Set(() => Name, ref _name, value); }
         }
 
         public bool Received
         {
             get => _received;
-            set { Set<bool>(() => Received, ref _received, value); }
+            set { Set(() => Received, ref _received, value); }
         }
 
         public string Website
         {
             get => _website;
-            set { Set<string>(() => Website, ref _website, value); }
+            set { Set(() => Website, ref _website, value); }
         }
     }
 }

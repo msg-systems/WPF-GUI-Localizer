@@ -12,6 +12,11 @@ namespace Example_Resources.ViewModel
     {
         private UserControl _currentView;
 
+        public MainViewModel()
+        {
+            CurrentView = new ExampleView();
+        }
+
         public UserControl CurrentView
         {
             get => _currentView;
@@ -31,10 +36,5 @@ namespace Example_Resources.ViewModel
         }
 
         public IEnumerable<CultureInfo> TranslatableLanguages => AbstractLiteralProvider.Instance.GetKnownLanguages();
-
-        public MainViewModel()
-        {
-            CurrentView = new ExampleView();
-        }
     }
 }
