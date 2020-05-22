@@ -132,6 +132,7 @@
     <Compile Include="Exception\MultiExceptionLoggingExtensions.cs" />
     <Compile Include="Exception\MultiExceptionLoggingObject.cs" />
     <Compile Include="Exception\ProviderNotInitializedException.cs" />
+    <Compile Include="Exception\ResourcesNotFoundException.cs" />
     <Compile Include="FileProvider\Excel\ExcelFileProvider.cs" />
     <Compile Include="FileProvider\FileHandler\ExcelApp\ExcelFileHandler.cs" />
     <Compile Include="FileProvider\FileHandler\Universal\UniversalFileHandler.cs" />

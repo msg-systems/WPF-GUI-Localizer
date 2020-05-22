@@ -51,6 +51,7 @@ namespace Internationalization.LiteralProvider.Resource
             _status = ProviderStatus.Empty;
         }
 
+        /// <inheritdoc cref="ReadDicts"/>
         private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
             CultureInfo preferredLanguage)
         {
@@ -69,6 +70,7 @@ namespace Internationalization.LiteralProvider.Resource
         /// <param name="inputLanguage">
         /// The language originally used in the application, which is ment to be internationalized.
         /// </param>
+        /// <inheritdoc cref="ReadDicts"/>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
             Initialize(fileProvider, inputLanguage, new CultureInfo("en"));
@@ -85,6 +87,7 @@ namespace Internationalization.LiteralProvider.Resource
         /// <param name="preferredLanguage">
         /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
+        /// <inheritdoc cref="ReadDicts"/>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
             CultureInfo preferredLanguage)
         {
@@ -191,17 +194,13 @@ namespace Internationalization.LiteralProvider.Resource
             FileProviderInstance.CancelInitialization();
         }
 
+        /// <exception cref="ResourcesNotFoundException">
+        /// Thrown, if both <see cref="GlobalSettings.ResourcesAssembly"/> is not set and the entry assembly
+        /// cannot be accesed.
+        /// </exception>
         private void ReadDicts()
         {
             var rm = ResourcesManagerProvider.GetResourcesManager();
-            if (rm == null)
-            {
-                var nameOfAssembly = GlobalSettings.ResourcesAssembly == null
-                    ? Assembly.GetEntryAssembly()?.FullName
-                    : GlobalSettings.ResourcesAssembly.FullName;
-                _logger.Log(LogLevel.Warning, $"Unable to read Resources files from assembly ({nameOfAssembly}).");
-                return;
-            }
 
             var invariantFallback = new Dictionary<string, string>();
 
