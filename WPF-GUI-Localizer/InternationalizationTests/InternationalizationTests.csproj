@@ -130,9 +130,6 @@
     <Compile Include="FileProvider\JSON\JsonFileProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\CultureInfoUtilTests.cs" />
-    <Compile Include="Utilities\DictionaryToExcelCellUtilsTests.cs" />
-    <Compile Include="Utilities\ExcelCellToDictionaryUtilsTests.cs" />
-    <Compile Include="Utilities\TextLocalizationsUtilsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
