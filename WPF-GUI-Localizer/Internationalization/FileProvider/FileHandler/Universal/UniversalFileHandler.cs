@@ -77,143 +77,6 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="Path.GetFullPath(string)"/> function.
-        /// </summary>
-        /// <param name="path">
-        /// The path that should be used for the GetFullPath call.
-        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
-        /// </param>
-        /// <returns>The result of the GetFullPath call.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown, if <paramref name="path"/> contains only white space, includes
-        /// unsupported characters or if the system fails to get the fully qualified
-        /// location for the given path.
-        /// </exception>
-        /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
-        /// </exception>
-        /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
-        /// </exception>
-        /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="path"/> is too long.
-        /// </exception>
-        private string GetFullPathWrapper(string path)
-        {
-            string fullPath;
-
-            try
-            {
-                fullPath = Path.GetFullPath(path);
-                //ArgumentNullException is not caught, because path was already checked for being null.
-            }
-            catch (ArgumentException e)
-            {
-                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given " +
-                                               $"path ({path}).\n" +
-                                               "... It may be empty, contain only white space, include " +
-                                               "unsupported characters or the system may have " +
-                                               "failed to get the fully qualified " +
-                                               "location for given path.");
-                throw;
-            }
-            catch (System.Security.SecurityException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), due to missing permissions.");
-                throw;
-            }
-            catch (NotSupportedException e)
-            {
-                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given "+
-                                               $"path ({path}). It contains a colon in an invalid "+
-                                               "position.");
-                throw;
-            }
-            catch (PathTooLongException e)
-            {
-                _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), because it is too long");
-                throw;
-            }
-
-            return fullPath;
-        }
-
-        /// <summary>
-        /// Handles Exception logging for the <see cref="Directory.CreateDirectory(string)"/> function.
-        /// It is assumed that <see cref="GetFullPathWrapper"/> was called prior to this function
-        /// and that no exceptions were thrown.
-        /// </summary>
-        /// <param name="fullPath">
-        /// The path of the file, for which a directory should be created.
-        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
-        /// </param>
-        /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
-        /// </exception>
-        /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
-        /// </exception>
-        private void CreateDirectoryWrapper(string fullPath)
-        {
-            //GetDirectoryName call should be save, as the same exceptions that can occur here
-            //have been checked in GetFullPathWrapper.
-            var directory = Path.GetDirectoryName(fullPath);
-
-            //GetDirectoryName returns null if path denotes a root directory or is null. Returns empty string
-            //if path does not contain directory information.
-            if (directory == null)
-            {
-                //directory can only be null, if directry is a root directory.
-                _logger.Log(LogLevel.Debug, "Given path is a root directory. No directory will be created.");
-            }
-            else if (string.IsNullOrWhiteSpace(directory))
-            {
-                _logger.Log(LogLevel.Debug, "Given path does not contain directory information. " +
-                                            "No directory will be created.");
-            }
-            else
-            {
-                try
-                {
-                    Directory.CreateDirectory(directory);
-                    //uncaught Exceptions:
-                    //ArgumentException, PathTooLongException and NotSupportedException
-                    //are not caught, because GetDirectoryName will not generate invalid paths.
-                    //ArgumentNullException is not caught, because directory was already
-                    //checked for being null.
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
-                                                   $"for path ({fullPath}), due to missing permissions.");
-                    throw;
-                }
-                catch (DirectoryNotFoundException e)
-                {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
-                                                   $"for path ({fullPath}). The directory was not found. " +
-                                                   "(It may lie on an unmapped device)");
-                    throw;
-                }
-                catch (IOException e)
-                {
-                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
-                                                   $"for path ({fullPath}). The directory has conflicts with " +
-                                                   "names of existing files.");
-                    throw;
-                }
-
-                //success.
-                _logger.Log(LogLevel.Debug, $"Created directory for file ({fullPath}).");
-            }
-        }
-
-        /// <summary>
         /// Handles Exception logging for the <see cref="File.ReadAllText(string)"/>
         /// function based on <paramref name="path"/>.
         /// It is assumed that <see cref="VerifyPath"/> was called prior to
@@ -355,9 +218,9 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="File.Copy(string, string, bool)"/>
+        /// Handles Exception logging for the <see cref="File.Copy(string, string)"/>
         /// function based on the given parameters.
-        /// <see cref="File.Copy(string, string, bool)"/> is only invoked, if no file is present
+        /// <see cref="File.Copy(string, string)"/> is only invoked, if no file is present
         /// at <paramref name="toPath"/>.
         /// It is assumed that <see cref="VerifyPath"/> was called prior to
         /// this function for the value of <paramref name="fromPath"/> and <paramref name="toPath"/>
@@ -365,8 +228,17 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         /// </summary>
         /// <param name="fromPath">The path of the original file.</param>
         /// <param name="toPath">The path of the destination.</param>
+        /// <exception cref="UnauthorizedAccessException">
+        /// The permissions needed to copy the file is missing.
+        /// </exception>
+        /// <exception cref="DirectoryNotFoundException">
+        /// Thrown, if the directory of <paramref name="fromPath"/> was not found.
+        /// For example because it is on an unmapped device.
+        /// </exception>
+        /// <exception cref="FileNotFoundException">Thrown, if <paramref name="fromPath"/> was not found.</exception>
+        /// <exception cref="IOException">Thrown, if an unknown I/O-Error occurs.</exception>
         public void CopyBackupWrapper(string fromPath, string toPath)
-        {//TODO Exception doku
+        {
             var fromFullPath = Path.GetFullPath(fromPath);
             var toFullPath = Path.GetFullPath(toPath);
             if (!File.Exists(toFullPath))
@@ -408,6 +280,143 @@ namespace Internationalization.FileProvider.FileHandler.Universal
             else
             {
                 _logger.Log(LogLevel.Debug, "Backup file already created, No new backup was made.");
+            }
+        }
+
+        /// <summary>
+        /// Handles Exception logging for the <see cref="Path.GetFullPath(string)"/> function.
+        /// </summary>
+        /// <param name="path">
+        /// The path that should be used for the GetFullPath call.
+        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
+        /// </param>
+        /// <returns>The result of the GetFullPath call.</returns>
+        /// <exception cref="ArgumentException">
+        /// Thrown, if <paramref name="path"/> contains only white space, includes
+        /// unsupported characters or if the system fails to get the fully qualified
+        /// location for the given path.
+        /// </exception>
+        /// <exception cref="System.Security.SecurityException">
+        /// Thrown, if the permissions for accessing the full path are missing.
+        /// </exception>
+        /// <exception cref="NotSupportedException">
+        /// Thrown, if <paramref name="path"/> contains a colon anywhere other than as part of a
+        /// volume identifier ("C:\").
+        /// </exception>
+        /// <exception cref="PathTooLongException">
+        /// Thrown, if <paramref name="path"/> is too long.
+        /// </exception>
+        private string GetFullPathWrapper(string path)
+        {
+            string fullPath;
+
+            try
+            {
+                fullPath = Path.GetFullPath(path);
+                //ArgumentNullException is not caught, because path was already checked for being null.
+            }
+            catch (ArgumentException e)
+            {
+                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given " +
+                                               $"path ({path}).\n" +
+                                               "... It may be empty, contain only white space, include " +
+                                               "unsupported characters or the system may have " +
+                                               "failed to get the fully qualified " +
+                                               "location for given path.");
+                throw;
+            }
+            catch (System.Security.SecurityException e)
+            {
+                _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), due to missing permissions.");
+                throw;
+            }
+            catch (NotSupportedException e)
+            {
+                _logger.Log(LogLevel.Error, e, "There appear to be some problems with the given " +
+                                               $"path ({path}). It contains a colon in an invalid " +
+                                               "position.");
+                throw;
+            }
+            catch (PathTooLongException e)
+            {
+                _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), because it is too long");
+                throw;
+            }
+
+            return fullPath;
+        }
+
+        /// <summary>
+        /// Handles Exception logging for the <see cref="Directory.CreateDirectory(string)"/> function.
+        /// It is assumed that <see cref="GetFullPathWrapper"/> was called prior to this function
+        /// and that no exceptions were thrown.
+        /// </summary>
+        /// <param name="fullPath">
+        /// The path of the file, for which a directory should be created.
+        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
+        /// </param>
+        /// <exception cref="UnauthorizedAccessException">
+        /// Thrown, if permissions to create the directory are missing.
+        /// </exception>
+        /// <exception cref="DirectoryNotFoundException">
+        /// Thrown, if the directory was not found.
+        /// For example because it is on an unmapped device.
+        /// </exception>
+        /// <exception cref="IOException">
+        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        /// </exception>
+        private void CreateDirectoryWrapper(string fullPath)
+        {
+            //GetDirectoryName call should be save, as the same exceptions that can occur here
+            //have been checked in GetFullPathWrapper.
+            var directory = Path.GetDirectoryName(fullPath);
+
+            //GetDirectoryName returns null if path denotes a root directory or is null. Returns empty string
+            //if path does not contain directory information.
+            if (directory == null)
+            {
+                //directory can only be null, if directry is a root directory.
+                _logger.Log(LogLevel.Debug, "Given path is a root directory. No directory will be created.");
+            }
+            else if (string.IsNullOrWhiteSpace(directory))
+            {
+                _logger.Log(LogLevel.Debug, "Given path does not contain directory information. " +
+                                            "No directory will be created.");
+            }
+            else
+            {
+                try
+                {
+                    Directory.CreateDirectory(directory);
+                    //uncaught Exceptions:
+                    //ArgumentException, PathTooLongException and NotSupportedException
+                    //are not caught, because GetDirectoryName will not generate invalid paths.
+                    //ArgumentNullException is not caught, because directory was already
+                    //checked for being null.
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
+                                                   $"for path ({fullPath}), due to missing permissions.");
+                    throw;
+                }
+                catch (DirectoryNotFoundException e)
+                {
+                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
+                                                   $"for path ({fullPath}). The directory was not found. " +
+                                                   "(It may lie on an unmapped device)");
+                    throw;
+                }
+                catch (IOException e)
+                {
+                    _logger.Log(LogLevel.Error, e, $"Unable to create directory ({directory}) needed " +
+                                                   $"for path ({fullPath}). The directory has conflicts with " +
+                                                   "names of existing files.");
+                    throw;
+                }
+
+                //success.
+                _logger.Log(LogLevel.Debug, $"Created directory for file ({fullPath}).");
             }
         }
     }

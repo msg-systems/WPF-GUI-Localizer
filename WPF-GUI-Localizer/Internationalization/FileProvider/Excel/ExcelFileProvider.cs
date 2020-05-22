@@ -126,7 +126,6 @@ namespace Internationalization.FileProvider.Excel
             ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
                 "Dictionary was accessed, without ExcelFileProvider being initialized.");
 
-            //TODO er sollte nie hier hin kommen, aber meckert trotzdem
             throw new NotSupportedException("unreachable code.");
         }
 

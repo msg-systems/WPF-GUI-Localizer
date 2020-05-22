@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Internationalization.Enum;
 using Internationalization.FileProvider.FileHandler.Universal;
 using Internationalization.Utilities;
@@ -88,9 +87,6 @@ namespace Internationalization.FileProvider.JSON
         /// <summary>
         /// Persists the current dictionary of translations, by writing it to the given json file.
         /// </summary>
-        /// <exception cref="FileProviderNotInitializedException">
-        /// Thrown, if the object has not found a language file to pull translations from.
-        /// </exception>
         /// <exception cref="UnauthorizedAccessException">
         /// Thrown, if <see cref="_path"/> is read-only, a directory, hidden, the needed permissions
         /// are missing or the operation is not supported on the current platform.
@@ -116,17 +112,18 @@ namespace Internationalization.FileProvider.JSON
         /// Will automatically write to file, if this is the first Update call
         /// and no file existed upon creation of this object.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="key"/> is null.</exception>
         /// <param name="key">The entry for which translations should be updated.</param>
         /// <param name="texts">
         /// The new translations. If list is null or empty, no changes will be made to the dictionary.
         /// </param>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="key"/> is null.</exception>
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
             //null checks.
             ExceptionLoggingUtils.ThrowIfNull(_logger, (object) key, nameof(key),
                 "Unable to update dictionary for null key.",
                 "Key received in Update call is null.");
+
             if (texts == null)
             {
                 //no exception has to be thrown here, because null is treated like empty list and
@@ -153,6 +150,7 @@ namespace Internationalization.FileProvider.JSON
             if (Status == ProviderStatus.Empty)
             {
                 _logger.Log(LogLevel.Debug, "First update after empty sheet was created.");
+
                 SaveDictionary();
 
                 Status = ProviderStatus.Initialized;
@@ -165,6 +163,7 @@ namespace Internationalization.FileProvider.JSON
         {
             _logger.Log(LogLevel.Trace,
                 "CancelInitialization function was called.");
+
             if (Status == ProviderStatus.InitializationInProgress)
             {
                 //cancelation identical to Initialization.
@@ -191,7 +190,6 @@ namespace Internationalization.FileProvider.JSON
             ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
                     "Dictionary was accessed, without JsonFileProvider being initialized.");
 
-            //TODO er sollte nie hier hin kommen, aber meckert trotzdem
             throw new NotSupportedException("unreachable code.");
         }
 
@@ -244,8 +242,11 @@ namespace Internationalization.FileProvider.JSON
             _dictOfDicts =
                 JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
 
-            bool noData = _dictOfDicts == null || _dictOfDicts.Count == 0;
+            UpdateStatusAfterInitialization(_dictOfDicts == null || _dictOfDicts.Count == 0);
+        }
 
+        private void UpdateStatusAfterInitialization(bool noData)
+        {
             switch (Status)
             {
                 case ProviderStatus.CancellationInProgress:
@@ -258,12 +259,12 @@ namespace Internationalization.FileProvider.JSON
                 case ProviderStatus.InitializationInProgress when noData:
                     Status = ProviderStatus.Empty;
                     _logger.Log(LogLevel.Information, "Was unable to collect information from file. " +
-                                                "JsonFileProvider is now in State Empty.");
+                                                      "JsonFileProvider is now in State Empty.");
 
                     break;
                 case ProviderStatus.InitializationInProgress:
                     Status = ProviderStatus.Initialized;
-                    _logger.Log(LogLevel.Information, 
+                    _logger.Log(LogLevel.Information,
                         "Finished initialization. ExcelFileProvider is now in State Initialized.");
 
                     break;

@@ -49,7 +49,28 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         /// Thrown, if <paramref name="sender"/> is not of type BackgroundWorker.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <see cref="Path"/> is not set before this function is called.
+        /// Thrown, if <see cref="Path"/> is not set before this function is called
+        /// - or - if <see cref="Path"/> contains a colon anywhere other than as part of a
+        /// volume identifier ("C:\").
+        /// </exception>
+        /// <exception cref="System.Security.SecurityException">
+        /// Thrown, if the permissions for accessing the full path are missing.
+        /// </exception>
+        /// <exception cref="PathTooLongException">
+        /// Thrown, if <see cref="Path"/> is too long.
+        /// </exception>
+        /// <exception cref="UnauthorizedAccessException">
+        /// Thrown, if permissions to create the directory are missing.
+        /// </exception>
+        /// <exception cref="DirectoryNotFoundException">
+        /// Thrown, if the directory was not found.
+        /// For example because it is on an unmapped device.
+        /// </exception>
+        /// <exception cref="IOException">
+        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        /// </exception>
+        /// <exception cref="FileNotFoundException">
+        /// Thrown, if <see cref="Path"/> is a dictionary.
         /// </exception>
         public void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e)
         {
@@ -110,12 +131,34 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         /// Can be used to update the excel sheet at <see cref="Path"/> with
         /// <paramref name="translationsDictionary"/>, write the first entry into an empty sheet
         /// or create a new excel sheet based on <paramref name="translationsDictionary"/>.
-        /// This function does not currently catch or log any Exceptions.
         /// </summary>
         /// <param name="translationsDictionary">
         /// The dictionary that should be written into the excel sheet. If empty or null, a new and empty
         /// sheet will be created at <see cref="Path"/>.
         /// </param>
+        /// <exception cref="System.Security.SecurityException">
+        /// Thrown, if the permissions for accessing the full path are missing.
+        /// </exception>
+        /// <exception cref="NotSupportedException">
+        /// Thrown, if <see cref="Path"/> contains a colon anywhere other than as part of a
+        /// volume identifier ("C:\").
+        /// </exception>
+        /// <exception cref="PathTooLongException">
+        /// Thrown, if <see cref="Path"/> is too long.
+        /// </exception>
+        /// <exception cref="UnauthorizedAccessException">
+        /// Thrown, if permissions to create the directory are missing.
+        /// </exception>
+        /// <exception cref="DirectoryNotFoundException">
+        /// Thrown, if the directory was not found.
+        /// For example because it is on an unmapped device.
+        /// </exception>
+        /// <exception cref="IOException">
+        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        /// </exception>
+        /// <exception cref="FileNotFoundException">
+        /// Thrown, if <see cref="Path"/> is a dictionary.
+        /// </exception>
         public void ExcelWriteActions(Dictionary<CultureInfo, Dictionary<string, string>> translationsDictionary)
         {
             FileCreationType fcType;
