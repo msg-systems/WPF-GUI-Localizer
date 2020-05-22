@@ -24,6 +24,7 @@ namespace Internationalization.LiteralProvider.Resource
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
+        private bool _dictOfDictsIncludesChanges;
         private ProviderStatus _status;
 
         /// <summary>
@@ -202,7 +203,7 @@ namespace Internationalization.LiteralProvider.Resource
         {
             var rm = ResourcesManagerProvider.GetResourcesManager();
 
-            var invariantFallback = new Dictionary<string, string>();
+            Dictionary<string, string> invariantFallback = null;
 
             //collect all Resource entries.
             var langs = CultureInfo.GetCultures(CultureTypes.AllCultures);
@@ -232,18 +233,59 @@ namespace Internationalization.LiteralProvider.Resource
                 }
             }
 
+            TryAddChangesIntoDictOfDicts();
+
             if (_dictOfDicts.ContainsKey(InputLanguage))
             {
                 _dictOfDicts.Add(CultureInfo.InvariantCulture, invariantFallback);
             }
-            //if Inputlanguage is not present, use invariant as replacement instead, bacause
+            //if Inputlanguage is not present, use invariant as replacement instead, because
             //InputLanguage is expected to always exist.
             else
             {
+                ExceptionLoggingUtils.ThrowIf<InputLanguageNotFoundException>(invariantFallback == null,
+                    _logger, $"The given input language ({InputLanguage.EnglishName}) was not found in the " +
+                             "Resources files.");
+
                 _dictOfDicts.Add(InputLanguage, invariantFallback);
             }
 
             _status = ProviderStatus.Initialized;
+        }
+
+        private void TryAddChangesIntoDictOfDicts()
+        {
+            if (!_dictOfDictsIncludesChanges && FileProviderInstance.Status == ProviderStatus.Initialized ||
+                FileProviderInstance.Status == ProviderStatus.Empty)
+            {
+                //call should be save, since State is Empty or Initialized.
+                var changes = GetDictionaryFromFileProvider();
+
+                //correct dict.
+                foreach (var langDict in changes)
+                {
+                    //correct on language level.
+                    if (!_dictOfDicts.ContainsKey(langDict.Key))
+                    {
+                        _dictOfDicts.Add(langDict.Key, new Dictionary<string, string>());
+                    }
+
+                    foreach (var changedLocalization in langDict.Value)
+                    {
+                        //correct on localization level.
+                        if (!langDict.Value.ContainsKey(changedLocalization.Key))
+                        {
+                            _dictOfDicts[langDict.Key].Add(changedLocalization.Key, changedLocalization.Value);
+                        }
+                        else
+                        {
+                            _dictOfDicts[langDict.Key][changedLocalization.Key] = changedLocalization.Value;
+                        }
+                    }
+                }
+
+                _dictOfDictsIncludesChanges = true;
+            }
         }
 
         private static string GetKeyFromUnkownElementType(DependencyObject element)
@@ -264,25 +306,9 @@ namespace Internationalization.LiteralProvider.Resource
                 return null;
             }
 
-            //check for changes everytime (changes-dict can change due to late loading).
-            Dictionary<CultureInfo, Dictionary<string, string>> changes = null;
-            try
-            {
-                changes = GetDictionaryFromFileProvider();
-            }
-            catch (FileProviderNotInitializedException)
-            {
-                //logged in Debug, as this behaviour is intended, if the file does not exists initially.
-                _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
-            }
+            //check for changes everytime (changes-dict can update late, incase of ExcelFileProvider).
+            TryAddChangesIntoDictOfDicts();
 
-            var translation =
-                CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey,
-                    InputLanguage, exactLanguage);
-
-            if (translation != null) return translation;
-
-            //if needed use translations from Resources.
             return CultureInfoUtil.GetLanguageDictValueOrDefault(_dictOfDicts, language, resourceKey,
                 InputLanguage, exactLanguage);
         }
