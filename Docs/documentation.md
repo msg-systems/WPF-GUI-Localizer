@@ -32,7 +32,6 @@
 * [Quickstart-Checklist and Examples](#checklist)
   * [Excel](#excelquickstart)
   * [Resources](#resourcequickstart)
-* [Changes since v0.9.1](#changes)
 
 # WPF-GUI-Localizer
 
