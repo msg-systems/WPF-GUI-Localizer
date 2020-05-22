@@ -22,7 +22,7 @@ namespace Internationalization.FileProvider.Excel.Tests
         private const string PathEndingPart = ".xlsx";
         private const string PathEmptyPart = "_empty";
         private const string PathAlmostFullPart = "_almost_full";
-        private const string PathNoLanguages = "_no_languages";
+        private const string PathNoLanguagesPart = "_no_languages";
         //parameters used in constructor
         private const string Path = PathBeginningPart + PathEndingPart;
         private const string GlossaryTag = "gloss";
@@ -91,13 +91,7 @@ namespace Internationalization.FileProvider.Excel.Tests
             //Arrange
             SelectLanguageFile("empty");
             var efp = CreateNewExcelFileProvider(false);
-            IEnumerable<TextLocalization> localizations = new List<TextLocalization>
-            {
-                new TextLocalization {Language = new CultureInfo("en"), Text = "Hello"},
-                new TextLocalization {Language = new CultureInfo("sv"), Text = "Hej"},
-                new TextLocalization {Language = new CultureInfo("de"), Text = "Hallo"},
-                new TextLocalization {Language = new CultureInfo("fr"), Text = "Bonjour"}
-            };
+            IEnumerable<TextLocalization> localizations = GreetingsExample;
 
             //Act //Assert
             Assert.ThrowsException<ArgumentNullException>(() => efp.Update(null, localizations));
@@ -361,7 +355,7 @@ namespace Internationalization.FileProvider.Excel.Tests
                     fullNameOfLanguageFile += PathAlmostFullPart;
                     break;
                 case "no languages":
-                    fullNameOfLanguageFile += PathNoLanguages;
+                    fullNameOfLanguageFile += PathNoLanguagesPart;
                     break;
                 default:
                     Assert.Fail("SelectLanguageFile function was used incorrectly.");
