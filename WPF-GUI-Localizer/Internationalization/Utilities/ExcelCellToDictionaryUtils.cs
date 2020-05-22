@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -7,6 +6,13 @@ namespace Internationalization.Utilities
 {
     public static class ExcelCellToDictionaryUtils
     {
+        /// <summary>
+        /// Adds entries to <paramref name="dictionary"/>, based on the languages in <paramref name="excelCells"/>
+        /// </summary>
+        /// <exception cref="CultureNotFoundException">
+        /// Thrown, if one of the cells of the header rows in <paramref name="excelCells"/> is not recognized as
+        /// a language.
+        /// </exception>
         public static void FillSubDictionaries(Dictionary<CultureInfo, Dictionary<string, string>> dictionary,
             object[,] excelCells, int maxColumn, int numberOfKeyParts)
         {
@@ -22,15 +28,23 @@ namespace Internationalization.Utilities
             }
         }
 
-        //TODO doc
-        public static Dictionary<CultureInfo, int> GetLanguageColumnsLookupTable(object[,] excelCells, int numberOfKeyParts)
+        /// <summary>
+        /// Returns a dictionary that maps <see cref="CultureInfo"/> objects to their column of
+        /// <paramref name="excelCells"/>, in which they appear.
+        /// </summary>
+        /// <exception cref="CultureNotFoundException">
+        /// Thrown, if one of the cells of the header rows in <paramref name="excelCells"/> is not recognized as
+        /// a language.
+        /// </exception>
+        public static Dictionary<CultureInfo, int> GetLanguageColumnsLookupTable(object[,] excelCells,
+            int numberOfKeyParts)
         {
             var lookupTable = new Dictionary<CultureInfo, int>();
             var maxColumn = excelCells.GetUpperBound(1);
 
             for (var column = GetNumberOfKeyParts(excelCells) + 1; column <= maxColumn; column++)
             {
-                var culture = CultureInfoUtil.GetCultureInfoOrDefault(
+                var culture = CultureInfoUtil.GetCultureInfo(
                     ExcelCellToString(excelCells[1, column]), true);
                 lookupTable.Add(culture, column);
             }
@@ -62,6 +76,9 @@ namespace Internationalization.Utilities
             return maxColumn;
         }
 
+        /// <summary>
+        /// Converts the key cells of <paramref name="row"/> into the format in which they are used as dictionary keys.
+        /// </summary>
         public static string ExcelCellToDictionaryKey(object[,] excelCells, int row, int numberOfKeyParts,
             bool isGlossaryEntry, string glossaryTag, ref int numberOfGlossaryEntries)
         {
@@ -86,7 +103,32 @@ namespace Internationalization.Utilities
             return key;
         }
 
-        public static string ExcelCellToString(object cellValue)
+        /// <summary>
+        /// Adds an entry consisting of <paramref name="keyOfRow"/> and the translation in
+        /// <paramref name="translationCell"/> to <paramref name="dictionary"/> for the
+        /// language in <paramref name="languageCell"/>.
+        /// If the language in <paramref name="languageCell"/> cannot be found or the
+        /// <paramref name="translationCell"/> is empty, <paramref name="dictionary"/> will not be updated.
+        /// </summary>
+        public static void TryAddExcelCellToDictionary(Dictionary<CultureInfo, Dictionary<string, string>> dictionary,
+            object languageCell, object translationCell, string keyOfRow)
+        {
+            var lang = CultureInfoUtil.GetCultureInfoOrDefault(
+                ExcelCellToString(languageCell), true);
+
+            if (lang == null)
+            {
+                return;
+            }
+
+            var translationString = translationCell as string;
+            if (!string.IsNullOrEmpty(translationString))
+            {
+                dictionary[lang].Add(keyOfRow, translationString);
+            }
+        }
+
+        private static string ExcelCellToString(object cellValue)
         {
             return cellValue == null ? string.Empty : cellValue.ToString();
         }
@@ -106,20 +148,6 @@ namespace Internationalization.Utilities
             }
 
             return stringBuilder.ToString();
-        }
-
-        public static void AddExcelCellToDictionary(Dictionary<CultureInfo, Dictionary<string, string>> dictionary,
-            object languageCell, object translationCell, string keyOfRow)
-        {
-            var lang = CultureInfoUtil.GetCultureInfo(
-                ExcelCellToDictionaryUtils.ExcelCellToString(languageCell),
-                true);
-
-            var translationString = translationCell as string;
-            if (!string.IsNullOrEmpty(translationString))
-            {
-                dictionary[lang].Add(keyOfRow, translationString);
-            }
         }
     }
 }

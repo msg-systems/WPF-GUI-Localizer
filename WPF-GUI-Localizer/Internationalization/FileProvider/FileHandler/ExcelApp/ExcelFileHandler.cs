@@ -116,6 +116,11 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                         "File at given path may be corrupted or not have correct format. " +
                         "Expected Excel sheet (.xlsx, .xls, ...).");
                 }
+                else if (e.Error.GetType() == typeof(CultureNotFoundException))
+                {
+                    _logger.Log(LogLevel.Error, e.Error, "One of the cells in the first row was expected to " +
+                                                         "contain a language code, but did not.");
+                }
                 else
                 {
                     _logger.Log(LogLevel.Error, e.Error, "Unknown error occurred during language file loading.");
@@ -240,6 +245,10 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             e.Result = resultDict;
         }
 
+        /// <exception cref="CultureNotFoundException">
+        /// Thrown, if one of the cells of the header rows in <paramref name="excelCells"/> is not recognized as
+        /// a language.
+        /// </exception>
         private Dictionary<CultureInfo, Dictionary<string, string>> ReadWorksheetTranslations(ExcelInterop.Worksheet worksheet)
         {
             //initialize needed variables.
@@ -280,7 +289,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //add translations to dictionary.
                 for (var langIndex = numKeyParts + 1; langIndex <= maxColumn; langIndex++)
                 {
-                    ExcelCellToDictionaryUtils.AddExcelCellToDictionary(readDict,
+                    ExcelCellToDictionaryUtils.TryAddExcelCellToDictionary(readDict,
                         values[1, langIndex], values[row, langIndex], key);
                 }
 

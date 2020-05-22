@@ -30,10 +30,11 @@ namespace Internationalization.Utilities
             ExceptionLoggingUtils.ThrowIfNull(Logger, nameof(GetCultureInfo), (object) cultureName,
                 nameof(cultureName), "Unable to generate CultureInfo object from null sting.");
             
-            var culture = GetCultureInfoOrDefault(cultureName, onlyBracketsAtEndOfString);
+            var culture = GetCultureInfoOrDefaultInternal(cultureName, onlyBracketsAtEndOfString, out string searched);
 
             ExceptionLoggingUtils.ThrowIf(culture == null, Logger,
-                new CultureNotFoundException($"Unable to generate CultureInfo object from string ({cultureName})."),
+                new CultureNotFoundException(cultureName, searched,
+                    $"Unable to generate CultureInfo object from string."),
                 "GetCultureInfo received invalid culture name.");
 
             return culture;
@@ -53,30 +54,7 @@ namespace Internationalization.Utilities
                 return null;
             }
 
-            var begin = cultureName.LastIndexOf(@"(", StringComparison.Ordinal) + 1;
-            var length = cultureName.LastIndexOf(@")", StringComparison.Ordinal) - begin;
-            string newCultureName;
-            if (onlyBracketsAtEndOfString && begin > 0 && length > 0)
-            {
-                newCultureName = cultureName.Substring(begin, length);
-            }
-            //invariant culutre has empty name (output by converter: "Invariant Language (Invariant Country) ()")
-            else if (onlyBracketsAtEndOfString && begin > 0 && length == 0)
-            {
-                return CultureInfo.InvariantCulture;
-            }
-            else
-            {
-                newCultureName = cultureName;
-            }
-
-            var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
-            if (!allCultures.Select(c => c.Name).Contains(newCultureName) || string.IsNullOrEmpty(newCultureName))
-            {
-                return null;
-            }
-
-            return new CultureInfo(newCultureName);
+            return GetCultureInfoOrDefaultInternal(cultureName, onlyBracketsAtEndOfString, out _);
         }
 
         /// <summary>
@@ -157,6 +135,32 @@ namespace Internationalization.Utilities
 
             //default.
             return null;
+        }
+
+        private static CultureInfo GetCultureInfoOrDefaultInternal(string cultureName, bool onlyBracketsAtEndOfString,
+            out string partOfNameSearched)
+        {
+            partOfNameSearched = cultureName;
+
+            var begin = cultureName.LastIndexOf(@"(", StringComparison.Ordinal) + 1;
+            var length = cultureName.LastIndexOf(@")", StringComparison.Ordinal) - begin;
+            if (onlyBracketsAtEndOfString && begin > 0 && length > 0)
+            {
+                partOfNameSearched = cultureName.Substring(begin, length);
+            }
+            //invariant culutre has empty name (output by converter: "Invariant Language (Invariant Country) ()")
+            else if (onlyBracketsAtEndOfString && begin > 0 && length == 0)
+            {
+                return CultureInfo.InvariantCulture;
+            }
+
+            var allCultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
+            if (!allCultures.Select(c => c.Name).Contains(partOfNameSearched) || string.IsNullOrEmpty(partOfNameSearched))
+            {
+                return null;
+            }
+
+            return new CultureInfo(partOfNameSearched);
         }
     }
 }
