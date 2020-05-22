@@ -72,7 +72,6 @@ namespace Internationalization.GUITranslator
                     break;
             }
 
-            //TODO vorher checken ob element übersetzt werden kann?
             var guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(visual);
 
             //visual is non translatable, does not have a Name or not supported type like Grid, Stackpanel ...

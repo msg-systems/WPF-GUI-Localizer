@@ -347,7 +347,6 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                     workbook.SaveAs(System.IO.Path.GetFullPath(path));
                 }
             }
-            //TODO no catch clause, due to missing documentation for Exceptions thrown ba excel Interop
             finally
             {
                 workbook?.Close();
@@ -407,8 +406,9 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 {
                     //values array, usedRange, maxColumns and languagesColumnLookup may change if
                     //Excel sheet needs to be altered.
-                    updatedRow = DictionaryToExcelCellUtils.TryUpdateRow(worksheet, ref usedRange, ref values, ref maxColumn, languageColumnLookup,
-                        currentDialogFind, translation.Value, keyParts, numberOfKeyParts);
+                    updatedRow = DictionaryToExcelCellUtils.TryUpdateRow(worksheet, ref usedRange, ref values,
+                        ref maxColumn, ref languageColumnLookup, currentDialogFind, translation.Value,
+                        keyParts, numberOfKeyParts);
 
                     lastFindForDialogIndex = currentDialogFind.Row;
                     currentDialogFind = usedRange.FindNext(currentDialogFind);
@@ -431,7 +431,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 //values array, usedRange, maxColumns and languagesColumnLookup may change if Excel sheet
                 //needs to be altered.
                 DictionaryToExcelCellUtils.WriteNewRow(worksheet, ref usedRange, ref values, ref maxColumn,
-                    languageColumnLookup, lastFindForDialogIndex, translation.Value, keyParts, numberOfKeyParts);
+                    ref languageColumnLookup, lastFindForDialogIndex, translation.Value, keyParts, numberOfKeyParts);
             }
         }
     }

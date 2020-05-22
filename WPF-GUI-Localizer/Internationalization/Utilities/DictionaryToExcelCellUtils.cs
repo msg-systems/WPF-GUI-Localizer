@@ -49,15 +49,21 @@ namespace Internationalization.Utilities
             return origianlKeyParts;
         }
 
-        //TODO doc
-        //languageLookup can be altered.
+        /// <summary>
+        /// If the <paramref name="keyParts"/> match the Row of <paramref name="currentCell"/>, this row of
+        /// <paramref name="worksheet"/> will be updated using the languages and translations in
+        /// <paramref name="localizedTexts"/> and true will be returned.
+        /// If a new language is added to <paramref name="worksheet"/>, then <paramref name="usedRange"/>,
+        /// <paramref name="excelCells"/>, <paramref name="maxColumn"/> and <paramref name="languageColumnLookup"/>
+        /// will be updated accordingly.
+        /// </summary>
         public static bool TryUpdateRow(ExcelInterop.Worksheet worksheet, ref ExcelInterop.Range usedRange,
-            ref object[,] excelCells, ref int maxColumn, Dictionary<CultureInfo, int> languageColumnLookup,
-            ExcelInterop.Range currentDialogFind, IList<TextLocalization> localizedTexts, string[] keyParts,
+            ref object[,] excelCells, ref int maxColumn, ref Dictionary<CultureInfo, int> languageColumnLookup,
+            ExcelInterop.Range currentCell, IList<TextLocalization> localizedTexts, string[] keyParts,
             int numberOfKeyParts)
         {
             //get rest of key from sheet.
-            ExcelInterop.Range currentRow = worksheet.Rows[currentDialogFind.Row];
+            ExcelInterop.Range currentRow = worksheet.Rows[currentCell.Row];
             var keyColumnsCells = new string[numberOfKeyParts];
             for (var i = 0; i < numberOfKeyParts; i++)
             {
@@ -68,27 +74,35 @@ namespace Internationalization.Utilities
             if (keyColumnsCells.SequenceEqual(keyParts))
             {
                 WriteToCell(worksheet, localizedTexts, ref usedRange, ref excelCells, ref maxColumn,
-                    languageColumnLookup, currentRow.Row);
+                    ref languageColumnLookup, currentRow.Row);
                 return true;
             }
 
             return false;
         }
 
+        /// <summary>
+        /// The row after <paramref name="lastFindIndex"/> or the last row of <see cref="worksheet"/>,
+        /// if <paramref name="lastFindIndex"/> is &lt; 0, will be updated using the languages and translations
+        /// in <paramref name="localizedTexts"/>.
+        /// If a new language is added to <paramref name="worksheet"/>, then <paramref name="usedRange"/>,
+        /// <paramref name="excelCells"/>, <paramref name="maxColumn"/> and <paramref name="languageColumnLookup"/>
+        /// will be updated accordingly.
+        /// </summary>
         public static void WriteNewRow(ExcelInterop.Worksheet worksheet, ref ExcelInterop.Range usedRange,
-            ref object[,] excelcells, ref int maxColumn, Dictionary<CultureInfo, int> languageColumnLookup,
-            int lastFindForDialogIndex, IList<TextLocalization> localizedTexts, string[] keyParts,
+            ref object[,] excelCells, ref int maxColumn, ref Dictionary<CultureInfo, int> languageColumnLookup,
+            int lastFindIndex, IList<TextLocalization> localizedTexts, string[] keyParts,
             int numberOfKeyParts)
         {
             ExcelInterop.Range newRow;
 
             //try writing new line next to others with same key beginning.
-            if (lastFindForDialogIndex >= 0)
+            if (lastFindIndex >= 0)
             {
-                newRow = worksheet.Rows[lastFindForDialogIndex + 1];
+                newRow = worksheet.Rows[lastFindIndex + 1];
                 newRow.Insert();
                 //get inserted row.
-                newRow = worksheet.Rows[lastFindForDialogIndex + 1];
+                newRow = worksheet.Rows[lastFindIndex + 1];
                 Logger.Log(LogLevel.Trace, "Entry will be inserted after similar keys.");
             }
             //if first part (or whole key for single key fragment setups like ResourceLiteralProvider)
@@ -109,12 +123,13 @@ namespace Internationalization.Utilities
             }
 
             //write new texts, values array and maxColumns may change if Excel sheet needs to be altered.
-            WriteToCell(worksheet, localizedTexts, ref usedRange, ref excelcells, ref maxColumn, languageColumnLookup, newRow.Row);
+            WriteToCell(worksheet, localizedTexts, ref usedRange, ref excelCells, ref maxColumn,
+                ref languageColumnLookup, newRow.Row);
         }
 
         private static void WriteToCell(ExcelInterop.Worksheet worksheet, IEnumerable<TextLocalization> texts,
             ref ExcelInterop.Range usedRange, ref object[,] excelCells, ref int maxColumn,
-            Dictionary<CultureInfo, int> languageColumnLookup, int currentRow)
+            ref Dictionary<CultureInfo, int> languageColumnLookup, int currentRow)
         {
             foreach (var text in texts)
             {
