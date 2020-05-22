@@ -8,7 +8,8 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
     public class UniversalFileHandlerTests
     {
         private const string TextFilePath = @"TestResources\UniversalFHTestResources\Text.txt";
-        private readonly string _textFileContent = "Hello, World!" + Environment.NewLine + "This is a test.";
+        private const string NonExistentFilePath = @"TestResources\UniversalFHTestResources\Not_Text.txt";
+        private static readonly string TextFileContent = "Hello, World!" + Environment.NewLine + "This is a test.";
 
         [TestCleanup]
         public void Cleanup()
@@ -107,18 +108,14 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
             var readText = ufh.ReadAllTextWrapper(path);
 
             //Assert
-            Assert.AreEqual(readText, _textFileContent);
+            Assert.AreEqual(readText, TextFileContent);
         }
 
         [TestMethod()]
         public void ReadAllTextWrapper_FileDoesNotExists_ThrowsFileNotFoundException()
         {
             //Arrange
-            string nonexistentPath = @"TestResources\UniversalFHTestResources\Not_Text.txt";
-            if (File.Exists(nonexistentPath) || Directory.Exists(nonexistentPath))
-            {
-                Assert.Fail("Path that should not exist exists.");
-            }
+            string nonexistentPath = GetNonExistentPath();
             var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
 
             //Act //Assert
@@ -139,13 +136,39 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
         [TestMethod()]
         public void WriteAllTextWrapperTest()
         {
-            Assert.Fail();//TODO
+            //Arrange
+            string expectedContent = TextFileContent;
+            string nonexistentPath = GetNonExistentPath();
+            var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
+
+            //Act
+            ufh.WriteAllTextWrapper(expectedContent, nonexistentPath);
+
+            //Assert
+            Assert.IsTrue(File.Exists(nonexistentPath));
+            Assert.AreEqual(expectedContent, File.ReadAllText(nonexistentPath));
+
+            //Cleanup
+            File.Delete(nonexistentPath);
         }
 
         [TestMethod()]
         public void CopyBackupWrapperTest()
         {
-            Assert.Fail();//TODO
+            //Arrange
+            string path = TextFilePath;
+            string nonexistentPath = GetNonExistentPath();
+            var ufh = new UniversalFileHandler(typeof(UniversalFileHandlerTests));
+
+            //Act
+            ufh.CopyBackupWrapper(path, nonexistentPath);
+
+            //Assert
+            Assert.IsTrue(File.Exists(nonexistentPath));
+            Assert.AreEqual(TextFileContent, File.ReadAllText(nonexistentPath));
+
+            //Cleanup
+            File.Delete(nonexistentPath);
         }
 
         /// <summary>
@@ -173,12 +196,22 @@ namespace Internationalization.FileProvider.FileHandler.Universal.Tests
             return path;
         }
 
-        public static void SetFileReadAccess(string fileName, bool setReadOnly)
+        private static void SetFileReadAccess(string fileName, bool setReadOnly)
         {
             FileInfo fInfo = new FileInfo(fileName)
             {
                 IsReadOnly = setReadOnly
             };
+        }
+
+        private static string GetNonExistentPath()
+        {
+            if (File.Exists(NonExistentFilePath) || Directory.Exists(NonExistentFilePath))
+            {
+                Assert.Fail("Path that should not exist exists.");
+            }
+
+            return NonExistentFilePath;
         }
     }
 }
