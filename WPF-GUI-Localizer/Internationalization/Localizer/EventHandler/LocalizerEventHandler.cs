@@ -34,7 +34,7 @@ namespace Internationalization.Localizer.EventHandler
             Logger.Log(LogLevel.Debug, "Localizer will be {0} View (of type {1})",
                 isActive ? "attached to" : "detached from", parent.DependencyObjectType.Name);
 
-            //make sure views don't get initialized multiple times.
+            //make sure views do not get initialized multiple times.
             if (calledByLoaded)
             {
                 var parentFrameworkElement = (FrameworkElement) parent;

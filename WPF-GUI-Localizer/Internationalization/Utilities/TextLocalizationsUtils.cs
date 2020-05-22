@@ -75,7 +75,7 @@ namespace Internationalization.Utilities
                 allTranslations.TryGetValue(targetLanguage, out var langDict);
                 langDict?.TryGetValue(entry.Key, out value);
 
-                //don't recommend the same translation twice
+                //do not recommend the same translation twice
                 if (!string.IsNullOrWhiteSpace(value) && !knownTranslations.Contains(value))
                 {
                     knownTranslations.Add(value);
