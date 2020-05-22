@@ -128,8 +128,6 @@
     <Compile Include="FileProvider\Excel\ExcelFileProviderTests.cs" />
     <Compile Include="FileProvider\FileHandler\Universal\UniversalFileHandlerTests.cs" />
     <Compile Include="FileProvider\JSON\JsonFileProviderTests.cs" />
-    <Compile Include="LiteralProvider\File\FileLiteralProviderTests.cs" />
-    <Compile Include="LiteralProvider\Resource\ResourceLiteralProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\CultureInfoUtilTests.cs" />
     <Compile Include="Utilities\DictionaryToExcelCellUtilsTests.cs" />
