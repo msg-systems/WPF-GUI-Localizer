@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Controls.Ribbon;
-using System.Windows.Media;
-using Internationalization.AttachedProperties;
 using Internationalization.Enum;
 using Internationalization.FileProvider.Interface;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.Model;
+using Internationalization.Properties;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +18,15 @@ namespace Internationalization.LiteralProvider.File
     {
         private static ILogger _logger;
         private ProviderStatus _status;
+
+        private FileLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
+            CultureInfo preferredLanguage)
+        {
+            FileProviderInstance = fileProvider;
+            _status = ProviderStatus.Initialized;
+            InputLanguage = inputLanguage;
+            PreferredLanguage = preferredLanguage;
+        }
 
         protected override ProviderStatus Status
         {
@@ -47,21 +50,13 @@ namespace Internationalization.LiteralProvider.File
             }
         }
 
-        private FileLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage, CultureInfo preferredLanguage)
-        {
-            FileProviderInstance = fileProvider;
-            _status = ProviderStatus.Initialized;
-            InputLanguage = inputLanguage;
-            PreferredLanguage = preferredLanguage;
-        }
-
         /// <summary>
-        /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property Instance.
+        ///     Initializes the singleton instance of AbstractLiteralProvider.
+        ///     Call this method before accessing the property Instance.
         /// </summary>
         /// <param name="fileProvider">Has to be initialized before acessing Instance.</param>
         /// <param name="inputLanguage">
-        /// The language originally used in the application, which is ment to be internationalized.
+        ///     The language originally used in the application, which is ment to be internationalized.
         /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
@@ -69,15 +64,15 @@ namespace Internationalization.LiteralProvider.File
         }
 
         /// <summary>
-        /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property Instance.
+        ///     Initializes the singleton instance of AbstractLiteralProvider.
+        ///     Call this method before accessing the property Instance.
         /// </summary>
         /// <param name="fileProvider">Has to be initialized before acessing Instance.</param>
         /// <param name="inputLanguage">
-        /// The language originally used in the application, which is ment to be internationalized.
+        ///     The language originally used in the application, which is ment to be internationalized.
         /// </param>
         /// <param name="preferredLanguage">
-        /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
+        ///     Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
             CultureInfo preferredLanguage)
@@ -197,9 +192,9 @@ namespace Internationalization.LiteralProvider.File
 
             var dictOfDicts = GetDictionaryFromFileProvider();
 
-            string result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key,
+            var result = CultureInfoUtil.GetLanguageDictValueOrDefault(dictOfDicts, language, key,
                 InputLanguage, exactLanguage);
-            
+
             if (result == null && !exactLanguage)
             {
                 _logger.Log(LogLevel.Debug,
@@ -214,7 +209,7 @@ namespace Internationalization.LiteralProvider.File
 
         private static string CreateGuiDictionaryKey(string dialogName, string type, string elementName = "")
         {
-            var seperator = Properties.Settings.Default.Seperator_for_partial_Literalkeys;
+            var seperator = Settings.Default.Seperator_for_partial_Literalkeys;
             return dialogName + seperator + type + seperator + elementName;
         }
 
@@ -224,9 +219,9 @@ namespace Internationalization.LiteralProvider.File
 
             if (dict == null || dict.Count == 0)
             {
-                dict = new Dictionary<CultureInfo, Dictionary<string, string>>()
+                dict = new Dictionary<CultureInfo, Dictionary<string, string>>
                 {
-                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                    {Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>()}
                 };
             }
 

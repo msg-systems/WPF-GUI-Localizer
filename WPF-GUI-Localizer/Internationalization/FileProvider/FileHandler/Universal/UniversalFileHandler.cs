@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -24,38 +25,38 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the given <paramref name="path"/>.
-        /// Returns the given <paramref name="path"/> with the appropriate ending, if it was not present.
+        ///     Handles Exception logging for the given <paramref name="path" />.
+        ///     Returns the given <paramref name="path" /> with the appropriate ending, if it was not present.
         /// </summary>
         /// <param name="path">The path that should be verified.</param>
-        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="path"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="path" /> is null.</exception>
         /// <exception cref="ArgumentException">
-        /// Thrown, if <paramref name="path"/> contains only white space, includes
-        /// unsupported characters or if the system fails to get the fully qualified
-        /// location for the given path.
+        ///     Thrown, if <paramref name="path" /> contains only white space, includes
+        ///     unsupported characters or if the system fails to get the fully qualified
+        ///     location for the given path.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
+        ///     Thrown, if the permissions for accessing the full path are missing.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
+        ///     Thrown, if <paramref name="path" /> contains a colon anywhere other than as part of a
+        ///     volume identifier ("C:\").
         /// </exception>
         /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="path"/> is too long.
+        ///     Thrown, if <paramref name="path" /> is too long.
         /// </exception>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
+        ///     Thrown, if permissions to create the directory are missing.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        ///     Thrown, if a file with the name of the dictionary that should be created already exists.
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <paramref name="path"/> is a dictionary.
+        ///     Thrown, if <paramref name="path" /> is a dictionary.
         /// </exception>
         public void VerifyPath(string path)
         {
@@ -77,27 +78,27 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="File.ReadAllText(string)"/>
-        /// function based on <paramref name="path"/>.
-        /// It is assumed that <see cref="VerifyPath"/> was called prior to
-        /// this function and that no errors were thrown.
+        ///     Handles Exception logging for the <see cref="File.ReadAllText(string)" />
+        ///     function based on <paramref name="path" />.
+        ///     It is assumed that <see cref="VerifyPath" /> was called prior to
+        ///     this function and that no errors were thrown.
         /// </summary>
         /// <param name="path">
-        /// The path of the file that <see cref="File.ReadAllText(string)"/> should read.
+        ///     The path of the file that <see cref="File.ReadAllText(string)" /> should read.
         /// </param>
-        /// <returns>The text returned by the <see cref="File.ReadAllText(string)"/> call.</returns>
+        /// <returns>The text returned by the <see cref="File.ReadAllText(string)" /> call.</returns>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if <paramref name="path"/> is write-only, a directory, the needed permissions
-        /// are missing or the operation is not supported on the current platform.
+        ///     Thrown, if <paramref name="path" /> is write-only, a directory, the needed permissions
+        ///     are missing or the operation is not supported on the current platform.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
+        ///     Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <paramref name="path"/> does not exist or cannot be found.
+        ///     Thrown, if <paramref name="path" /> does not exist or cannot be found.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurs.
+        ///     Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         public string ReadAllTextWrapper(string path)
         {
@@ -122,7 +123,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                                                "missing permissions.");
                 throw;
             }
-            catch (System.Security.SecurityException e)
+            catch (SecurityException e)
             {
                 _logger.Log(LogLevel.Error, e, $"Unable to open the language file ({path}), due to " +
                                                "missing permissions.");
@@ -151,27 +152,27 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="File.WriteAllText(string, string)"/>
-        /// function based on <paramref name="path"/>.
-        /// It is assumed that <see cref="VerifyPath"/> was called prior to
-        /// this function for the same value of <paramref name="path"/> and that no exceptions were thrown.
+        ///     Handles Exception logging for the <see cref="File.WriteAllText(string, string)" />
+        ///     function based on <paramref name="path" />.
+        ///     It is assumed that <see cref="VerifyPath" /> was called prior to
+        ///     this function for the same value of <paramref name="path" /> and that no exceptions were thrown.
         /// </summary>
         /// <param name="fileContent">
-        /// The string that should be written to the file at <paramref name="path"/>
+        ///     The string that should be written to the file at <paramref name="path" />
         /// </param>
         /// <param name="path">
-        /// The path at which <see cref="File.WriteAllText(string, string)"/> should
-        /// write <paramref name="fileContent"/>.
+        ///     The path at which <see cref="File.WriteAllText(string, string)" /> should
+        ///     write <paramref name="fileContent" />.
         /// </param>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if <paramref name="path"/> is read-only, a directory, hidden, the needed permissions
-        /// are missing or the operation is not supported on the current platform.
+        ///     Thrown, if <paramref name="path" /> is read-only, a directory, hidden, the needed permissions
+        ///     are missing or the operation is not supported on the current platform.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
+        ///     Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurs.
+        ///     Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         public void WriteAllTextWrapper(string fileContent, string path)
         {
@@ -196,7 +197,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                                                "missing permissions.");
                 throw;
             }
-            catch (System.Security.SecurityException e)
+            catch (SecurityException e)
             {
                 _logger.Log(LogLevel.Error, e, $"Unable to write to language file ({path}), due to " +
                                                "missing permissions.");
@@ -218,24 +219,24 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="File.Copy(string, string)"/>
-        /// function based on the given parameters.
-        /// <see cref="File.Copy(string, string)"/> is only invoked, if no file is present
-        /// at <paramref name="toPath"/>.
-        /// It is assumed that <see cref="VerifyPath"/> was called prior to
-        /// this function for the value of <paramref name="fromPath"/> and <paramref name="toPath"/>
-        /// and that no exceptions were thrown.
+        ///     Handles Exception logging for the <see cref="File.Copy(string, string)" />
+        ///     function based on the given parameters.
+        ///     <see cref="File.Copy(string, string)" /> is only invoked, if no file is present
+        ///     at <paramref name="toPath" />.
+        ///     It is assumed that <see cref="VerifyPath" /> was called prior to
+        ///     this function for the value of <paramref name="fromPath" /> and <paramref name="toPath" />
+        ///     and that no exceptions were thrown.
         /// </summary>
         /// <param name="fromPath">The path of the original file.</param>
         /// <param name="toPath">The path of the destination.</param>
         /// <exception cref="UnauthorizedAccessException">
-        /// The permissions needed to copy the file is missing.
+        ///     The permissions needed to copy the file is missing.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory of <paramref name="fromPath"/> was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory of <paramref name="fromPath" /> was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
-        /// <exception cref="FileNotFoundException">Thrown, if <paramref name="fromPath"/> was not found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown, if <paramref name="fromPath" /> was not found.</exception>
         /// <exception cref="IOException">Thrown, if an unknown I/O-Error occurs.</exception>
         public void CopyBackupWrapper(string fromPath, string toPath)
         {
@@ -284,27 +285,27 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="Path.GetFullPath(string)"/> function.
+        ///     Handles Exception logging for the <see cref="Path.GetFullPath(string)" /> function.
         /// </summary>
         /// <param name="path">
-        /// The path that should be used for the GetFullPath call.
-        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
+        ///     The path that should be used for the GetFullPath call.
+        ///     Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath" />.
         /// </param>
         /// <returns>The result of the GetFullPath call.</returns>
         /// <exception cref="ArgumentException">
-        /// Thrown, if <paramref name="path"/> contains only white space, includes
-        /// unsupported characters or if the system fails to get the fully qualified
-        /// location for the given path.
+        ///     Thrown, if <paramref name="path" /> contains only white space, includes
+        ///     unsupported characters or if the system fails to get the fully qualified
+        ///     location for the given path.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
+        ///     Thrown, if the permissions for accessing the full path are missing.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
+        ///     Thrown, if <paramref name="path" /> contains a colon anywhere other than as part of a
+        ///     volume identifier ("C:\").
         /// </exception>
         /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="path"/> is too long.
+        ///     Thrown, if <paramref name="path" /> is too long.
         /// </exception>
         private string GetFullPathWrapper(string path)
         {
@@ -325,7 +326,7 @@ namespace Internationalization.FileProvider.FileHandler.Universal
                                                "location for given path.");
                 throw;
             }
-            catch (System.Security.SecurityException e)
+            catch (SecurityException e)
             {
                 _logger.Log(LogLevel.Error, e, $"Unable to access path ({path}), due to missing permissions.");
                 throw;
@@ -347,23 +348,23 @@ namespace Internationalization.FileProvider.FileHandler.Universal
         }
 
         /// <summary>
-        /// Handles Exception logging for the <see cref="Directory.CreateDirectory(string)"/> function.
-        /// It is assumed that <see cref="GetFullPathWrapper"/> was called prior to this function
-        /// and that no exceptions were thrown.
+        ///     Handles Exception logging for the <see cref="Directory.CreateDirectory(string)" /> function.
+        ///     It is assumed that <see cref="GetFullPathWrapper" /> was called prior to this function
+        ///     and that no exceptions were thrown.
         /// </summary>
         /// <param name="fullPath">
-        /// The path of the file, for which a directory should be created.
-        /// Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath"/>.
+        ///     The path of the file, for which a directory should be created.
+        ///     Is assumed to not be null, because it should have already been checked in <see cref="VerifyPath" />.
         /// </param>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
+        ///     Thrown, if permissions to create the directory are missing.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        ///     Thrown, if a file with the name of the dictionary that should be created already exists.
         /// </exception>
         private void CreateDirectoryWrapper(string fullPath)
         {

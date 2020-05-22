@@ -9,6 +9,7 @@ using Internationalization.Enum;
 using Internationalization.Exception;
 using Internationalization.FileProvider.FileHandler.Universal;
 using Internationalization.Model;
+using Internationalization.Properties;
 using Internationalization.Utilities;
 using Microsoft.Extensions.Logging;
 using ExcelInterop = Microsoft.Office.Interop.Excel;
@@ -21,15 +22,6 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
         private readonly string _glossaryTag;
 
-        /// <summary>
-        /// The path of the excel table.
-        /// It is not assumed that the <see cref="UniversalFileHandler.VerifyPath"/> function
-        /// was called previously.
-        /// <see cref="UniversalFileHandler.VerifyPath"/> will automatically be called, if
-        /// <see cref="Path"/> is used.
-        /// </summary>
-        public string Path { get; set; }
-
         public ExcelFileHandler(Type typeOfUser, string glossaryTag)
             : base($"({nameof(ExcelFileHandler)} for {typeOfUser.Name})")
         {
@@ -38,39 +30,48 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         }
 
         /// <summary>
-        /// Work for BackgroundWorker.
-        /// Loads the excel sheet at <see cref="Path"/> and saves it as its result.
-        /// <see cref="Path"/> has to be set to a value, before this handler is used.
+        ///     The path of the excel table.
+        ///     It is not assumed that the <see cref="UniversalFileHandler.VerifyPath" /> function
+        ///     was called previously.
+        ///     <see cref="UniversalFileHandler.VerifyPath" /> will automatically be called, if
+        ///     <see cref="Path" /> is used.
+        /// </summary>
+        public string Path { get; set; }
+
+        /// <summary>
+        ///     Work for BackgroundWorker.
+        ///     Loads the excel sheet at <see cref="Path" /> and saves it as its result.
+        ///     <see cref="Path" /> has to be set to a value, before this handler is used.
         /// </summary>
         /// <exception cref="ArgumentNullException">
-        /// Thrown, if <paramref name="sender"/> or <paramref name="e"/> is null.
+        ///     Thrown, if <paramref name="sender" /> or <paramref name="e" /> is null.
         /// </exception>
         /// <exception cref="ArgumentException">
-        /// Thrown, if <paramref name="sender"/> is not of type BackgroundWorker.
+        ///     Thrown, if <paramref name="sender" /> is not of type BackgroundWorker.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <see cref="Path"/> is not set before this function is called
-        /// - or - if <see cref="Path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
+        ///     Thrown, if <see cref="Path" /> is not set before this function is called
+        ///     - or - if <see cref="Path" /> contains a colon anywhere other than as part of a
+        ///     volume identifier ("C:\").
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
+        ///     Thrown, if the permissions for accessing the full path are missing.
         /// </exception>
         /// <exception cref="PathTooLongException">
-        /// Thrown, if <see cref="Path"/> is too long.
+        ///     Thrown, if <see cref="Path" /> is too long.
         /// </exception>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
+        ///     Thrown, if permissions to create the directory are missing.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        ///     Thrown, if a file with the name of the dictionary that should be created already exists.
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <see cref="Path"/> is a dictionary.
+        ///     Thrown, if <see cref="Path" /> is a dictionary.
         /// </exception>
         public void LoadExcelLanguageFileAsync(object sender, DoWorkEventArgs e)
         {
@@ -82,12 +83,12 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 .ThrowIfNull(_logger, nameof(LoadExcelLanguageFileAsync),
                     "Parameter for DoWork event handler cannot be null.");
             ExceptionLoggingUtils.ThrowIf(bw == null, _logger, new ArgumentException(
-                "Sender for DoWork event handler is not of type BackgroundWorker.", nameof(sender)),
+                    "Sender for DoWork event handler is not of type BackgroundWorker.", nameof(sender)),
                 "LoadExcelLanguageFileAsync functions was called without BackgroundWorker.");
             ExceptionLoggingUtils.ThrowIf(Path == null, _logger,
                 new NotSupportedException("Path property for DoWork event handler was not set."),
                 "LoadExcelLanguageFileAsync functions was called without Path property being set beforehand.");
-            
+
             _logger.Log(LogLevel.Trace, "LoadExcelLanguageFileAsync functions was called by BackgroundWorker.");
 
             VerifyPath(Path);
@@ -95,11 +96,11 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         }
 
         /// <summary>
-        /// Clean up after BackgroundWorker finished.
-        /// Throws Exceptions, but cannot interupt main thread.
+        ///     Clean up after BackgroundWorker finished.
+        ///     Throws Exceptions, but cannot interupt main thread.
         /// </summary>
         /// <exception cref="FileFormatException">
-        /// Thrown, if file at <see cref="Path"/> is not a valid Excel sheet.
+        ///     Thrown, if file at <see cref="Path" /> is not a valid Excel sheet.
         /// </exception>
         public void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -112,7 +113,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 if (e.Error.HResult == -2146827284)
                 {
                     ExceptionLoggingUtils.Throw(_logger, new FileFormatException(new Uri(Path),
-                        "Expected Excel file format.", e.Error),
+                            "Expected Excel file format.", e.Error),
                         "File at given path may be corrupted or not have correct format. " +
                         "Expected Excel sheet (.xlsx, .xls, ...).");
                 }
@@ -133,36 +134,36 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         }
 
         /// <summary>
-        /// Can be used to update the excel sheet at <see cref="Path"/> with
-        /// <paramref name="translationsDictionary"/>, write the first entry into an empty sheet
-        /// or create a new excel sheet based on <paramref name="translationsDictionary"/>.
+        ///     Can be used to update the excel sheet at <see cref="Path" /> with
+        ///     <paramref name="translationsDictionary" />, write the first entry into an empty sheet
+        ///     or create a new excel sheet based on <paramref name="translationsDictionary" />.
         /// </summary>
         /// <param name="translationsDictionary">
-        /// The dictionary that should be written into the excel sheet. If empty or null, a new and empty
-        /// sheet will be created at <see cref="Path"/>.
+        ///     The dictionary that should be written into the excel sheet. If empty or null, a new and empty
+        ///     sheet will be created at <see cref="Path" />.
         /// </param>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if the permissions for accessing the full path are missing.
+        ///     Thrown, if the permissions for accessing the full path are missing.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <see cref="Path"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
+        ///     Thrown, if <see cref="Path" /> contains a colon anywhere other than as part of a
+        ///     volume identifier ("C:\").
         /// </exception>
         /// <exception cref="PathTooLongException">
-        /// Thrown, if <see cref="Path"/> is too long.
+        ///     Thrown, if <see cref="Path" /> is too long.
         /// </exception>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if permissions to create the directory are missing.
+        ///     Thrown, if permissions to create the directory are missing.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if a file with the name of the dictionary that should be created already exists. 
+        ///     Thrown, if a file with the name of the dictionary that should be created already exists.
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <see cref="Path"/> is a dictionary.
+        ///     Thrown, if <see cref="Path" /> is a dictionary.
         /// </exception>
         public void ExcelWriteActions(Dictionary<CultureInfo, Dictionary<string, string>> translationsDictionary)
         {
@@ -198,7 +199,8 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
                     break;
                 case FileCreationType.CreateEmptyFile:
-                    _logger.Log(LogLevel.Debug, $"New empty file will be created ({System.IO.Path.GetFullPath(Path)}).");
+                    _logger.Log(LogLevel.Debug,
+                        $"New empty file will be created ({System.IO.Path.GetFullPath(Path)}).");
 
                     break;
                 default:
@@ -246,10 +248,11 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         }
 
         /// <exception cref="CultureNotFoundException">
-        /// Thrown, if one of the cells of the header rows in <paramref name="excelCells"/> is not recognized as
-        /// a language.
+        ///     Thrown, if one of the cells of the header rows in <paramref name="excelCells" /> is not recognized as
+        ///     a language.
         /// </exception>
-        private Dictionary<CultureInfo, Dictionary<string, string>> ReadWorksheetTranslations(ExcelInterop.Worksheet worksheet)
+        private Dictionary<CultureInfo, Dictionary<string, string>> ReadWorksheetTranslations(
+            ExcelInterop.Worksheet worksheet)
         {
             //initialize needed variables.
             var readDict = new Dictionary<CultureInfo, Dictionary<string, string>>();
@@ -257,7 +260,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             object[,] values = worksheet.UsedRange.get_Value();
             var maxRow = values.GetUpperBound(0);
             var maxColumn = values.GetUpperBound(1);
-            int numKeyParts = ExcelCellToDictionaryUtils.GetNumberOfKeyParts(values);
+            var numKeyParts = ExcelCellToDictionaryUtils.GetNumberOfKeyParts(values);
             //first row only contains column titles (can be null in cell 1,1), no data.
             var row = 2;
 
@@ -283,7 +286,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
                 }
 
                 //get key.
-                string key = ExcelCellToDictionaryUtils.ExcelCellToDictionaryKey(
+                var key = ExcelCellToDictionaryUtils.ExcelCellToDictionaryKey(
                     values, row, numKeyParts, isGlossaryEntry, _glossaryTag, ref numberOfGlossaryEntries);
 
                 //add translations to dictionary.
@@ -300,16 +303,16 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
         }
 
         /// <summary>
-        /// Creates objects needed for the writing process and starts it.
+        ///     Creates objects needed for the writing process and starts it.
         /// </summary>
         /// <param name="fileCreationType">
-        /// The strategy for creating the excel file.
-        /// It is assumed that the function is only called with <see cref="FileCreationType.UpdateExistingFile"/>,
-        /// <see cref="FileCreationType.CreateEmptyFile"/> or <see cref="FileCreationType.CreateNewFile"/>
-        /// as possible values.
+        ///     The strategy for creating the excel file.
+        ///     It is assumed that the function is only called with <see cref="FileCreationType.UpdateExistingFile" />,
+        ///     <see cref="FileCreationType.CreateEmptyFile" /> or <see cref="FileCreationType.CreateNewFile" />
+        ///     as possible values.
         /// </param>
         /// <param name="translationsDictionary">
-        /// The translations that should be written into the dictionary.
+        ///     The translations that should be written into the dictionary.
         /// </param>
         /// <param name="path">The path of the excel sheet.</param>
         private void CreateExelFileBasedOnCreationType(FileCreationType fileCreationType,
@@ -378,7 +381,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
             if (values == null)
             {
                 numberOfKeyParts = texts.First().Key
-                    .Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys).Length;
+                    .Split(Settings.Default.Seperator_for_partial_Literalkeys).Length;
                 languageColumnLookup = new Dictionary<CultureInfo, int>();
                 maxColumn = numberOfKeyParts;
             }
@@ -400,7 +403,7 @@ namespace Internationalization.FileProvider.FileHandler.ExcelApp
 
                 var updatedRow = false;
                 var lastFindForDialogIndex = -1;
-                var keyParts = translation.Key.Split(Properties.Settings.Default.Seperator_for_partial_Literalkeys);
+                var keyParts = translation.Key.Split(Settings.Default.Seperator_for_partial_Literalkeys);
 
                 keyParts = DictionaryToExcelCellUtils.SqueezeArrayIntoShapeIfNeeded(keyParts, numberOfKeyParts);
 

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Internationalization.Enum;
 using Internationalization.Exception;
 using Internationalization.FileProvider.FileHandler.ExcelApp;
@@ -16,69 +15,68 @@ using Microsoft.Extensions.Logging;
 namespace Internationalization.FileProvider.Excel
 {
     /// <summary>
-    /// Saves its files using an Excel Application.
-    /// This Excel Application will always be closed under normal circumstances,
-    /// if however the execution is aborted (because of an exception or the stop
-    /// debugging button) while an Excel process stays idle,
-    /// it will stick around and may need to be terminated using the Task Manager.
+    ///     Saves its files using an Excel Application.
+    ///     This Excel Application will always be closed under normal circumstances,
+    ///     if however the execution is aborted (because of an exception or the stop
+    ///     debugging button) while an Excel process stays idle,
+    ///     it will stick around and may need to be terminated using the Task Manager.
     /// </summary>
     public class ExcelFileProvider : IFileProvider
     {
         private static ILogger _logger;
-
-        private readonly string _path;
         private readonly string _backupPath;
         private readonly ExcelFileHandler _fileHandler;
+
+        private readonly string _path;
 
         //0: initialization is not yet started or completed.
         //1: initialization is already started and running.
         private BackgroundWorker _backgroundWorker;
+
         private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
-        public ProviderStatus Status { get; private set; }
-
         /// <summary>
-        /// Creates the instance of the ExcelFileProvider, which reads and persists all translations as Excel-files.
-        /// A backup Excel-file will be created for all edits.
+        ///     Creates the instance of the ExcelFileProvider, which reads and persists all translations as Excel-files.
+        ///     A backup Excel-file will be created for all edits.
         /// </summary>
         /// <param name="translationFilePath">Path to the file containing the translations.</param>
         /// <param name="glossaryTag">
-        /// (Optional) Entries in the Excel table that start with this tag will be interpreted as part of the glossary.
+        ///     (Optional) Entries in the Excel table that start with this tag will be interpreted as part of the glossary.
         /// </param>
         /// <param name="oldTranslationFilePath">
-        /// (Optional) The path to where the original translation file will be copied as a backup.
+        ///     (Optional) The path to where the original translation file will be copied as a backup.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown, if <paramref name="translationFilePath"/> is null.
+        ///     Thrown, if <paramref name="translationFilePath" /> is null.
         /// </exception>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if the permissions are missing that are needed to create the directory for
-        /// <paramref name="translationFilePath"/> / <paramref name="oldTranslationFilePath"/> or one of them
-        /// is write-only, read-only, a directory, hidden, the needed permissions for opening or writing are
-        /// missing or the operation is not supported on the current platform.
+        ///     Thrown, if the permissions are missing that are needed to create the directory for
+        ///     <paramref name="translationFilePath" /> / <paramref name="oldTranslationFilePath" /> or one of them
+        ///     is write-only, read-only, a directory, hidden, the needed permissions for opening or writing are
+        ///     missing or the operation is not supported on the current platform.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
+        ///     Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <paramref name="translationFilePath"/> / <paramref name="oldTranslationFilePath"/>
-        /// does not exist or cannot be found.
+        ///     Thrown, if <paramref name="translationFilePath" /> / <paramref name="oldTranslationFilePath" />
+        ///     does not exist or cannot be found.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurs.
+        ///     Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="translationFilePath"/> / <paramref name="oldTranslationFilePath"/>
-        /// contains a colon anywhere other than as part of a volume identifier ("C:\").
+        ///     Thrown, if <paramref name="translationFilePath" /> / <paramref name="oldTranslationFilePath" />
+        ///     contains a colon anywhere other than as part of a volume identifier ("C:\").
         /// </exception>
         /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="translationFilePath"/> / <paramref name="oldTranslationFilePath"/>
-        /// is too long.
+        ///     Thrown, if <paramref name="translationFilePath" /> / <paramref name="oldTranslationFilePath" />
+        ///     is too long.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
         public ExcelFileProvider(string translationFilePath, string glossaryTag = null,
             string oldTranslationFilePath = null)
@@ -96,12 +94,14 @@ namespace Internationalization.FileProvider.Excel
             //null check.
             ExceptionLoggingUtils.ThrowIfNull(_logger, (object) translationFilePath, nameof(translationFilePath),
                 "Unable to open null path.", "ExcelFileProvider received null parameter in constructor.");
-            
+
             //start difficult initializations.
-            if(oldTranslationFilePath != null) {
+            if (oldTranslationFilePath != null)
+            {
                 _fileHandler.VerifyPath(oldTranslationFilePath);
                 _backupPath = oldTranslationFilePath;
             }
+
             _fileHandler.VerifyPath(translationFilePath);
             _path = translationFilePath;
             _fileHandler.Path = _path;
@@ -109,11 +109,13 @@ namespace Internationalization.FileProvider.Excel
             Initialize();
         }
 
+        public ProviderStatus Status { get; private set; }
+
         /// <summary>
-        /// Returns the internal dictionary of translations.
+        ///     Returns the internal dictionary of translations.
         /// </summary>
         /// <exception cref="FileProviderNotInitializedException">
-        /// Will be thrown if the object has not found a language file to pull translations from.
+        ///     Will be thrown if the object has not found a language file to pull translations from.
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
@@ -130,15 +132,15 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Updates the internal dictionary of translations at <paramref name="key"/> with the given dictionary.
-        /// Only languages contained in <paramref name="texts"/> will be updated.
-        /// Will automatically write to file, if this is the first Update call
-        /// and no file existed upon creation of this object.
+        ///     Updates the internal dictionary of translations at <paramref name="key" /> with the given dictionary.
+        ///     Only languages contained in <paramref name="texts" /> will be updated.
+        ///     Will automatically write to file, if this is the first Update call
+        ///     and no file existed upon creation of this object.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="key"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="key" /> is null.</exception>
         /// <param name="key">The entry for which translations should be updated.</param>
         /// <param name="texts">
-        /// The new translations. If list is null or empty, no changes will be made to the dictionary.
+        ///     The new translations. If list is null or empty, no changes will be made to the dictionary.
         /// </param>
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
@@ -175,7 +177,7 @@ namespace Internationalization.FileProvider.Excel
 
                 Status = ProviderStatus.Initialized;
                 _logger.Log(LogLevel.Information, "Finished updating dictionary. " +
-                                            "ExcelFileProvider is now in State Initialized.");
+                                                  "ExcelFileProvider is now in State Initialized.");
             }
             else
             {
@@ -184,7 +186,7 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Persists the current dictionary of translations, by writing it to the given excel file.
+        ///     Persists the current dictionary of translations, by writing it to the given excel file.
         /// </summary>
         public void SaveDictionary()
         {
@@ -197,7 +199,7 @@ namespace Internationalization.FileProvider.Excel
 
 
         /// <summary>
-        /// Interrupts the Initialization (e.g. when shutting down the application during initialization)
+        ///     Interrupts the Initialization (e.g. when shutting down the application during initialization)
         /// </summary>
         public void CancelInitialization()
         {
@@ -213,19 +215,19 @@ namespace Internationalization.FileProvider.Excel
 
 
         /// <summary>
-        /// Updates the internal dictionary of translations using the given values and returns true, if any updates were made.
+        ///     Updates the internal dictionary of translations using the given values and returns true, if any updates were made.
         /// </summary>
         /// <param name="key">
-        /// The entry for which translations should be updated.
-        /// Assumed to be not null, because this function is only used once.
+        ///     The entry for which translations should be updated.
+        ///     Assumed to be not null, because this function is only used once.
         /// </param>
         /// <param name="textLocalizations">
-        /// The new translations. If list is null or empty, no changes will be made to the dictionary.
-        /// Assumed to be not null, because this function is only used once.
+        ///     The new translations. If list is null or empty, no changes will be made to the dictionary.
+        ///     Assumed to be not null, because this function is only used once.
         /// </param>
         /// <returns>
-        /// True, if at least one language translation was updated.
-        /// False, if <paramref name="textLocalizations"/> cantained no entries.
+        ///     True, if at least one language translation was updated.
+        ///     False, if <paramref name="textLocalizations" /> cantained no entries.
         /// </returns>
         private bool UpdateDictionary(string key, IEnumerable<TextLocalization> textLocalizations)
         {
@@ -261,7 +263,7 @@ namespace Internationalization.FileProvider.Excel
         }
 
         /// <summary>
-        /// Class internal clean up after BackgroundWorker finished.
+        ///     Class internal clean up after BackgroundWorker finished.
         /// </summary>
         private void LoadExcelLanguageFileAsyncCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -296,15 +298,13 @@ namespace Internationalization.FileProvider.Excel
             {
                 Status = ProviderStatus.Empty;
                 _logger.Log(LogLevel.Information, "Was unable to collect information from file. " +
-                                            "ExcelFileProvider is now in State Empty.");
-                return;
+                                                  "ExcelFileProvider is now in State Empty.");
             }
             else
             {
                 Status = ProviderStatus.Initialized;
                 _logger.Log(LogLevel.Information,
                     "Finished initialization. ExcelFileProvider is now in State Initialized.");
-                return;
             }
         }
 

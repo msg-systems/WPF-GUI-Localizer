@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using Internationalization.LiteralProvider.Abstract;
@@ -18,12 +17,12 @@ namespace Internationalization.GUITranslator
         }
 
         /// <summary>
-        /// Goes through all elements nested inside <paramref name="rootElement"/> and writes the current
-        /// translation into each element.
+        ///     Goes through all elements nested inside <paramref name="rootElement" /> and writes the current
+        ///     translation into each element.
         /// </summary>
         /// <param name="rootElement">
-        /// The element, based on which all nested elements will recursively be translated.
-        /// <paramref name="rootElement"/> itself will also be translated.
+        ///     The element, based on which all nested elements will recursively be translated.
+        ///     <paramref name="rootElement" /> itself will also be translated.
         /// </param>
         public static void TranslateGui(FrameworkElement rootElement)
         {
@@ -53,7 +52,7 @@ namespace Internationalization.GUITranslator
         }
 
         /// <summary>
-        /// Translates only the given element.
+        ///     Translates only the given element.
         /// </summary>
         /// <param name="visual"></param>
         private static void TranslateGuiElement(FrameworkElement visual)
@@ -67,9 +66,6 @@ namespace Internationalization.GUITranslator
                 case Ribbon ribbon when ribbon.ApplicationMenu != null:
                     TranslateGui(ribbon.ApplicationMenu);
                     return;
-                default:
-                    //control flow can continue.
-                    break;
             }
 
             var guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(visual);
@@ -85,8 +81,8 @@ namespace Internationalization.GUITranslator
         }
 
         /// <summary>
-        /// Since the recursive search in <see cref="TranslateGui"/> doesn't reach deeper than the DataGrid
-        /// element itself, the Columns are iterated seperately here
+        ///     Since the recursive search in <see cref="TranslateGui" /> doesn't reach deeper than the DataGrid
+        ///     element itself, the Columns are iterated seperately here
         /// </summary>
         /// <param name="grid">The DataGrid that should be translated</param>
         private static void HandleDataGrid(DataGrid grid)

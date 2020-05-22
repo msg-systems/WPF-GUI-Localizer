@@ -1,68 +1,66 @@
-﻿using Internationalization.Exception;
-using Internationalization.FileProvider.Interface;
-using Internationalization.Model;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using Internationalization.Enum;
+using Internationalization.Exception;
 using Internationalization.FileProvider.FileHandler.Universal;
+using Internationalization.FileProvider.Interface;
+using Internationalization.Model;
 using Internationalization.Utilities;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Internationalization.FileProvider.JSON
 {
     /// <summary>
-    /// Saves its files using Json.NET.
-    /// The managed dictionary gets directly saved in its deserialized form.
+    ///     Saves its files using Json.NET.
+    ///     The managed dictionary gets directly saved in its deserialized form.
     /// </summary>
     public class JsonFileProvider : IFileProvider
     {
         private static ILogger _logger;
+        private readonly UniversalFileHandler _fileHandler;
 
         private readonly string _path;
-        private readonly UniversalFileHandler _fileHandler;
 
         private Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
-        public ProviderStatus Status { get; private set; }
-
         /// <summary>
-        /// Creates the instance of the JsonFileProvider, which reads and persists all translations from Json-files.
+        ///     Creates the instance of the JsonFileProvider, which reads and persists all translations from Json-files.
         /// </summary>
         /// <param name="translationFilePath">The path under which the dictionary will be saved.</param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown, if <paramref name="translationFilePath"/> is null.
+        ///     Thrown, if <paramref name="translationFilePath" /> is null.
         /// </exception>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if the permissions are missing that are needed to create the directory for
-        /// <paramref name="translationFilePath"/> or <paramref name="translationFilePath"/> is write-only,
-        /// read-only, a directory, hidden, the needed permissions for opening or writing are missing or
-        /// the operation is not supported on the current platform.
+        ///     Thrown, if the permissions are missing that are needed to create the directory for
+        ///     <paramref name="translationFilePath" /> or <paramref name="translationFilePath" /> is write-only,
+        ///     read-only, a directory, hidden, the needed permissions for opening or writing are missing or
+        ///     the operation is not supported on the current platform.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
+        ///     Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <paramref name="translationFilePath"/> does not exist or cannot be found.
-        /// For example because it is a direcory.
+        ///     Thrown, if <paramref name="translationFilePath" /> does not exist or cannot be found.
+        ///     For example because it is a direcory.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurs.
+        ///     Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         /// <exception cref="NotSupportedException">
-        /// Thrown, if <paramref name="translationFilePath"/> contains a colon anywhere other than as part of a
-        /// volume identifier ("C:\").
+        ///     Thrown, if <paramref name="translationFilePath" /> contains a colon anywhere other than as part of a
+        ///     volume identifier ("C:\").
         /// </exception>
         /// <exception cref="PathTooLongException">
-        /// Thrown, if <paramref name="translationFilePath"/> is too long.
+        ///     Thrown, if <paramref name="translationFilePath" /> is too long.
         /// </exception>
         /// <exception cref="DirectoryNotFoundException">
-        /// Thrown, if the directory was not found.
-        /// For example because it is on an unmapped device.
+        ///     Thrown, if the directory was not found.
+        ///     For example because it is on an unmapped device.
         /// </exception>
         public JsonFileProvider(string translationFilePath)
         {
@@ -77,25 +75,27 @@ namespace Internationalization.FileProvider.JSON
             //null check.
             ExceptionLoggingUtils.ThrowIfNull(_logger, (object) translationFilePath, nameof(translationFilePath),
                 "Unable to open null path.", "JsonFileProvider received null parameter in constructor.");
-            
+
             //start proper initialization.
             _fileHandler.VerifyPath(translationFilePath);
             _path = translationFilePath;
             Initialize();
         }
 
+        public ProviderStatus Status { get; private set; }
+
         /// <summary>
-        /// Persists the current dictionary of translations, by writing it to the given json file.
+        ///     Persists the current dictionary of translations, by writing it to the given json file.
         /// </summary>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if <see cref="_path"/> is read-only, a directory, hidden, the needed permissions
-        /// are missing or the operation is not supported on the current platform.
+        ///     Thrown, if <see cref="_path" /> is read-only, a directory, hidden, the needed permissions
+        ///     are missing or the operation is not supported on the current platform.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
+        ///     Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurs.
+        ///     Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         public void SaveDictionary()
         {
@@ -107,16 +107,16 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Updates internal dictionary of translations at <paramref name="key"/> with the given dictionary.
-        /// Only languages contained in <paramref name="texts"/> will be updated.
-        /// Will automatically write to file, if this is the first Update call
-        /// and no file existed upon creation of this object.
+        ///     Updates internal dictionary of translations at <paramref name="key" /> with the given dictionary.
+        ///     Only languages contained in <paramref name="texts" /> will be updated.
+        ///     Will automatically write to file, if this is the first Update call
+        ///     and no file existed upon creation of this object.
         /// </summary>
         /// <param name="key">The entry for which translations should be updated.</param>
         /// <param name="texts">
-        /// The new translations. If list is null or empty, no changes will be made to the dictionary.
+        ///     The new translations. If list is null or empty, no changes will be made to the dictionary.
         /// </param>
-        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="key"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="key" /> is null.</exception>
         public void Update(string key, IEnumerable<TextLocalization> texts)
         {
             //null checks.
@@ -174,10 +174,10 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Returns the internal dictionary of translations.
+        ///     Returns the internal dictionary of translations.
         /// </summary>
         /// <exception cref="FileProviderNotInitializedException">
-        /// Thrown, if the object has not found a language file to pull translations from.
+        ///     Thrown, if the object has not found a language file to pull translations from.
         /// </exception>
         public Dictionary<CultureInfo, Dictionary<string, string>> GetDictionary()
         {
@@ -188,27 +188,27 @@ namespace Internationalization.FileProvider.JSON
 
             //JsonFileProvider is still initializing, cancelling or cancelled.
             ExceptionLoggingUtils.Throw<FileProviderNotInitializedException>(_logger,
-                    "Dictionary was accessed, without JsonFileProvider being initialized.");
+                "Dictionary was accessed, without JsonFileProvider being initialized.");
 
             throw new NotSupportedException("unreachable code.");
         }
 
         /// <summary>
-        /// Coordinates the initialization of the internal dictionary of translations.
+        ///     Coordinates the initialization of the internal dictionary of translations.
         /// </summary>
         /// <exception cref="UnauthorizedAccessException">
-        /// Thrown, if <see cref="_path"/> is write-only, read-only, a directory, hidden, the needed
-        /// permissions for opening or writing are missing or the operation is not supported
-        /// on the current platform.
+        ///     Thrown, if <see cref="_path" /> is write-only, read-only, a directory, hidden, the needed
+        ///     permissions for opening or writing are missing or the operation is not supported
+        ///     on the current platform.
         /// </exception>
         /// <exception cref="System.Security.SecurityException">
-        /// Thrown, if certain permissions are missing. (CLR level)
+        ///     Thrown, if certain permissions are missing. (CLR level)
         /// </exception>
         /// <exception cref="FileNotFoundException">
-        /// Thrown, if <see cref="_path"/> does not exist or cannot be found.
+        ///     Thrown, if <see cref="_path" /> does not exist or cannot be found.
         /// </exception>
         /// <exception cref="IOException">
-        /// Thrown, if an unknown I/O-Error occurs.
+        ///     Thrown, if an unknown I/O-Error occurs.
         /// </exception>
         private void Initialize()
         {
@@ -276,19 +276,19 @@ namespace Internationalization.FileProvider.JSON
         }
 
         /// <summary>
-        /// Updates the internal dictionary of translations using the given values and returns true, if any updates were made.
+        ///     Updates the internal dictionary of translations using the given values and returns true, if any updates were made.
         /// </summary>
         /// <param name="key">
-        /// The entry for which translations should be updated.
-        /// Assumed to be not null, because this function is only used once.
+        ///     The entry for which translations should be updated.
+        ///     Assumed to be not null, because this function is only used once.
         /// </param>
         /// <param name="textLocalizations">
-        /// The new translations. If list is null or empty, no changes will be made to the dictionary.
-        /// Assumed to be not null, because this function is only used once.
+        ///     The new translations. If list is null or empty, no changes will be made to the dictionary.
+        ///     Assumed to be not null, because this function is only used once.
         /// </param>
         /// <returns>
-        /// True, if at least one languages translation was updated.
-        /// False, if <paramref name="textLocalizations"/> cantained no entries.
+        ///     True, if at least one languages translation was updated.
+        ///     False, if <paramref name="textLocalizations" /> cantained no entries.
         /// </returns>
         private bool UpdateDictionary(string key, IEnumerable<TextLocalization> textLocalizations)
         {

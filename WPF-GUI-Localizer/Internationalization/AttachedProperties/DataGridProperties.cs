@@ -3,10 +3,14 @@
 namespace Internationalization.AttachedProperties
 {
     /// <summary>
-    /// This property enables DataGridColumns to be given a Name Property.
+    ///     This property enables DataGridColumns to be given a Name Property.
     /// </summary>
     public class DataGridProperties
     {
+        public static readonly DependencyProperty NameProperty =
+            DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridProperties),
+                new UIPropertyMetadata(""));
+
         public static string GetName(DependencyObject obj)
         {
             //only fails, if other property with same name is also attached.
@@ -17,9 +21,5 @@ namespace Internationalization.AttachedProperties
         {
             obj.SetValue(NameProperty, value);
         }
-
-        public static readonly DependencyProperty NameProperty =
-            DependencyProperty.RegisterAttached("Name", typeof(string), typeof(DataGridProperties),
-                new UIPropertyMetadata(""));
     }
 }

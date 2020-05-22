@@ -15,12 +15,12 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Returns ResourcesManager of <see cref="GlobalSettings.ResourcesAssembly"/> or the current entry assembly,
-        /// if not set.
+        ///     Returns ResourcesManager of <see cref="GlobalSettings.ResourcesAssembly" /> or the current entry assembly,
+        ///     if not set.
         /// </summary>
         /// <exception cref="ResourcesNotFoundException">
-        /// Thrown, if both <see cref="GlobalSettings.ResourcesAssembly"/> is not set and the entry assembly
-        /// cannot be accesed.
+        ///     Thrown, if both <see cref="GlobalSettings.ResourcesAssembly" /> is not set and the entry assembly
+        ///     cannot be accesed.
         /// </exception>
         public static ResourceManager GetResourcesManager()
         {

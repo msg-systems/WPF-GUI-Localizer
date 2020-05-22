@@ -18,16 +18,16 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Collects all children of type T starting at <paramref name="parent"/>. Going through the LogicalTree.
+        ///     Collects all children of type T starting at <paramref name="parent" />. Going through the LogicalTree.
         /// </summary>
         /// <typeparam name="T">
-        /// The type that all children need to satisfy in order to be included in the returned list.
+        ///     The type that all children need to satisfy in order to be included in the returned list.
         /// </typeparam>
         /// <param name="parent">Root element of the recursive search.</param>
         /// <returns>
-        /// List of all child elements that were found.
-        /// Will return an empty list, if the <paramref name="parent"/> object is not a DependencyObject
-        /// or null.
+        ///     List of all child elements that were found.
+        ///     Will return an empty list, if the <paramref name="parent" /> object is not a DependencyObject
+        ///     or null.
         /// </returns>
         public static IList<T> GetLogicalChildCollection<T>(object parent) where T : DependencyObject
         {
@@ -54,19 +54,19 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Returns the DataGrid of the given DataGridColumn.
+        ///     Returns the DataGrid of the given DataGridColumn.
         /// </summary>
         /// <exception cref="InvalidOperationException">
-        /// Thrown, if DataGrid of given DataGridColumn cannot be accessed.
+        ///     Thrown, if DataGrid of given DataGridColumn cannot be accessed.
         /// </exception>
         /// <exception cref="ArgumentNullException">
-        /// Thrown, if given DataGridColumn is null.
+        ///     Thrown, if given DataGridColumn is null.
         /// </exception>
         public static DataGrid GetDataGridParent(DataGridColumn column)
         {
             ExceptionLoggingUtils.ThrowIfNull(Logger, nameof(GetDataGridParent), column, nameof(column),
                 "Unable find parent DataGrid of null.");
-            
+
             var propertyInfo = column.GetType()
                 .GetProperty("DataGridOwner", BindingFlags.Instance | BindingFlags.NonPublic);
 

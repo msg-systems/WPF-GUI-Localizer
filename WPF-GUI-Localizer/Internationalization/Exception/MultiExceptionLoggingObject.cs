@@ -4,11 +4,11 @@ namespace Internationalization.Exception
 {
     public class MultiExceptionLoggingObject
     {
-        private Dictionary<string, object> _parameterList;
+        private readonly Dictionary<string, object> _parameterList;
 
         public MultiExceptionLoggingObject(object firstParameter, string nameOfFirstParameter)
         {
-            _parameterList = new Dictionary<string, object> {{ nameOfFirstParameter, firstParameter }};
+            _parameterList = new Dictionary<string, object> {{nameOfFirstParameter, firstParameter}};
         }
 
         public MultiExceptionLoggingObject AlsoVerify(object parameter, string nameOfParameter)

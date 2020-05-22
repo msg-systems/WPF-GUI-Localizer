@@ -19,26 +19,26 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Collectes translations of <paramref name="text"/> for <paramref name="targetLanguage"/>
-        /// that share the same translation in <paramref name="inputLanguage"/>.
+        ///     Collectes translations of <paramref name="text" /> for <paramref name="targetLanguage" />
+        ///     that share the same translation in <paramref name="inputLanguage" />.
         /// </summary>
-        /// <param name="text">The text in <paramref name="inputLanguage"/>.</param>
+        /// <param name="text">The text in <paramref name="inputLanguage" />.</param>
         /// <param name="targetLanguage">The language for which translations should be collected.</param>
-        /// <param name="inputLanguage">The language of <paramref name="text"/>.</param>
+        /// <param name="inputLanguage">The language of <paramref name="text" />.</param>
         /// <param name="allTranslations">
-        /// The collection of all translation to pull the needed translations from.
+        ///     The collection of all translation to pull the needed translations from.
         /// </param>
         /// <returns>
-        /// All possible translations of <paramref name="text"/> into <paramref name="targetLanguage"/>
-        /// based on which keys inside the inner Dictionary of <paramref name="allTranslations"/> share
-        /// the same translations in <paramref name="inputLanguage"/>.
+        ///     All possible translations of <paramref name="text" /> into <paramref name="targetLanguage" />
+        ///     based on which keys inside the inner Dictionary of <paramref name="allTranslations" /> share
+        ///     the same translations in <paramref name="inputLanguage" />.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        /// Thrown, if <paramref name="targetLanguage"/>, <paramref name="inputLanguage"/> or
-        /// <paramref name="allTranslations"/> is null.
+        ///     Thrown, if <paramref name="targetLanguage" />, <paramref name="inputLanguage" /> or
+        ///     <paramref name="allTranslations" /> is null.
         /// </exception>
         /// <exception cref="InputLanguageNotFoundException">
-        /// Thrown, if <paramref name="allTranslations"/> does not contain <paramref name="inputLanguage"/>.
+        ///     Thrown, if <paramref name="allTranslations" /> does not contain <paramref name="inputLanguage" />.
         /// </exception>
         public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
             CultureInfo inputLanguage, Dictionary<CultureInfo, Dictionary<string, string>> allTranslations)
@@ -86,32 +86,32 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Returns a placeholder text (e.g. "fr--Total amount") and evaluates, what translation
-        /// should be used as basis for the text (part after "fr--").
+        ///     Returns a placeholder text (e.g. "fr--Total amount") and evaluates, what translation
+        ///     should be used as basis for the text (part after "fr--").
         /// </summary>
         /// <param name="targetLanguage">The language for which the placeholder needs to be generated.</param>
         /// <param name="localizedTexts">
-        /// The collection of all known translations.
+        ///     The collection of all known translations.
         /// </param>
         /// <param name="preferPreferredOverInputLangauge">
-        /// Determines which out of <paramref name="inputLanguage"/> and <paramref name="preferredLanguage"/>
-        /// should be used by default.
-        /// This value will be ignored, if there are conflicts with the preference (e.g.
-        /// <paramref name="targetLanguage"/> being identical to <paramref name="preferedLanguage"/> or
-        /// <paramref name="inputLanguage"/>).
+        ///     Determines which out of <paramref name="inputLanguage" /> and <paramref name="preferredLanguage" />
+        ///     should be used by default.
+        ///     This value will be ignored, if there are conflicts with the preference (e.g.
+        ///     <paramref name="targetLanguage" /> being identical to <paramref name="preferedLanguage" /> or
+        ///     <paramref name="inputLanguage" />).
         /// </param>
         /// <param name="inputLanguage">The language in which the application was originally created in.</param>
         /// <param name="preferredLanguage">
-        /// The language to fall back to, if <paramref name="inputLanguage"/> is the <paramref name="targetLanguage"/>
-        /// or to aid as basis for further translation (e.g application was originally french, is then translated
-        /// to english and from english to multiple others).
+        ///     The language to fall back to, if <paramref name="inputLanguage" /> is the <paramref name="targetLanguage" />
+        ///     or to aid as basis for further translation (e.g application was originally french, is then translated
+        ///     to english and from english to multiple others).
         /// </param>
         /// <returns>
-        /// The full placeholder string consisting of language code, "--" and the translation of
-        /// <paramref name="inputLanguage"/> or <paramref name="preferredLanguage"/>.
+        ///     The full placeholder string consisting of language code, "--" and the translation of
+        ///     <paramref name="inputLanguage" /> or <paramref name="preferredLanguage" />.
         /// </returns>
         /// <exception cref="InputLanguageNotFoundException">
-        /// Thrown, if <paramref name="localizedTexts"/> does not contain <paramref name="inputLanguage"/>.
+        ///     Thrown, if <paramref name="localizedTexts" /> does not contain <paramref name="inputLanguage" />.
         /// </exception>
         public static string GetRecommendedText(CultureInfo targetLanguage,
             ICollection<TextLocalization> localizedTexts, bool preferPreferredOverInputLangauge,
@@ -135,13 +135,13 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// It converts the association CultureInfo - translation into a TextLocalization object,
-        /// reducing multiple dictionaries with CultureInfo objects as keys to one dictionary
-        /// that uses elements / ressources keys as dictionary keys.
+        ///     It converts the association CultureInfo - translation into a TextLocalization object,
+        ///     reducing multiple dictionaries with CultureInfo objects as keys to one dictionary
+        ///     that uses elements / ressources keys as dictionary keys.
         /// </summary>
         /// <param name="dictionary">
-        /// Flipped dictionary will be based on this dictionary. The dictionary is not required to
-        /// have same number of translation for all languages.
+        ///     Flipped dictionary will be based on this dictionary. The dictionary is not required to
+        ///     have same number of translation for all languages.
         /// </param>
         public static Dictionary<string, List<TextLocalization>> FlipLocalizationsDictionary(
             Dictionary<CultureInfo, Dictionary<string, string>> dictionary)
@@ -189,7 +189,7 @@ namespace Internationalization.Utilities
         }
 
         private static List<TextLocalization> GetOrCreate(ref Dictionary<string,
-                List<TextLocalization>> dictionary, string key)
+            List<TextLocalization>> dictionary, string key)
         {
             dictionary.TryGetValue(key, out var value);
 

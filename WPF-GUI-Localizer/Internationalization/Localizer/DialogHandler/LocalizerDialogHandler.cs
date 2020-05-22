@@ -23,17 +23,17 @@ namespace Internationalization.Localizer.DialogHandler
         }
 
         /// <summary>
-        /// Manages communication for the Mouseclick Event:
-        /// takes care of edge cases TabItem and DataGrid,
-        /// gets current translations from LiteralProvider,
-        /// opens LocalizationDialog with current translations,
-        /// gives updated translations from LocalizationDialog back to the LiteralProvider,
-        /// activates GUITranslator to translate the sender element.
+        ///     Manages communication for the Mouseclick Event:
+        ///     takes care of edge cases TabItem and DataGrid,
+        ///     gets current translations from LiteralProvider,
+        ///     opens LocalizationDialog with current translations,
+        ///     gives updated translations from LocalizationDialog back to the LiteralProvider,
+        ///     activates GUITranslator to translate the sender element.
         /// </summary>
         /// <param name="sender">GUI-element, whose translations are ment to be updated.</param>
         /// <param name="e">
-        /// Event parameter / info (used for edge cases and to prevent this function from
-        /// being called multiple times from nested GUI-Elements).
+        ///     Event parameter / info (used for edge cases and to prevent this function from
+        ///     being called multiple times from nested GUI-Elements).
         /// </param>
         public static void OpenLocalizationDialog(object sender, MouseButtonEventArgs e)
         {
@@ -65,6 +65,7 @@ namespace Internationalization.Localizer.DialogHandler
                 Logger.Log(LogLevel.Debug, "Editing of localized Texts aborted by user.");
                 return;
             }
+
             AbstractLiteralProvider.Instance.SetGuiTranslation((FrameworkElement) sender, localizedTexts);
             Logger.Log(LogLevel.Debug, "Edited localized texts saved in LiteralProvider.");
 
@@ -75,18 +76,18 @@ namespace Internationalization.Localizer.DialogHandler
         }
 
         /// <summary>
-        /// Checks if the edgecases (currently just Datagrid) acctually need to be handled and corrects
-        /// <paramref name="senderObject"/>, if necessary.
-        /// Since DataGridHeaders were not individually handled in
-        /// <see cref="LocalizerEventHandler"/>, they are handled here.
+        ///     Checks if the edgecases (currently just Datagrid) acctually need to be handled and corrects
+        ///     <paramref name="senderObject" />, if necessary.
+        ///     Since DataGridHeaders were not individually handled in
+        ///     <see cref="LocalizerEventHandler" />, they are handled here.
         /// </summary>
         /// <param name="senderObject">
-        /// The object that triggered the MouseEvent.
-        /// If it is a DataGrid it will be exchanged for the DataGridHeader that was clicked.
+        ///     The object that triggered the MouseEvent.
+        ///     If it is a DataGrid it will be exchanged for the DataGridHeader that was clicked.
         /// </param>
         /// <param name="eventArgs">EventArgs received by event handler.</param>
         /// <returns>
-        /// True if correct element was clicked. False, if this event is not meant to be handled.
+        ///     True if correct element was clicked. False, if this event is not meant to be handled.
         /// </returns>
         private static bool CorrectElementWasClicked(ref object senderObject, MouseButtonEventArgs eventArgs)
         {
@@ -110,14 +111,14 @@ namespace Internationalization.Localizer.DialogHandler
 
                 return true;
             }
-            
+
             //if senderObject is not considered edgecase, it will be assumed to be correct.
             return true;
         }
 
         /// <summary>
-        /// Opens a <see cref="LocalizationInputDialog"/> Window and writes changes in
-        /// <paramref name="originalLocalizations"/>. Returns false, if editing was aborted by user.
+        ///     Opens a <see cref="LocalizationInputDialog" /> Window and writes changes in
+        ///     <paramref name="originalLocalizations" />. Returns false, if editing was aborted by user.
         /// </summary>
         private static bool LetUserModifyLocalizations(
             ref ObservableCollection<TextLocalization> originalLocalizations)
@@ -146,9 +147,9 @@ namespace Internationalization.Localizer.DialogHandler
         }
 
         /// <summary>
-        /// Calls <see cref="GuiTranslator"/> for the given object, if this functionality is not
-        /// turned off in <see cref="GlobalSettings"/> and the given object is of type
-        /// FrameworkElement or DataGridColumnHeader.
+        ///     Calls <see cref="GuiTranslator" /> for the given object, if this functionality is not
+        ///     turned off in <see cref="GlobalSettings" /> and the given object is of type
+        ///     FrameworkElement or DataGridColumnHeader.
         /// </summary>
         private static void RunTranslator(object objectToBeTranslated)
         {
@@ -167,6 +168,7 @@ namespace Internationalization.Localizer.DialogHandler
                         Logger.Log(LogLevel.Debug,
                             "Unable to update new translation for DataGrid in GUI.");
                     }
+
                     break;
                 case FrameworkElement asFrameworkElement:
                     GuiTranslator.TranslateGui(asFrameworkElement);
@@ -175,7 +177,7 @@ namespace Internationalization.Localizer.DialogHandler
                 default:
                     //no action, if GuiTranslator in unable to translate objectToBeTranslated.
                     Logger.Log(LogLevel.Debug, "Translation of element was not successfully updated, " +
-                                                     "because it is not a Framework element.");
+                                               "because it is not a Framework element.");
                     break;
             }
         }

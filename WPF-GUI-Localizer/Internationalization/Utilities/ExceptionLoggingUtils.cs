@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Internationalization.Exception;
 using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
 {
     /// <summary>
-    /// Handles logging and throwing of common Exceptions.
+    ///     Handles logging and throwing of common Exceptions.
     /// </summary>
     public static class ExceptionLoggingUtils
     {
-        public static void ThrowIfNull(ILogger logger, string nameOfMethod, object reference, string nameOfReference, string message)
+        public static void ThrowIfNull(ILogger logger, string nameOfMethod, object reference, string nameOfReference,
+            string message)
         {
             ThrowIfNull(logger, reference, nameOfReference, message,
                 $"{nameOfMethod} received null parameter.");

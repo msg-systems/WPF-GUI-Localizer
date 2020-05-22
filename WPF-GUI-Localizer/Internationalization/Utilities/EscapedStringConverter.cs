@@ -3,18 +3,18 @@
 namespace Internationalization.Utilities
 {
     /// <summary>
-    /// Converter for removing and readding common special characters
-    /// (handles \t, \r, \n \\).
-    /// Only for usage in Code, not intended as Converter in Bindings.
+    ///     Converter for removing and readding common special characters
+    ///     (handles \t, \r, \n \\).
+    ///     Only for usage in Code, not intended as Converter in Bindings.
     /// </summary>
     public static class EscapedStringConverter
     {
         /// <summary>
-        /// Replaces placeholders introdiced by <see cref="ToEscapedString"/> with corresponding characters.
+        ///     Replaces placeholders introdiced by <see cref="ToEscapedString" /> with corresponding characters.
         /// </summary>
         /// <param name="escapedString">The string whose placeholders should be removed.</param>
         /// <returns>
-        /// <paramref name="escapedString"/> with all placeholders replaced with their corresponding characters.
+        ///     <paramref name="escapedString" /> with all placeholders replaced with their corresponding characters.
         /// </returns>
         public static string ToNormalString(string escapedString)
         {
@@ -23,11 +23,11 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Replaces special symbols (\t, \r, \n \\) with corresponding placeholders.
+        ///     Replaces special symbols (\t, \r, \n \\) with corresponding placeholders.
         /// </summary>
         /// <param name="normalString">The string whose special characters should be removed.</param>
         /// <returns>
-        /// <paramref name="normalString"/> with all special characters replaced with their corresponding placeholders.
+        ///     <paramref name="normalString" /> with all special characters replaced with their corresponding placeholders.
         /// </returns>
         public static string ToEscapedString(string normalString)
         {

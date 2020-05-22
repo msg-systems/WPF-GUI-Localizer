@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -20,11 +19,31 @@ namespace Internationalization.LiteralProvider.Resource
 {
     public class ResourceLiteralProvider : AbstractLiteralProvider
     {
+        private static ILogger _logger;
+
         private readonly Dictionary<CultureInfo, Dictionary<string, string>> _dictOfDicts =
             new Dictionary<CultureInfo, Dictionary<string, string>>();
 
-        private static ILogger _logger;
         private ProviderStatus _status;
+
+        /// <summary>
+        ///     Default Constructor needed for mocking.
+        /// </summary>
+        protected ResourceLiteralProvider()
+        {
+            _status = ProviderStatus.Empty;
+        }
+
+        /// <inheritdoc cref="ReadDicts" />
+        private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
+            CultureInfo preferredLanguage)
+        {
+            FileProviderInstance = fileProvider;
+            InputLanguage = inputLanguage;
+            PreferredLanguage = preferredLanguage;
+
+            ReadDicts();
+        }
 
         protected override ProviderStatus Status
         {
@@ -44,50 +63,31 @@ namespace Internationalization.LiteralProvider.Resource
         }
 
         /// <summary>
-        /// Default Constructor needed for mocking.
-        /// </summary>
-        protected ResourceLiteralProvider()
-        {
-            _status = ProviderStatus.Empty;
-        }
-
-        /// <inheritdoc cref="ReadDicts"/>
-        private ResourceLiteralProvider(IFileProvider fileProvider, CultureInfo inputLanguage,
-            CultureInfo preferredLanguage)
-        {
-            FileProviderInstance = fileProvider;
-            InputLanguage = inputLanguage;
-            PreferredLanguage = preferredLanguage;
-
-            ReadDicts();
-        }
-
-        /// <summary>
-        /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property Instance.
+        ///     Initializes the singleton instance of AbstractLiteralProvider.
+        ///     Call this method before accessing the property Instance.
         /// </summary>
         /// <param name="fileProvider">Does not have to be initialized before acessing Instance.</param>
         /// <param name="inputLanguage">
-        /// The language originally used in the application, which is ment to be internationalized.
+        ///     The language originally used in the application, which is ment to be internationalized.
         /// </param>
-        /// <inheritdoc cref="ReadDicts"/>
+        /// <inheritdoc cref="ReadDicts" />
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage)
         {
             Initialize(fileProvider, inputLanguage, new CultureInfo("en"));
         }
 
         /// <summary>
-        /// Initializes the singleton instance of AbstractLiteralProvider.
-        /// Call this method before accessing the property Instance.
+        ///     Initializes the singleton instance of AbstractLiteralProvider.
+        ///     Call this method before accessing the property Instance.
         /// </summary>
         /// <param name="fileProvider">Does not have to be initialized before acessing Instance.</param>
         /// <param name="inputLanguage">
-        /// The language originally used in the application, which is ment to be internationalized.
+        ///     The language originally used in the application, which is ment to be internationalized.
         /// </param>
         /// <param name="preferredLanguage">
-        /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
+        ///     Used for example if InputLanguage is not english, to have recommendations be in english regardless.
         /// </param>
-        /// <inheritdoc cref="ReadDicts"/>
+        /// <inheritdoc cref="ReadDicts" />
         public static void Initialize(IFileProvider fileProvider, CultureInfo inputLanguage,
             CultureInfo preferredLanguage)
         {
@@ -138,11 +138,11 @@ namespace Internationalization.LiteralProvider.Resource
         }
 
         /// <summary>
-        /// Needed for ResourcesTextConverter and only supported by ResourceLiteralProvider.
-        /// The ResourcesTextConverter can only access the resourceKey string, not the element
-        /// itself. It can therefore not use the GetGuiTranslationOfCurrentCulture(DependencyObject)
-        /// method provided by all ILiteralProviders.
-        /// Virtual Method to enable mocking.
+        ///     Needed for ResourcesTextConverter and only supported by ResourceLiteralProvider.
+        ///     The ResourcesTextConverter can only access the resourceKey string, not the element
+        ///     itself. It can therefore not use the GetGuiTranslationOfCurrentCulture(DependencyObject)
+        ///     method provided by all ILiteralProviders.
+        ///     Virtual Method to enable mocking.
         /// </summary>
         public virtual string GetGuiTranslationOfCurrentCulture(string resourceKey)
         {
@@ -195,8 +195,8 @@ namespace Internationalization.LiteralProvider.Resource
         }
 
         /// <exception cref="ResourcesNotFoundException">
-        /// Thrown, if both <see cref="GlobalSettings.ResourcesAssembly"/> is not set and the entry assembly
-        /// cannot be accesed.
+        ///     Thrown, if both <see cref="GlobalSettings.ResourcesAssembly" /> is not set and the entry assembly
+        ///     cannot be accesed.
         /// </exception>
         private void ReadDicts()
         {
@@ -276,7 +276,7 @@ namespace Internationalization.LiteralProvider.Resource
                 _logger.Log(LogLevel.Debug, "Unable to read changes from FileProvider.");
             }
 
-            string translation =
+            var translation =
                 CultureInfoUtil.GetLanguageDictValueOrDefault(changes, language, resourceKey,
                     InputLanguage, exactLanguage);
 
@@ -293,9 +293,9 @@ namespace Internationalization.LiteralProvider.Resource
 
             if (dict == null || dict.Count == 0)
             {
-                dict = new Dictionary<CultureInfo, Dictionary<string, string>>()
+                dict = new Dictionary<CultureInfo, Dictionary<string, string>>
                 {
-                    { Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>() }
+                    {Thread.CurrentThread.CurrentUICulture, new Dictionary<string, string>()}
                 };
             }
 

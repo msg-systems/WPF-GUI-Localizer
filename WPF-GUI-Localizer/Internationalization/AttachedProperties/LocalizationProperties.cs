@@ -1,11 +1,10 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using Internationalization.Localizer.EventHandler;
 
 namespace Internationalization.AttachedProperties
 {
     /// <summary>
-    /// Used to attach/detach the Localizer to View or Window.
+    ///     Used to attach/detach the Localizer to View or Window.
     /// </summary>
     public class LocalizationProperties : DependencyObject
     {
@@ -25,8 +24,8 @@ namespace Internationalization.AttachedProperties
         }
 
         /// <summary>
-        /// Load the Localizer, when "isActive" Property is set in a View / Window.
-        /// Deactivate, when it has been deactivated.
+        ///     Load the Localizer, when "isActive" Property is set in a View / Window.
+        ///     Deactivate, when it has been deactivated.
         /// </summary>
         /// <param name="d">The element (typically: View or Window), which the Localizer is attached to.</param>
         /// <param name="e">Event parameter / info (used for access to new value).</param>

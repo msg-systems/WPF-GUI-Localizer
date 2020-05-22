@@ -12,8 +12,8 @@ namespace Internationalization.Model
 
         public override string ToString()
         {
-            string languageName = "null";
-            string knownTranslationsCount = "no";
+            var languageName = "null";
+            var knownTranslationsCount = "no";
 
             if (Language != null)
             {

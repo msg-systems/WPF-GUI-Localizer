@@ -17,16 +17,16 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Collects all children of type T starting at <paramref name="parent"/>. Going through the VisualTree.
+        ///     Collects all children of type T starting at <paramref name="parent" />. Going through the VisualTree.
         /// </summary>
         /// <typeparam name="T">
-        /// The type that all children need to satisfy in order to be included in the returned list.
+        ///     The type that all children need to satisfy in order to be included in the returned list.
         /// </typeparam>
         /// <param name="parent">Root element of the recursive search.</param>
         /// <returns>
-        /// List of all child elements that were found.
-        /// Will return an empty list, if the <paramref name="parent"/> object is not a DependencyObject
-        /// or null.
+        ///     List of all child elements that were found.
+        ///     Will return an empty list, if the <paramref name="parent" /> object is not a DependencyObject
+        ///     or null.
         /// </returns>
         public static IList<T> GetVisualChildCollection<T>(object parent) where T : DependencyObject
         {
@@ -54,16 +54,16 @@ namespace Internationalization.Utilities
         }
 
         /// <summary>
-        /// Tries to find the closest parent of given parameter <paramref name="child"/>
-        /// in the VisualTree that satisfies the typeparameter <paramref name="T"/>.
-        /// Returns null if no fitting parent is found.
+        ///     Tries to find the closest parent of given parameter <paramref name="child" />
+        ///     in the VisualTree that satisfies the typeparameter <paramref name="T" />.
+        ///     Returns null if no fitting parent is found.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="child"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown, if <paramref name="child" /> is null.</exception>
         public static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
         {
             ExceptionLoggingUtils.ThrowIfNull(Logger, nameof(FindVisualParent), child,
                 nameof(child), "Unable to find visual parent of null.");
-            
+
             var parentObject = VisualTreeHelper.GetParent(child);
 
             //end of the tree, nothing found.
@@ -73,10 +73,8 @@ namespace Internationalization.Utilities
             {
                 return parent;
             }
-            else
-            {
-                return FindVisualParent<T>(parentObject);
-            }
+
+            return FindVisualParent<T>(parentObject);
         }
     }
 }

@@ -18,24 +18,18 @@ namespace Internationalization.LiteralProvider.Abstract
         private static AbstractLiteralProvider _instance;
         private static readonly ILogger Logger;
 
+        static AbstractLiteralProvider()
+        {
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<AbstractLiteralProvider>();
+        }
+
         protected abstract ProviderStatus Status { get; }
 
-
         /// <summary>
-        /// The language originally used in the application, which is meant to be internationalized.
-        /// </summary>
-        public CultureInfo InputLanguage { get; protected set; }
-
-        /// <summary>
-        /// Used for example if InputLanguage is not english, to have recommendations be in english regardless.
-        /// </summary>
-        public CultureInfo PreferredLanguage { get; protected set; }
-
-        /// <summary>
-        /// Will return null, if singleton instance is null.
-        /// Will manually continue pushing frames, if singleton instance is not null, but not initialized
-        /// (endless loop possible).
-        /// Will return the singleton instance, if fully initialized.
+        ///     Will return null, if singleton instance is null.
+        ///     Will manually continue pushing frames, if singleton instance is not null, but not initialized
+        ///     (endless loop possible).
+        ///     Will return the singleton instance, if fully initialized.
         /// </summary>
         public static ILiteralProvider Instance
         {
@@ -57,28 +51,44 @@ namespace Internationalization.LiteralProvider.Abstract
         }
 
         /// <summary>
-        /// The FileProvider used for saving literals, the exact usage varies depending ILiteralProvider implementation.
+        ///     The FileProvider used for saving literals, the exact usage varies depending ILiteralProvider implementation.
         /// </summary>
         protected IFileProvider FileProviderInstance { get; set; }
 
-        static AbstractLiteralProvider()
-        {
-            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger<AbstractLiteralProvider>();
-        }
 
         /// <summary>
-        /// Saves the current Literals using its FileProvider.
+        ///     The language originally used in the application, which is meant to be internationalized.
+        /// </summary>
+        public CultureInfo InputLanguage { get; protected set; }
+
+        /// <summary>
+        ///     Used for example if InputLanguage is not english, to have recommendations be in english regardless.
+        /// </summary>
+        public CultureInfo PreferredLanguage { get; protected set; }
+
+        /// <summary>
+        ///     Saves the current Literals using its FileProvider.
         /// </summary>
         public abstract void Save();
 
+        public abstract void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts);
+
         /// <summary>
-        /// Saves the current Literals using its FileProvider, if singleton instance is initialized
-        /// and <paramref name="saveToFile"/> is true.
-        /// Cancels initialization without saving otherwise.
+        ///     This function returns an ObservableCollection object, as it is only used once by LocalizerEventHandler.
+        /// </summary>
+        public abstract ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
+
+        public abstract string GetGuiTranslationOfCurrentCulture(DependencyObject element);
+        public abstract IEnumerable<CultureInfo> GetKnownLanguages();
+
+        /// <summary>
+        ///     Saves the current Literals using its FileProvider, if singleton instance is initialized
+        ///     and <paramref name="saveToFile" /> is true.
+        ///     Cancels initialization without saving otherwise.
         /// </summary>
         /// <param name="saveToFile">
-        /// Determines if Literals get saved or not; Literals will not be saved, if instance is not
-        /// initialized, independent of <paramref name="saveToFile"/> value.
+        ///     Determines if Literals get saved or not; Literals will not be saved, if instance is not
+        ///     initialized, independent of <paramref name="saveToFile" /> value.
         /// </param>
         public static void Exit(bool saveToFile)
         {
@@ -101,16 +111,6 @@ namespace Internationalization.LiteralProvider.Abstract
                 _instance.Save();
             }
         }
-
-        public abstract void SetGuiTranslation(DependencyObject element, IEnumerable<TextLocalization> texts);
-
-        /// <summary>
-        /// This function returns an ObservableCollection object, as it is only used once by LocalizerEventHandler.
-        /// </summary>
-        public abstract ObservableCollection<TextLocalization> GetGuiTranslation(DependencyObject element);
-
-        public abstract string GetGuiTranslationOfCurrentCulture(DependencyObject element);
-        public abstract IEnumerable<CultureInfo> GetKnownLanguages();
 
         protected abstract void CancelInitialization();
 

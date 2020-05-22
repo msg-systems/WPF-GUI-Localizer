@@ -19,15 +19,15 @@ namespace Internationalization.Localizer.EventHandler
         }
 
         /// <summary>
-        /// Attach Localizer to all supported GUI-elements
+        ///     Attach Localizer to all supported GUI-elements
         /// </summary>
         /// <param name="parent">
-        /// The parent-element, whose GUI-elements should have the translation action attached/detached to/from them.
+        ///     The parent-element, whose GUI-elements should have the translation action attached/detached to/from them.
         /// </param>
         /// <param name="isActive">If true handlers will be attached, if not they will be removed.</param>
         /// <param name="calledByLoaded">
-        /// Whether this function was called by a "Loaded"-Event-Handler or not, determines whether the Event-Handler has
-        /// to be removed from the event or not.
+        ///     Whether this function was called by a "Loaded"-Event-Handler or not, determines whether the Event-Handler has
+        ///     to be removed from the event or not.
         /// </param>
         private static void ManageLocalizationEvents(DependencyObject parent, bool isActive, bool calledByLoaded)
         {
@@ -80,7 +80,7 @@ namespace Internationalization.Localizer.EventHandler
         }
 
         /// <summary>
-        /// Initiates the Attachment of OpenLocalizationDialog to the Views GUI-elements.
+        ///     Initiates the Attachment of OpenLocalizationDialog to the Views GUI-elements.
         /// </summary>
         /// <param name="sender">View, whose GUI-elements should have the translation action attached to them.</param>
         /// <param name="e"></param>
@@ -90,12 +90,12 @@ namespace Internationalization.Localizer.EventHandler
         }
 
         /// <summary>
-        /// Attaches OpenLocalizationDialog to the Views GUI-elements immediately.
+        ///     Attaches OpenLocalizationDialog to the Views GUI-elements immediately.
         /// </summary>
         /// <param name="sender">
-        /// View, whose GUI-elements should have the translation action removed from their MouseEvent.
-        /// It is assumed that the View is already loaded, if not attach <see cref="ElementInitialized"/>
-        /// to the Loaded-Event of the View.
+        ///     View, whose GUI-elements should have the translation action removed from their MouseEvent.
+        ///     It is assumed that the View is already loaded, if not attach <see cref="ElementInitialized" />
+        ///     to the Loaded-Event of the View.
         /// </param>
         public static void AttachLocalizationHelper(object sender)
         {
@@ -103,11 +103,12 @@ namespace Internationalization.Localizer.EventHandler
         }
 
         /// <summary>
-        /// Undoes the Attachment of OpenLocalizationDialog to the Views GUI-elements immediately.
+        ///     Undoes the Attachment of OpenLocalizationDialog to the Views GUI-elements immediately.
         /// </summary>
-        /// <param name="sender">View, whose GUI-elements should have the translation action removed from their MouseEvent.
-        /// It is assumed that the View is already loaded, if not attach <see cref="ElementInitialized"/>
-        /// to the Loaded-Event of the View.
+        /// <param name="sender">
+        ///     View, whose GUI-elements should have the translation action removed from their MouseEvent.
+        ///     It is assumed that the View is already loaded, if not attach <see cref="ElementInitialized" />
+        ///     to the Loaded-Event of the View.
         /// </param>
         public static void DetachLocalizationHelper(object sender)
         {
