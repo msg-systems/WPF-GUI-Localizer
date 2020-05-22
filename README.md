@@ -26,3 +26,8 @@ The full documentation can be found [here](Docs/documentation.md)
 ## License
 
 The WPF-GUI-Localizer library is licensed under the MIT License. See the file [LICENSE](LICENSE) for more details.
+
+-----
+
+Authors: [Martin Fabian Thomas, msg systems ag](mailto:martin.thomas@msg.group),
+[Fabian Lewalder, msg systems ag](mailto:fabian.lewalder@msg.group)
