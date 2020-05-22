@@ -244,7 +244,7 @@ namespace Internationalization.FileProvider.JSON
             _dictOfDicts =
                 JsonConvert.DeserializeObject<Dictionary<CultureInfo, Dictionary<string, string>>>(fileContent);
 
-            bool noData = _dictOfDicts == null || _dictOfDicts.Count > 0;
+            bool noData = _dictOfDicts == null || _dictOfDicts.Count == 0;
 
             switch (Status)
             {
