@@ -15,9 +15,13 @@ It comes along with the ability to localize WPF applications using either human-
 
 The WPF-GUI-Localizer library will be made available through NuGet once it reaches the distributable Version 1.0.
 
-You can run an example application with this library already integrated here (not yet).
+## Trying out the library
 
-Read more about how to get set up with your own application [here](Docs/documentation.md#setup) or check out the quick-start-checklist for either [Excel based localization](Docs/documentation.md#excelquickstart) or [Resource file based localization](Docs/documentation.md#resourcequickstart).
+You can run an example application with this library already integrated in the Examples folder of this repository (no IDE required).
+
+Alternatively you can open the WPF-GUI-Localizer solution in an IDE and run or debug the Example_Excel and Example_Resources projects.
+
+Or read more about how to get set up with your own application [here](Docs/documentation.md#setup) or check out the quick-start-checklist for either [Excel based localization](Docs/documentation.md#excelquickstart) or [Resource file based localization](Docs/documentation.md#resourcequickstart).
 
 ## Documentation
 
