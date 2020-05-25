@@ -1,4 +1,4 @@
-**!!This library is still under developement!!**
+**!!This library is still under development!!**
 
 # WPF-GUI-Localizer
 
