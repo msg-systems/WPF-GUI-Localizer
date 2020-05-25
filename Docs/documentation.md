@@ -156,7 +156,7 @@ The translation feature should not be running for the end user in order to not i
 ##### XAML modifications needed for Excel use case
 All GUI-elements intended for translation need to have a "Name"-Property which is a unique key inside their View or Window. All Views and Windows need to have a "Name"-Property that uniquely identifies them as well.
 
-Note: in cases, where usually localizable elements have nested elements e.g. a Lable is placed inside of a CheckBoxes Content, the Lable has to have a Name as well. If this is not the case, the library will replace the Lable and all other elements insinde the CheckBoxes Content with the translation.
+Note: in cases, where usually localizable elements have nested elements e.g. a Label is placed inside of a CheckBoxes Content, the Label has to have a Name as well. If this is not the case, the library will replace the Label and all other elements inside the CheckBoxes Content with the translation.
 
 If the Headers of DataGrids need to be localized as well, they will need to have a "Name" attached property provided by this library assigned to each DataGridColumn. This is necessary as the DataGridColumns are not FrameworkElements and therefore do not support the ```NameProperty```.
 
@@ -386,7 +386,7 @@ while using ```ResourceLiteralProvider``` comments may be included like this:
 If only 1 column is used for the key, the first translations column has to be filled, otherwise some rows will be ignored. It is therefore recommended to only add new languages at the end and not insert them right after the key columns. If the Excel sheet has been filled prior to using this library and only one key column is used, please verify that the whole second column is filled. This does not cause problems if the sheet is filled by the library, as all key and translations columns will be filled at the same time.
 
 ##### Glossary
-In order to get translation recommendations without having translated the given text somewhere else in the GUI, a glossary can be included in the Excel sheet. One major use case for a glossary is for abbreviations used in your application that are hard to translate for external contractors, who may not be familliar with some of your industry specific terminology. This way translation can be picked from the drop down menu like in this screenshot:
+In order to get translation recommendations without having translated the given text somewhere else in the GUI, a glossary can be included in the Excel sheet. One major use case for a glossary is for abbreviations used in your application that are hard to translate for external contractors, who may not be familiar with some of your industry specific terminology. This way translation can be picked from the drop down menu like in this screenshot:
 
 ![Recommendations from Glossary](glossary.png)
 
@@ -430,7 +430,7 @@ The ```JsonFileProvider``` saves files in a less human readable manner, but it i
 ```
 
 ##### Glossary
-In order to get translation recommendations without having translated the given text somewhere else in the GUI, a glossary can be included in the json file. One major use case for a glossary is for abbreviations used in your application that are hard to translate for external contractors, who may not be familliar with some of your industry specific terminology. This way translation can be picked from the drop down menu like in this screenshot:
+In order to get translation recommendations without having translated the given text somewhere else in the GUI, a glossary can be included in the json file. One major use case for a glossary is for abbreviations used in your application that are hard to translate for external contractors, who may not be familiar with some of your industry specific terminology. This way translation can be picked from the drop down menu like in this screenshot:
 
 ![Recommendations from Glossary](glossary.png)
 
@@ -453,7 +453,7 @@ Glossary entries may be included like this for either LiteralProvider:
 }
 ```
 
-The glossary entry identifier (here: "Glossary1", "Glossary2") has to be the unique, in order to determine what entires belong together.
+The glossary entry identifier (here: "Glossary1", "Glossary2") has to be the unique, in order to determine what entries belong together.
 
 <a id="translating"></a>
 ### Translating Views and Windows
@@ -518,7 +518,7 @@ The following diagram shows an example for how the application may be used and h
 
 <a id="fplifecycle"></a>
 ##### IFileProvider
-Both ```IFileProvider``` and ```ILiteralProvider``` implementations can only be in the States: InitializationInProgress, Empty, Initialized, CancellationInProgress or CancellationComplete. The following state diagram shows how they transition for a ```IFileProvider``` implemantation:
+Both ```IFileProvider``` and ```ILiteralProvider``` implementations can only be in the States: InitializationInProgress, Empty, Initialized, CancellationInProgress or CancellationComplete. The following state diagram shows how they transition for a ```IFileProvider``` implementation:
 
 ![State Diagram for Provider States](state_machine.png)
 
