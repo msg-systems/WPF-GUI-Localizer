@@ -15,7 +15,9 @@ It comes along with the ability to localize WPF applications using either human-
 
 ## Install
 
-The WPF-GUI-Localizer library will be made available through NuGet once it reaches the distributable Version 1.0.
+The WPF-GUI-Localizer library can be installed through [NuGet](https://www.nuget.org/packages/GUILocalizer).
+
+Additionally both the .NET Framework version 4.7.2 or higher as well as Excel have to be installed.
 
 ## Trying out the library
 
