@@ -107,7 +107,7 @@ the Excel Use Case is defined as using the ```FileLiteralProvider``` with an ```
 
 The .NET Framework version 4.7.2 as well as Excel have to be installed.
 
-The WPF-GUI-Localizer NuGet package has to be added to your project.(Remove before release: also add Json.NET, Microsoft.Logging, Microsoft.Logging.Console manually while not available through NuGet)
+The [WPF-GUI-Localizer](https://www.nuget.org/packages/GUILocalizer/) NuGet package has to be added to your project.
 
 <a id="filesrequired"></a>
 #### Files required
