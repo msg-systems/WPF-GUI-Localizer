@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>GUILocalizer</id>
+    <version>1.0.0</version>
+    <title>WPF GUI Localizer</title>
+    <authors>martinfabianthomas</authors>
+    <owners>martinfabianthomas</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <description>The library offers the functionality to alter translations at runtime in the GUI directly.It comes along with the ability to localize WPF applications using either human-readable Excel files or traditional Resources (.resx) files.</description>
+    <releaseNotes>Reached distributable version 1.0.0</releaseNotes>
+    <copyright>Copyright 2020</copyright>
+    <tags>localization internationalization globalization Resources Excel GUI</tags>
+  </metadata>
+</package>
