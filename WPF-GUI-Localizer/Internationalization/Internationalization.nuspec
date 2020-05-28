@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package >
+<package>
   <metadata>
     <id>GUILocalizer</id>
     <version>1.0.0</version>
@@ -10,7 +10,16 @@
     <license type="expression">MIT</license>
     <description>The library offers the functionality to alter translations at runtime in the GUI directly.It comes along with the ability to localize WPF applications using either human-readable Excel files or traditional Resources (.resx) files.</description>
     <releaseNotes>Reached distributable version 1.0.0</releaseNotes>
+	<dependencies>
+		<group targetFramework=".NETFramework4.7.2">
+			<dependency id="Microsoft.Extensions.Logging" version="3.1.3" />
+			<dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.1.3" />
+			<dependency id="Microsoft.Extensions.Logging.Console" version="3.1.3" />
+			<dependency id="Microsoft.Office.Interop.Excel" version="15.0.4795.1000" />
+			<dependency id="Newtonsoft.Json" version="12.0.3" />
+		</group>
+    </dependencies>
     <copyright>Copyright 2020</copyright>
-    <tags>localization internationalization globalization Resources Excel GUI</tags>
+    <tags>localization internationalization globalization Resources Excel GUI WPF</tags>
   </metadata>
 </package>
