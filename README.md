@@ -2,6 +2,8 @@
 
 # WPF-GUI-Localizer
 
+[![Version](https://img.shields.io/nuget/v/GUILocalizer)](https://www.nuget.org/packages/GUILocalizer)
+
 ## Introduction
 
 This library tackles the problem many software projects face: Translations are translated in form of tables, outside of the actual application, lacking the context given inside the application.
