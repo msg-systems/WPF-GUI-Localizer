@@ -1,35 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
+using Internationalization;
+using Internationalization.FileProvider.Interface;
 using Internationalization.FileProvider.JSON;
 using Internationalization.LiteralProvider.Abstract;
 using Internationalization.LiteralProvider.Resource;
+using Microsoft.Extensions.Logging;
 
 namespace Example_Resources
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    ///     Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
         public App()
         {
-            this.Startup += OnStartup;
-            this.Exit += OnExit;
+            Startup += OnStartup;
+            Exit += OnExit;
         }
 
         private void OnStartup(object sender, StartupEventArgs e)
         {
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-            ResourceLiteralProvider.Initialize(
-                new JsonFileProvider(@"Resource/Resource_Corrections.json"), new CultureInfo("en"));
+            var consoleLoggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .SetMinimumLevel(LogLevel.Information)
+                    .AddConsole();
+            });
+
+            GlobalSettings.LibraryLoggerFactory = consoleLoggerFactory;
+
+            IFileProvider jfp = new JsonFileProvider("Resource/Resource_Corrections.json");
+            //IFileProvider efp = new ExcelFileProvider("Resource/Corrections_as_excel.xlsx");
+
+            ResourceLiteralProvider.Initialize(jfp, new CultureInfo("en"));
         }
 
         private void OnExit(object sender, ExitEventArgs e)

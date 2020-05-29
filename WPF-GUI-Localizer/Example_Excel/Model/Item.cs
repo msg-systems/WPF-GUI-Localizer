@@ -4,43 +4,45 @@ namespace Example_Excel.Model
 {
     public class Item : ObservableObject
     {
-        private string _quantity;
         private string _name;
-        private bool _recived;
+        private string _quantity;
+        private bool _received;
         private string _website;
 
-        public Item() { }
+        public Item()
+        {
+        }
 
-        public Item(string quantity, string name, bool recived, string website)
+        public Item(string quantity, string name, bool received, string website)
         {
             _quantity = quantity;
             _name = name;
-            _recived = recived;
+            _received = received;
             _website = website;
         }
 
         public string Quantity
         {
             get => _quantity;
-            set { Set<string>(() => this.Quantity, ref _quantity, value); }
+            set { Set(() => Quantity, ref _quantity, value); }
         }
 
         public string Name
         {
             get => _name;
-            set { Set<string>(() => this.Name, ref _name, value); }
+            set { Set(() => Name, ref _name, value); }
         }
 
-        public bool Recived
+        public bool Received
         {
-            get => _recived;
-            set { Set<bool>(() => this.Recived, ref _recived, value); }
+            get => _received;
+            set { Set(() => Received, ref _received, value); }
         }
 
         public string Website
         {
             get => _website;
-            set { Set<string>(() => this.Website, ref _website, value); }
+            set { Set(() => Website, ref _website, value); }
         }
     }
 }

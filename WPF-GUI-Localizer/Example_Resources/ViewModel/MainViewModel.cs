@@ -4,7 +4,6 @@ using System.Threading;
 using System.Windows.Controls;
 using Example_Resources.View;
 using GalaSoft.MvvmLight;
-using Internationalization.GUITranslator;
 using Internationalization.LiteralProvider.Abstract;
 
 namespace Example_Resources.ViewModel
@@ -12,6 +11,11 @@ namespace Example_Resources.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private UserControl _currentView;
+
+        public MainViewModel()
+        {
+            CurrentView = new ExampleView();
+        }
 
         public UserControl CurrentView
         {
@@ -24,19 +28,13 @@ namespace Example_Resources.ViewModel
             get => Thread.CurrentThread.CurrentUICulture;
             set
             {
-
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
 
-                GuiTranslator.TranslateDialog(CurrentView);
+                CurrentView = new ExampleView();
             }
         }
 
         public IEnumerable<CultureInfo> TranslatableLanguages => AbstractLiteralProvider.Instance.GetKnownLanguages();
-
-        public MainViewModel()
-        {
-            CurrentView = new ExampleView();
-        }
     }
 }

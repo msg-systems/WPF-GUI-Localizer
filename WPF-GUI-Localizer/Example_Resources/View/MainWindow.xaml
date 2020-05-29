@@ -1,9 +1,9 @@
-﻿<Window x:Class="Example_Resources.MainWindow"
+﻿<Window x:Class="Example_Resources.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:converter="clr-namespace:Internationalization.Converter;assembly=Internationalization"
+        xmlns:converter="clr-namespace:Internationalization.Converter;assembly=GUILocalizer"
         DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
@@ -24,8 +24,8 @@
         </Grid.ColumnDefinitions>
         <ComboBox Grid.Row="0" Grid.Column="1"
                   ItemsSource="{Binding TranslatableLanguages,Converter={StaticResource CultureInfoCollectionStringConverter}}"
-                  SelectedItem="{Binding SelectedLanguage,Converter={StaticResource CultureInfoStringConverter}}"/>
+                  SelectedItem="{Binding SelectedLanguage,Converter={StaticResource CultureInfoStringConverter}}" />
         <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="CurrentView"
-               NavigationUIVisibility="Hidden" Content="{Binding CurrentView, Mode=TwoWay}"/>
+               NavigationUIVisibility="Hidden" Content="{Binding CurrentView, Mode=TwoWay}" />
     </Grid>
 </Window>

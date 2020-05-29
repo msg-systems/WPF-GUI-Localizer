@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Internationalization.Model
+﻿namespace Internationalization.Enum
 {
     public enum ProviderStatus
     {
         InitializationInProgress,
+        Empty,
         Initialized,
         CancellationInProgress,
         CancellationComplete

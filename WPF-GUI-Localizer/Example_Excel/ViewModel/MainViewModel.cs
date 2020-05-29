@@ -13,6 +13,11 @@ namespace Example_Excel.ViewModel
     {
         private UserControl _currentView;
 
+        public MainViewModel()
+        {
+            CurrentView = new ExampleView();
+        }
+
         public UserControl CurrentView
         {
             get => _currentView;
@@ -27,15 +32,10 @@ namespace Example_Excel.ViewModel
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
 
-                GuiTranslator.TranslateDialog(CurrentView);
+                GuiTranslator.TranslateGui(CurrentView);
             }
         }
 
         public IEnumerable<CultureInfo> TranslatableLanguages => AbstractLiteralProvider.Instance.GetKnownLanguages();
-
-        public MainViewModel()
-        {
-            CurrentView = new ExampleView();
-        }
     }
 }

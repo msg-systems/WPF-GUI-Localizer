@@ -1,10 +1,10 @@
 ﻿using System.Windows;
-using Internationalization.Utilities;
+using Internationalization.Localizer.EventHandler;
 
 namespace Internationalization.AttachedProperties
 {
     /// <summary>
-    /// used to attach the LocalizationUtils to View or Window (currently can't be turned off during runtime)
+    ///     Used to attach/detach the Localizer to View or Window.
     /// </summary>
     public class LocalizationProperties : DependencyObject
     {
@@ -14,7 +14,8 @@ namespace Internationalization.AttachedProperties
 
         public static string GetIsActive(DependencyObject d)
         {
-            return (string)d.GetValue(IsActiveProperty);
+            //only fails, if other property with the same name is also attached.
+            return (string) d.GetValue(IsActiveProperty);
         }
 
         public static void SetIsActive(DependencyObject d, string value)
@@ -23,25 +24,27 @@ namespace Internationalization.AttachedProperties
         }
 
         /// <summary>
-        /// Load the LocalizationUtils, when "isActive" Property is set in a View / Window
+        ///     Load the Localizer, when "isActive" Property is set in a View / Window.
+        ///     Deactivate, when it has been deactivated.
         /// </summary>
-        /// <param name="d">The element (typically: View or Window), which the LocalizationUtils is attached to</param>
-        /// <param name="e">Event Parameter / Info (used for access to new value)</param>
+        /// <param name="d">The element (typically: View or Window), which the Localizer is attached to.</param>
+        /// <param name="e">Event parameter / info (used for access to new value).</param>
         private static void IsActiveChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var isActive = "True".Equals(e.NewValue.ToString());
+            //isActive will also be false if Property is anything other than true, false.
+            bool.TryParse(e.NewValue.ToString(), out var isActive);
 
-            var parent = (FrameworkElement)d;
+            var parent = (FrameworkElement) d;
 
 
             if (isActive)
             {
-                parent.Loaded += LocalizationUtils.ElementInitialized;
-                LocalizationUtils.AttachLocalizationHelper(parent);
+                parent.Loaded += LocalizerEventHandler.ElementInitialized;
+                LocalizerEventHandler.AttachLocalizationHelper(parent);
             }
             else
             {
-                LocalizationUtils.DettachLocalizationHelper(parent);
+                LocalizerEventHandler.DetachLocalizationHelper(parent);
             }
         }
     }

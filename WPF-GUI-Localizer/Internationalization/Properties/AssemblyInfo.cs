@@ -7,10 +7,10 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Internationalization")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("WPF GUI Localizer")]
+[assembly: AssemblyDescription("This Library offers the functionality to add or optimize localization in WPF applications in the GUI directly. It comes along with tools to localize WPF applications using either human-readable Excel files or traditional Resources (.resx) files.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("msg systems ag")]
 [assembly: AssemblyProduct("Internationalization")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]

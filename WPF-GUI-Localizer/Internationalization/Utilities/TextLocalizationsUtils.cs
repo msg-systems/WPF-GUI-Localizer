@@ -3,36 +3,79 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using Internationalization.Exception;
 using Internationalization.Model;
+using Microsoft.Extensions.Logging;
 
 namespace Internationalization.Utilities
 {
     public static class TextLocalizationsUtils
     {
+        private static readonly ILogger Logger;
 
-        public static ObservableCollection<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
-            Dictionary<CultureInfo, Dictionary<string, string>> allTranslations, CultureInfo inputLanguage)
+        static TextLocalizationsUtils()
         {
-            ObservableCollection<string> knownTranslations = new ObservableCollection<string>();
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(TextLocalizationsUtils));
+        }
 
-            allTranslations.TryGetValue(inputLanguage, out Dictionary<string, string> sourceDictionary);
+        /// <summary>
+        ///     Collectes translations of <paramref name="text" /> for <paramref name="targetLanguage" />
+        ///     that share the same translation in <paramref name="inputLanguage" />.
+        /// </summary>
+        /// <param name="text">The text in <paramref name="inputLanguage" />.</param>
+        /// <param name="targetLanguage">The language for which translations should be collected.</param>
+        /// <param name="inputLanguage">The language of <paramref name="text" />.</param>
+        /// <param name="allTranslations">
+        ///     The collection of all translation to pull the needed translations from.
+        /// </param>
+        /// <returns>
+        ///     All possible translations of <paramref name="text" /> into <paramref name="targetLanguage" />
+        ///     based on which keys inside the inner Dictionary of <paramref name="allTranslations" /> share
+        ///     the same translations in <paramref name="inputLanguage" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        ///     Thrown, if <paramref name="targetLanguage" />, <paramref name="inputLanguage" /> or
+        ///     <paramref name="allTranslations" /> is null.
+        /// </exception>
+        /// <exception cref="InputLanguageNotFoundException">
+        ///     Thrown, if <paramref name="allTranslations" /> does not contain <paramref name="inputLanguage" />.
+        /// </exception>
+        public static IEnumerable<string> ExtractKnownTranslations(string text, CultureInfo targetLanguage,
+            CultureInfo inputLanguage, Dictionary<CultureInfo, Dictionary<string, string>> allTranslations)
+        {
+            //null and argument checks.
+            ExceptionLoggingUtils.VerifyMultiple(targetLanguage, nameof(targetLanguage))
+                .AlsoVerify(inputLanguage, nameof(inputLanguage))
+                .AlsoVerify(allTranslations, nameof(allTranslations))
+                .ThrowIfNull(Logger, nameof(ExtractKnownTranslations),
+                    "Unable to extract known translation for null parameter.");
 
-            if (string.IsNullOrWhiteSpace(text) || Equals(targetLanguage, inputLanguage) || sourceDictionary == null)
+            ExceptionLoggingUtils.ThrowIfInputLanguageMissing(Logger, allTranslations.Keys.ToList(), inputLanguage,
+                "InputLanguage is not part of languages collection.",
+                "Unable to generate translation recommendations for Localizaions without InputLanguage.");
+
+            allTranslations.TryGetValue(inputLanguage, out var sourceDictionary);
+
+            ICollection<string> knownTranslations = new Collection<string>();
+
+            if (string.IsNullOrWhiteSpace(text) || Equals(targetLanguage, inputLanguage))
             {
+                //no Exceptions should be thrown here.
                 return knownTranslations;
             }
 
-            //get all key outof sourceDictionary, where value matches given text
-            IEnumerable<KeyValuePair<string, string>> fittingDictionaryEntries = sourceDictionary.Where(x => text.Equals(x.Value));
+            //get all entries out of sourceDictionary, where value matches given text
+            var fittingDictionaryEntries =
+                sourceDictionary.Where(x => text.Equals(x.Value));
 
             //collect possible translations
-            foreach (KeyValuePair<string, string> entry in fittingDictionaryEntries)
+            foreach (var entry in fittingDictionaryEntries)
             {
-                string value = "";
-                allTranslations.TryGetValue(targetLanguage, out Dictionary<string, string> langDict);
+                var value = "";
+                allTranslations.TryGetValue(targetLanguage, out var langDict);
                 langDict?.TryGetValue(entry.Key, out value);
 
-                //don't recommend the same translation twice
+                //do not recommend the same translation twice
                 if (!string.IsNullOrWhiteSpace(value) && !knownTranslations.Contains(value))
                 {
                     knownTranslations.Add(value);
@@ -42,63 +85,121 @@ namespace Internationalization.Utilities
             return knownTranslations;
         }
 
-        public static string GetRecommendedText(TextLocalization selectedText, ICollection<TextLocalization> localizedTexts,
-            bool preferPreferedOverInputLangauge, CultureInfo inputLanguage, CultureInfo preferedLanguage)
+        /// <summary>
+        ///     Returns a placeholder text (e.g. "fr--Total amount") and evaluates, what translation
+        ///     should be used as basis for the text (part after "fr--").
+        /// </summary>
+        /// <param name="targetLanguage">The language for which the placeholder needs to be generated.</param>
+        /// <param name="localizedTexts">
+        ///     The collection of all known translations.
+        /// </param>
+        /// <param name="preferPreferredOverInputLangauge">
+        ///     Determines which out of <paramref name="inputLanguage" /> and <paramref name="preferredLanguage" />
+        ///     should be used by default.
+        ///     This value will be ignored, if there are conflicts with the preference (e.g.
+        ///     <paramref name="targetLanguage" /> being identical to <paramref name="preferedLanguage" /> or
+        ///     <paramref name="inputLanguage" />).
+        /// </param>
+        /// <param name="inputLanguage">The language in which the application was originally created in.</param>
+        /// <param name="preferredLanguage">
+        ///     The language to fall back to, if <paramref name="inputLanguage" /> is the <paramref name="targetLanguage" />
+        ///     or to aid as basis for further translation (e.g application was originally french, is then translated
+        ///     to english and from english to multiple others).
+        /// </param>
+        /// <returns>
+        ///     The full placeholder string consisting of language code, "--" and the translation of
+        ///     <paramref name="inputLanguage" /> or <paramref name="preferredLanguage" />.
+        /// </returns>
+        /// <exception cref="InputLanguageNotFoundException">
+        ///     Thrown, if <paramref name="localizedTexts" /> does not contain <paramref name="inputLanguage" />.
+        /// </exception>
+        public static string GetRecommendedText(CultureInfo targetLanguage,
+            ICollection<TextLocalization> localizedTexts, bool preferPreferredOverInputLangauge,
+            CultureInfo inputLanguage, CultureInfo preferredLanguage)
         {
-            bool usePreferedInsted = preferPreferedOverInputLangauge;
-            if (usePreferedInsted && Equals(selectedText.Language, preferedLanguage))
-            {
-                usePreferedInsted = false;
-            }
-            if (!usePreferedInsted && Equals(selectedText.Language, inputLanguage))
-            {
-                usePreferedInsted = true;
-            }
+            ExceptionLoggingUtils.ThrowIfInputLanguageMissing(Logger,
+                localizedTexts.Select(loc => loc.Language), inputLanguage,
+                "InputLanguage is not part of languages collection.",
+                "Unable to generate translation recommendations for Localizaions without InputLanguage.");
 
-            string recommendedTranslation = localizedTexts.FirstOrDefault(loc => Equals(loc.Language,
-                (usePreferedInsted) ? preferedLanguage : inputLanguage))?.Text;
+            var usePreferredInsted = EvaluateLanguagePreference(preferPreferredOverInputLangauge, localizedTexts,
+                targetLanguage, preferredLanguage, inputLanguage);
 
-            if (recommendedTranslation == null || recommendedTranslation.StartsWith(preferedLanguage.Name + "--", StringComparison.Ordinal))
-            {
-                recommendedTranslation = localizedTexts.FirstOrDefault(loc => Equals(loc.Language, inputLanguage))?.Text;
-            }
+            //Will find a fitting entry, because EvaluateLanguagePreference returns false
+            //to usePreferredInsted if list does not contain the preferredLanguage and this function
+            //throws InputLanguageNotFoundException is inputLanguage is not in the list.
+            var recommendedTranslation = localizedTexts.First(loc => Equals(loc.Language,
+                usePreferredInsted ? preferredLanguage : inputLanguage)).Text;
 
-            return selectedText.Language.Name + "--" + recommendedTranslation;
+            return targetLanguage.Name + "--" + recommendedTranslation;
         }
 
         /// <summary>
-        /// turns multiple Dictionarys, each assigning translation to element / key into one
-        /// Dictionary that assigns all possible translations to an element / key
+        ///     It converts the association CultureInfo - translation into a TextLocalization object,
+        ///     reducing multiple dictionaries with CultureInfo objects as keys to one dictionary
+        ///     that uses elements / ressources keys as dictionary keys.
         /// </summary>
         /// <param name="dictionary">
-        /// flipped dictionary will be based on this dictionary, dictionary not required to
-        /// have same number of translation for all languages
+        ///     Flipped dictionary will be based on this dictionary. The dictionary is not required to
+        ///     have same number of translation for all languages.
         /// </param>
         public static Dictionary<string, List<TextLocalization>> FlipLocalizationsDictionary(
             Dictionary<CultureInfo, Dictionary<string, string>> dictionary)
         {
-            Dictionary<string, List<TextLocalization>> returnDict = new Dictionary<string, List<TextLocalization>>();
+            var returnDict = new Dictionary<string, List<TextLocalization>>();
+
             foreach (var langDict in dictionary)
             {
                 foreach (var elementTranslation in langDict.Value)
                 {
-                    TryGetOrCreate(ref returnDict, elementTranslation.Key, out List<TextLocalization> texts);
-                    texts.Add(new TextLocalization{Language = langDict.Key, Text = elementTranslation.Value});
+                    var texts = GetOrCreate(ref returnDict, elementTranslation.Key);
+                    texts.Add(new TextLocalization {Language = langDict.Key, Text = elementTranslation.Value});
                 }
             }
 
             return returnDict;
         }
 
-        private static void TryGetOrCreate(ref Dictionary<string, List<TextLocalization>> dictionary,
-            string key, out List<TextLocalization> value)
+        private static bool EvaluateLanguagePreference(bool usePreferredInstead,
+            ICollection<TextLocalization> localizedTexts, CultureInfo languageOfText, CultureInfo preferredLanguage,
+            CultureInfo inputLanguage)
         {
-            dictionary.TryGetValue(key, out value);
+            var testingpreferred =
+                localizedTexts.FirstOrDefault(loc => Equals(loc.Language, preferredLanguage))?.Text;
+
+            //if preferred does not exist or is itself a recommendation fallback to inputlang.
+            if (testingpreferred == null ||
+                testingpreferred.StartsWith(preferredLanguage.Name + "--", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            //the following code can *probably* not be simplified.
+            if (usePreferredInstead && Equals(languageOfText, preferredLanguage))
+            {
+                return false;
+            }
+
+            if (!usePreferredInstead && Equals(languageOfText, inputLanguage))
+            {
+                return true;
+            }
+
+            return usePreferredInstead;
+        }
+
+        private static List<TextLocalization> GetOrCreate(ref Dictionary<string,
+            List<TextLocalization>> dictionary, string key)
+        {
+            dictionary.TryGetValue(key, out var value);
+
             if (value == null)
             {
                 value = new List<TextLocalization>();
                 dictionary.Add(key, value);
             }
+
+            return value;
         }
     }
 }

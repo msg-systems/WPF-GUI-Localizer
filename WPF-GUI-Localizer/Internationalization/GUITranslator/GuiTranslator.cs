@@ -2,52 +2,62 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using Internationalization.LiteralProvider.Abstract;
+using Internationalization.Utilities;
+using Microsoft.Extensions.Logging;
 
-namespace Internationalization.GUITranslator {
-    public static class GuiTranslator {
+namespace Internationalization.GUITranslator
+{
+    public static class GuiTranslator
+    {
+        private static readonly ILogger Logger;
 
-        /// <summary>
-        /// Goes through all elements of this View and writes the current translation into each element
-        /// </summary>
-        /// <param name="userControl">the View that is ment to be searched for translatable elements</param>
-        public static void TranslateDialog(UserControl userControl) {
-            if (userControl != null) {
-                TranslateGui(userControl);
-            }
+        static GuiTranslator()
+        {
+            Logger = GlobalSettings.LibraryLoggerFactory.CreateLogger(typeof(GuiTranslator));
         }
 
         /// <summary>
-        /// Goes through all elements of this Window and writes the current translation into each element
+        ///     Goes through all elements nested inside <paramref name="rootElement" /> and writes the current
+        ///     translation into each element.
         /// </summary>
-        /// <param name="mainWindow">the Window that is ment to be searched for translatable elements</param>
-        public static void TranslateWindow(Window mainWindow) {
-            if (mainWindow != null) {
-                TranslateGui(mainWindow);
-            }
-        }
+        /// <param name="rootElement">
+        ///     The element, based on which all nested elements will recursively be translated.
+        ///     <paramref name="rootElement" /> itself will also be translated.
+        /// </param>
+        public static void TranslateGui(FrameworkElement rootElement)
+        {
+            //null check.
+            ExceptionLoggingUtils.ThrowIfNull(Logger, rootElement, nameof(rootElement),
+                "Unable to translate null UserControl / Window.",
+                "TranslateGui received null as root element for translation.");
 
-        private static void TranslateGui(FrameworkElement visual) {
+            //TranslateGuiElement will do nothing if visual is a non translatable like Grid.
+            TranslateGuiElement(rootElement);
 
-            //TranslateGuiElement will do nothing if visual is a non translatable like Grid
-            TranslateGuiElement(visual);
-
-            foreach (var childVisual in LogicalTreeHelper.GetChildren(visual)) {
-                // If View or Window contain a TabControl - break foreach to prevent translating sub View
-                if (childVisual is TabControl) {
+            foreach (var childVisual in LogicalTreeHelper.GetChildren(rootElement))
+            {
+                //if View or Window contain a TabControl - break foreach to prevent translating sub View.
+                if (childVisual is TabControl)
+                {
                     break;
                 }
 
-                if (childVisual is FrameworkElement element) {
-                    //also iterate all childs of visual, if they are FrameworkElements
-                    //as DataGridColumns are not FrameworkElements, they require special treatment in TranslateGuiElement
+                if (childVisual is FrameworkElement element)
+                {
+                    //also iterate all childs of visual, if they are FrameworkElements.
+                    //as DataGridColumns are not FrameworkElements, they require special treatment in TranslateGuiElement.
                     TranslateGui(element);
                 }
             }
         }
 
-        public static void TranslateGuiElement(FrameworkElement visual)
+        /// <summary>
+        ///     Translates only the given element.
+        /// </summary>
+        /// <param name="visual"></param>
+        private static void TranslateGuiElement(FrameworkElement visual)
         {
-            //special treatment
+            //special treatment.
             switch (visual)
             {
                 case DataGrid grid:
@@ -58,68 +68,33 @@ namespace Internationalization.GUITranslator {
                     return;
             }
 
-            string guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(visual);
+            var guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(visual);
 
-            //visual is non translatable, doeasn't have a Name or not supported type like Grid, Stackpanel ...
+            //visual is non translatable, does not have a Name or not supported type like Grid, Stackpanel ...
             if (guiString == null)
             {
                 return;
             }
 
-            //write to element specific Property
-            switch (visual)
-            {
-                case RibbonTab tab:
-                    tab.Header = guiString;
-                    break;
-                case RibbonGroup ribbonGroup:
-                    ribbonGroup.Header = guiString;
-                    break;
-                case RibbonButton button:
-                    button.Label = guiString;
-                    break;
-                case RibbonRadioButton button:
-                    button.Content = guiString;
-                    break;
-                case RibbonApplicationMenuItem menuItem:
-                    menuItem.Header = guiString;
-                    break;
-                case Label label:
-                    label.Content = guiString;
-                    break;
-                case Button button:
-                    if (button.Content is string || button.Content == null)
-                    {
-                        button.Content = guiString;
-                    }
-                    break;
-                case TabItem tabItem:
-                    tabItem.Header = guiString;
-                    break;
-                case RadioButton radioButton:
-                    radioButton.Content = guiString;
-                    break;
-                case TextBlock textBlock:
-                    textBlock.Text = guiString;
-                    break;
-                case CheckBox checkBox:
-                    checkBox.Content = guiString;
-                    break;
-            }
+            //write to element specific Property.
+            ControlElementInspector.WriteToControlElement(visual, guiString);
         }
 
         /// <summary>
-        /// Since the recursive search in <see cref="TranslateGui"/> doesn't reach deeper than the DataGrid
-        /// element itself, the Columns are iterated seperately here
+        ///     Since the recursive search in <see cref="TranslateGui" /> doesn't reach deeper than the DataGrid
+        ///     element itself, the Columns are iterated seperately here
         /// </summary>
-        /// <param name="grid"></param>
+        /// <param name="grid">The DataGrid that should be translated</param>
         private static void HandleDataGrid(DataGrid grid)
         {
             foreach (var column in grid.Columns)
             {
-                if (column == null) { return; }
+                if (column == null)
+                {
+                    return;
+                }
 
-                string guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(column);
+                var guiString = AbstractLiteralProvider.Instance.GetGuiTranslationOfCurrentCulture(column);
                 if (guiString != null)
                 {
                     column.Header = guiString;
