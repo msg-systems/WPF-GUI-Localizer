@@ -7,6 +7,7 @@
 ## Introduction
 
 This library tackles a problem many software projects face: Translations are done based on tables (Excel or similar) outside of the actual application and outside of the context of the actual application. This leads to inconsistent translations - how can a translator translate a word with multiple possible translations without knowing the context in which it is used?
+
 The library offers a functionality to define and edit translations of GUI-Elements at runtime as presented in the application using a pop-up window, as shown below.
 
 ![Dialog Pop-up Window](Docs/dialog.PNG)
