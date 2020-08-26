@@ -6,8 +6,8 @@
 
 ## Introduction
 
-This library tackles the problem many software projects face: Translations are translated in form of tables, outside of the actual application, lacking the context given inside the application.
-The library offers the functionality to alter translations at runtime as presented in the application using a pop-up window, as shown below.
+This library tackles a problem many software projects face: Translations are done based on tables (Excel or similar) outside of the actual application and outside of the context of the actual application. This leads to inconsistent translations - how can a translator translate a word with multiple possible translations without knowing the context in which it is used?
+The library offers a functionality to define and edit translations of GUI-Elements at runtime as presented in the application using a pop-up window, as shown below.
 
 ![Dialog Pop-up Window](Docs/dialog.PNG)
 
@@ -15,13 +15,13 @@ It comes along with the ability to localize WPF applications using either human-
 
 ## Install
 
-The WPF-GUI-Localizer library can be installed through [NuGet](https://www.nuget.org/packages/GUILocalizer).
+The WPF-GUI-Localizer library can be loaded via [NuGet](https://www.nuget.org/packages/GUILocalizer).
 
-Additionally both the .NET Framework version 4.7.2 or higher as well as Excel have to be installed.
+As dependencies, both the .NET Framework version 4.7.2 or higher as well as Excel need to be installed.
 
 ## Trying out the library
 
-You can run an example application with this library already integrated in the Examples folder of this repository (no IDE required).
+You can run an demo app utilizing this library by loading it from the 'Examples' folder of this repository (no IDE required).
 
 Alternatively you can open the WPF-GUI-Localizer solution in an IDE and run or debug the Example_Excel and Example_Resources projects.
 
