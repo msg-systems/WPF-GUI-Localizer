@@ -772,7 +772,7 @@ A .editorconfig file can be found as part of the repository and is included in t
    
    Example:
    
-   ![.resx files in Properties folder](resx_in_properties_folder.png)
+   ![.resx files in Properties folder](resx_in_properties_folder.PNG)
    
 8. At least the Resources file for your original language is filled with the correct texts
    
