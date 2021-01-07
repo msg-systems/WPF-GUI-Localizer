@@ -143,7 +143,7 @@ In order to attach the click-event for the core translation feature to a View / 
 
 These two lines need to be added to the Views / Windows root element in the XAML file for the translation feature to work:
 ```xaml
-xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
+xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=GUILocalizer"
 internat:LocalizationProperties.IsActive="True"
 ```
 
@@ -204,8 +204,8 @@ The library uses a converter to convert the key into its corresponding value out
 In order to get the attached property and the converter into the view, the following namespaces must be declared:
 
 ```xaml
-xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization"
-xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
+xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=GUILocalizer"
+xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=GUILocalizer"
 ```
 
 <a id="init"></a>
@@ -572,7 +572,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
        mc:Ignorable="d" 
        d:DesignHeight="450" d:DesignWidth="800"
-       xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
+       xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=GUILocalizer"
        internat:LocalizationProperties.IsActive="True">
      <Grid>
      
@@ -653,7 +653,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        mc:Ignorable="d"
        Title="MainWindow" Height="450" Width="800"
-       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
+       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=GUILocalizer">
      <Window.Resources>
        <internatConverter:CultureInfoStringConverter
            x:Key="CultureInfoStringConverter" />
@@ -718,7 +718,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
        mc:Ignorable="d" 
        d:DesignHeight="450" d:DesignWidth="800"
-       xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=Internationalization"
+       xmlns:internat="clr-namespace:Internationalization.AttachedProperties;assembly=GUILocalizer"
        internat:LocalizationProperties.IsActive="True">
      <Grid>
      
@@ -762,7 +762,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:vm="clr-namespace:Example_Resources.ViewModel"
        StartupUri="View/MainWindow.xaml"
-       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
+       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=GUILocalizer">
      <Application.Resources>
        <internatConverter:ResourcesTextConverter x:Key="ResourcesTextConverter" />
      </Application.Resources>
@@ -815,7 +815,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        mc:Ignorable="d"
        Title="MainWindow" Height="450" Width="800"
-       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=Internationalization">
+       xmlns:internatConverter="clr-namespace:Internationalization.Converter;assembly=GUILocalizer">
      <Window.Resources>
        <internatConverter:CultureInfoStringConverter
            x:Key="CultureInfoStringConverter" />
