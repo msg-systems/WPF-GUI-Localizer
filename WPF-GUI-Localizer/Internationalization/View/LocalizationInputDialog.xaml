@@ -6,7 +6,7 @@
         xmlns:converter="clr-namespace:Internationalization.Converter"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight"
         KeyUp="LocalizationInputDialog_OnKeyUp"
-        Title="Localization Helper" Width="320" ResizeMode="NoResize">
+        Title="Localization Helper" Width="320" ResizeMode="NoResize" Icon="clear_pop_up_icon.png">
     <Window.Resources>
         <converter:CultureInfoStringConverter x:Key="CultureInfoStringConverter" />
     </Window.Resources>
