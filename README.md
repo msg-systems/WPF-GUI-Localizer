@@ -1,5 +1,3 @@
-**!!This library is still under development!!**
-
 # WPF-GUI-Localizer
 
 [![Version](https://img.shields.io/nuget/v/GUILocalizer)](https://www.nuget.org/packages/GUILocalizer)
