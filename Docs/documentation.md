@@ -726,7 +726,22 @@ A .editorconfig file can be found as part of the repository and is included in t
    </UserControl>
    ```
    
-4. ```ResourceKey``` AttachedProperty is added to all elements intended for translation.
+4. Resources files exist in the Properties folder of your project for all languages needed including the original language
+   
+   Example:
+   
+   ![.resx files in Properties folder](resx_in_properties_folder.PNG)
+   
+5. At least the Resources file for your original language is filled with the correct texts
+   
+   Example:
+   
+   | Name | Value | Comment |
+   | ---- | ----- | ------- |
+   | ItemListQuantity | Item Quantity | |
+   | | | |
+   
+6. ```ResourceKey``` AttachedProperty is added to all elements intended for translation.
    
    Example:
    
@@ -735,7 +750,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        internat:ResourcesProperties.ResourceKey="ItemListQuantity" />
    ```
    
-5. The following expression is assigned to the Property that receives the translated text for all elements intended for translation e.g. Content for Buttons, Header for DataGridColumns or Text for TextBlocks:
+7. The following expression is assigned to the Property that receives the translated text for all elements intended for translation e.g. Content for Buttons, Header for DataGridColumns or Text for TextBlocks:
 
    ```
    {Binding RelativeSource={RelativeSource Self}, Path=(internat:ResourcesProperties.ResourceKey),
@@ -752,7 +767,7 @@ A .editorconfig file can be found as part of the repository and is included in t
        internat:ResourcesProperties.ResourceKey="ItemListQuantity" />
    ```
    
-6. The Converter needed for translation is added into the Views or applications resources.
+8. The Converter needed for translation is added into the Views or applications resources.
    
    Example:
    
@@ -768,22 +783,7 @@ A .editorconfig file can be found as part of the repository and is included in t
      </Application.Resources>
    ```
    
-7. Resources files exist in the Properties folder of your project for all languages needed including the original language
-   
-   Example:
-   
-   ![.resx files in Properties folder](resx_in_properties_folder.PNG)
-   
-8. At least the Resources file for your original language is filled with the correct texts
-   
-   Example:
-   
-   | Name | Value | Comment |
-   | ---- | ----- | ------- |
-   | ItemListQuantity | Item Quantity | |
-   | | | |
-   
-8. **optional** Property for current Language is added to MainWindow and can be controlled by user.
+9. **optional** Property for current Language is added to MainWindow and can be controlled by user.
    
    Example:
    
